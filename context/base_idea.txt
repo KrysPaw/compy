@@ -1,7 +1,7 @@
 Main idea:
 - Web app for comparing things e.g. phones, electronics, job offers, holiday hotels
-- User is able to create a comparison area
-- Comparison area is a group of things
+- User is able to create a comparison
+- Comparison is a group of things
 - User define criteria to describe things e.g. price, amount of something, distance
 - User add entries by providing criteria values
 - The app saves the entries and show them to the user

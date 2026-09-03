@@ -11,3 +11,57 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Comparison {
+  id        Int         @id @default(autoincrement())
+  name      String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  criteria  Criterion[]
+  entries   Entry[]
+}
+
+enum CriterionType {
+  Text    @map("text")
+  Int     @map("int")
+  Float   @map("float")
+  Enum    @map("enum")
+  Boolean @map("boolean")
+  Rating  @map("rating")
+}
+
+model Criterion {
+  id            Int           @id @default(autoincrement())
+  comparison    Comparison    @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  name          String
+  type          CriterionType
+  config        Json?
+  is_comparable Boolean
+  is_key        Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  comparisonId  Int
+  entryValues   EntryValue[]
+}
+
+model Entry {
+  id           Int          @id @default(autoincrement())
+  comparison   Comparison   @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  comparisonId Int
+  entryValues  EntryValue[]
+}
+
+model EntryValue {
+  id          Int       @id @default(autoincrement())
+  entry       Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  criterion   Criterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+  value       Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  entryId     Int
+  criterionId Int
+
+  @@unique([entryId, criterionId])
+}

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-**Compy** is a web app for comparing anything in a free-form way: phones, electronics, job offers, hotels, and similar decisions. Users create a **comparison area** (a group of things), define **criteria**, add **entries** with values for those criteria, and compare by viewing and sorting a table.
+**Compy** is a web app for comparing anything in a free-form way: phones, electronics, job offers, hotels, and similar decisions. Users create a **comparison** (a group of things), define **criteria**, add **entries** with values for those criteria, and compare by viewing and sorting a table.
 
 This is primarily a **portfolio / learning project**: clear product thinking, a full-stack TypeScript stack, and a deployable demo. It is not aimed at production multi-tenant SaaS in v1.
 
@@ -51,7 +51,7 @@ This is primarily a **portfolio / learning project**: clear product thinking, a 
 ## 4. Core concepts
 
 ```
-Comparison Area
+Comparison
   └── Criteria (columns)
         ├── role: identity
         │     ├── built-in: "name" (always present, not removable)
@@ -61,9 +61,9 @@ Comparison Area
         └── Values             cell at entry × criterion (including name)
 ```
 
-- **Comparison area** — Named container for one decision (e.g. “Lisbon hotels”, “Junior backend offers”).
+- **Comparison** — Named container for one decision (e.g. “Lisbon hotels”, “Junior backend offers”).
 - **Criterion** — User-defined (or system) attribute with a **type**, a **role** (`identity` | `comparable`), and a display name. Becomes a table column.
-- **Built-in identity criterion `name`** — Every comparison area has exactly one system criterion: identity, named **"name"** (text). It is created with the area, **cannot be deleted**, and is the canonical row label.
+- **Built-in identity criterion `name`** — Every comparison has exactly one system criterion: identity, named **"name"** (text). It is created with the comparison, **cannot be deleted**, and is the canonical row label.
 - **Entry** — One thing being compared. Becomes a table row. No separate `name` column on `Entry` itself — the name lives as a **value** of the built-in `name` criterion (keeps one values model). Alternative at implementation: denormalize `Entry.name` synced with that criterion; prefer single values model unless UX requires otherwise.
 - **Value** — The datum for one entry on one criterion. Hard-deleted if a **removable** criterion or entry is deleted. Deleting an entry removes its name value with it.
 
@@ -79,7 +79,7 @@ There are **no category templates** in v1. Users may add more identity criteria 
 Same criterion **types** (number, text, boolean, rating, enum) apply to both roles, except the built-in **name** is always **text** + **identity**.
 
 **Rules for built-in `name`:**
-- Created automatically with each comparison area
+- Created automatically with each comparison
 - Display name fixed as `name` (or localized label “Name” in UI, stable key `name`)
 - **Cannot be removed** or change role/type
 - Required value when creating/updating an entry? *(see open decisions — recommendation: required non-empty)*
@@ -107,13 +107,13 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 
 ### 6.1 v1 — Must have
 
-**Comparison areas**
-- Create, rename, delete a comparison area
-- List all comparison areas
-- Open one area into its comparison table
+**Comparisons**
+- Create, rename, delete a comparison
+- List all comparisons
+- Open one comparison into its table
 
 **Criteria**
-- Each new comparison area is created with a built-in identity criterion **`name`** (text, not removable)
+- Each new comparison is created with a built-in identity criterion **`name`** (text, not removable)
 - Add custom criterion (**name + type + role** `identity` | `comparable`; enum options / rating bounds as needed)
 - Edit criterion (name for custom criteria only; type/role locked after create — see open decisions)
 - Delete **custom** criterion → **hard-delete** its values; **cannot delete** built-in `name`
@@ -131,7 +131,7 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 - No multi-column sort, filters, or weighted scores in v1
 
 **Persistence**
-- All areas, criteria, entries, and values stored in PostgreSQL via Prisma
+- All comparisons, criteria, entries, and values stored in PostgreSQL via Prisma
 
 ### 6.2 Later — Explicit backlog
 
@@ -150,13 +150,13 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 ## 7. User flows (v1)
 
 1. **Start a comparison**  
-   User creates a comparison area (built-in **name** column already present) → adds more identity/comparable criteria as needed → adds entries (with names) → sorts by a comparable column to decide.
+   User creates a comparison (built-in **name** column already present) → adds more identity/comparable criteria as needed → adds entries (with names) → sorts by a comparable column to decide.
 
 2. **Refine**  
    User edits values, renames things, adds/removes criteria or entries; removed criteria/entries wipe related values.
 
 3. **Return later**  
-   User opens the app, sees the list of areas, opens one, continues editing/sorting.
+   User opens the app, sees the list of comparisons, opens one, continues editing/sorting.
 
 No onboarding wizard required for v1; empty states with clear CTAs are enough.
 
@@ -164,14 +164,14 @@ No onboarding wizard required for v1; empty states with clear CTAs are enough.
 
 ## 8. UX guidelines (v1)
 
-- **Primary UI:** table inside a comparison area.
+- **Primary UI:** table inside a comparison.
 - **Density:** comfortable for ~3–50 rows; no virtualization required for v1.
 - **Empty states:** explain next step (add criterion / add entry).
 - **Sorting:** click header to sort; indicate active column and direction.
-- **Destructive actions:** confirm before deleting an area, criterion, or entry (hard delete).
+- **Destructive actions:** confirm before deleting a comparison, criterion, or entry (hard delete).
 - **Styling:** Tailwind; keep UI simple and readable (portfolio clarity over novelty).
 
-Scale assumption: on the order of **~3–50 entries** per area; modest number of criteria per area (roughly up to ~15 is enough to design for).
+Scale assumption: on the order of **~3–50 entries** per comparison; modest number of criteria per comparison (roughly up to ~15 is enough to design for).
 
 ---
 
@@ -211,13 +211,13 @@ Exact folder names can be adjusted at scaffold time; keep **web**, **api**, and 
 - **`packages/shared`:** Single source of truth for request/response shapes and domain unions (e.g. criterion types). Export Zod schemas and TypeScript types via `z.infer`.
 - **Zod:** Runtime validation + static types on both sides of the HTTP boundary. Not a replacement for Prisma; Prisma owns persistence, Zod owns HTTP/domain contracts.
 - **Prisma:** schema, migrations, PostgreSQL access. Map between Prisma models and shared DTOs in the API layer.
-- **Playwright:** critical paths (create area → criteria → entries → sort).
+- **Playwright:** critical paths (create comparison → criteria → entries → sort).
 
 ### 9.4 Shared package + Zod conventions
 
 - **Day-one package:** `@compy/shared` depended on by both `web` and `api`.
-- **Schemas first:** define Zod schemas for create/update/list payloads (comparison areas, criteria, entries, values); export types with `z.infer<typeof Schema>`.
-- **Criterion discrimination:** use Zod discriminated unions (or equivalent) so value payloads match criterion type (number / text / boolean / rating / enum). Include **`role: identity | comparable`** on criterion schemas; built-in `name` is not creatable/deletable via normal client APIs (server ensures it on area create).
+- **Schemas first:** define Zod schemas for create/update/list payloads (comparisons, criteria, entries, values); export types with `z.infer<typeof Schema>`.
+- **Criterion discrimination:** use Zod discriminated unions (or equivalent) so value payloads match criterion type (number / text / boolean / rating / enum). Include **`role: identity | comparable`** on criterion schemas; built-in `name` is not creatable/deletable via normal client APIs (server ensures it on comparison create).
 - **NestJS integration:** use **`nestjs-zod`** (pipes/DTOs as per library patterns) so controllers validate with the same schemas as the client.
 - **Web integration:** import the same schemas in Next.js for form and client-side checks before/alongside API calls.
 - **Boundary:** `shared` must not import Nest, Next, Prisma, React, or `nestjs-zod` — Zod schemas and pure helpers only.
@@ -238,16 +238,15 @@ Document CORS, env vars (`DATABASE_URL`, `NEXT_PUBLIC_API_URL`, etc.) when scaff
 ## 10. Data model (logical)
 
 ```
-ComparisonArea
+Comparison
   id, name, createdAt, updatedAt
 
 Criterion
-  id, areaId, name, type, role (identity | comparable),
-  systemKey? (e.g. "name" for built-in; null for custom),
-  config (JSON: enum options, rating min/max, …), position?, createdAt, updatedAt
+  id, comparisonId, name, type, is_comparable, is_key,
+  config (JSON: enum options, rating min/max, …), createdAt, updatedAt
 
 Entry
-  id, areaId, position?, createdAt, updatedAt
+  id, comparisonId, createdAt, updatedAt
   # display name = value of built-in name criterion (not a separate Entry.name field, unless denormalized later)
 
 Value
@@ -255,7 +254,7 @@ Value
   unique (entryId, criterionId)
 ```
 
-**Delete behavior:** deleting a **custom** `Criterion` or an `Entry` hard-deletes related `Value` rows (DB cascade). Built-in `name` criterion **cannot** be deleted. Deleting `ComparisonArea` cascades to all criteria (including built-in), entries, and values.
+**Delete behavior:** deleting a **custom** `Criterion` or an `Entry` hard-deletes related `Value` rows (DB cascade). Built-in `name` criterion **cannot** be deleted. Deleting `Comparison` cascades to all criteria (including built-in), entries, and values.
 
 **Value storage:** either separate nullable columns per type or a single JSON/value column discriminated by criterion type — choose one approach at implementation time and keep API types consistent.
 
@@ -265,11 +264,11 @@ Value
 
 Illustrative only; refine during implementation.
 
-- `GET/POST /comparison-areas`
-- `GET/PATCH/DELETE /comparison-areas/:id`
-- `GET/POST /comparison-areas/:id/criteria`
+- `GET/POST /comparisons`
+- `GET/PATCH/DELETE /comparisons/:id`
+- `GET/POST /comparisons/:id/criteria`
 - `PATCH/DELETE /criteria/:id`
-- `GET/POST /comparison-areas/:id/entries`
+- `GET/POST /comparisons/:id/entries`
 - `PATCH/DELETE /entries/:id`
 - Values included in entry create/update payloads and/or nested resources
 
@@ -287,7 +286,7 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 ## 13. Success criteria (v1 done)
 
-- [ ] User can create a free-form comparison area that always includes built-in identity criterion **name**, plus custom criteria of all five types with **identity** or **comparable** roles.
+- [ ] User can create a free-form comparison that always includes built-in identity criterion **name**, plus custom criteria of all five types with **identity** or **comparable** roles.
 - [ ] Built-in **name** cannot be removed; custom criteria can; deletes hard-remove dependent values.
 - [ ] User can add ~3–50 entries with editable values in a table (name + other identity + comparable columns).
 - [ ] User can sort by one column via header click.
@@ -302,13 +301,13 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 1. **Custom criterion type/role change after create** — Disallow always, or allow only when no values exist? *(Recommendation: disallow; user deletes and recreates. Built-in `name` never changes.)*
 2. **Partial values** — Empty cells allowed for custom criteria (recommended: yes). **Name** value: required non-empty vs allow empty with “Untitled entry”? *(Recommendation: required non-empty.)*
-3. **Name uniqueness** — Must `name` values be unique within an area? *(Recommendation: allow duplicates.)*
+3. **Name uniqueness** — Must `name` values be unique within a comparison? *(Recommendation: allow duplicates.)*
 4. **Criterion / entry order** — Manual reorder in v1 or creation order only? *(Built-in name always first/left.)*
 5. **API style** — REST JSON only for v1 (recommended).
 6. **URL / link fields** — Extra identity links as plain **text**, or dedicated **`url`** criterion type? *(Recommendation: dedicated `url` type if links are common; otherwise text + linkify.)*
 7. **Storage of name** — Value-only via built-in criterion (consistent model) vs also `Entry.name` denormalized for convenience?
 
-**Closed:** criterion roles; built-in non-removable identity criterion **`name`** on every area; users may add more identity criteria; `@compy/shared` + Zod + `nestjs-zod`; client reuses schemas. Row label = built-in name value.
+**Closed:** criterion roles; built-in non-removable identity criterion **`name`** on every comparison; users may add more identity criteria; `@compy/shared` + Zod + `nestjs-zod`; client reuses schemas. Row label = built-in name value.
 
 ---
 
@@ -325,7 +324,7 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 | Compare in v1 | Table + single-column header sort |
 | Deletes | Hard delete (cascade values) |
 | UI | Table only |
-| Scale | ~3–50 entries per area |
+| Scale | ~3–50 entries per comparison |
 | Stack | Next.js, NestJS, Prisma, PostgreSQL, Playwright, Tailwind, Zod, **nestjs-zod** |
 | Shared contracts | **`@compy/shared`** from day one; schemas reused by API (`nestjs-zod`) and web (client validation) |
 | Repo | npm workspaces monorepo |
