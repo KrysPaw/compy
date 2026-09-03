@@ -1,0 +1,20 @@
+{
+  "name": "compy",
+  "version": "0.0.0",
+  "description": "An app for comparing things",
+  "license": "MIT",
+  "author": "KrysPaw",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev:api": "npm run start:dev -w @compy/api",
+    "build": "npm run build --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w apps/web"
+  }
+}
