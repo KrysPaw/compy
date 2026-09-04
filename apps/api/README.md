@@ -34,6 +34,8 @@ Start the API with `npm run start:dev` from the repository root using `npm run d
 
 The OpenAPI document describes the REST endpoints and request examples. Runtime validation is still enforced by the shared Zod schemas used by the API; Swagger documents the public HTTP contract but does not replace that validation.
 
+For a separate local web app, the API allows `http://localhost:3001` by default. Set `WEB_ORIGIN` to the deployed frontend origin before starting the API in another environment.
+
 ## Project setup
 
 ```bash

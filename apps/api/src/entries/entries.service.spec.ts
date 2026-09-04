@@ -170,6 +170,13 @@ describe('EntriesService', () => {
     })).rejects.toThrow(BadRequestException);
   });
 
+  it('requires the built-in name value when creating an entry', async () => {
+    await expect(service.create(1, {
+      values: [{ criterionId: 2, type: 'number', value: 999 }],
+    })).rejects.toThrow(BadRequestException);
+    expect(entryCreate).not.toHaveBeenCalled();
+  });
+
   it('updates an existing entry value', async () => {
     entryFindUnique.mockResolvedValueOnce({
       id: 10,
@@ -364,5 +371,12 @@ describe('EntriesService', () => {
       value: 'Red',
     })).rejects.toThrow(BadRequestException);
     expect(entryValueUpsert).not.toHaveBeenCalled();
+  });
+
+  it('returns NotFoundException when deleting a missing entry value', async () => {
+    entryValueFindFirst.mockResolvedValueOnce(null);
+
+    await expect(service.removeValue(1, 10, 2)).rejects.toThrow(NotFoundException);
+    expect(entryValueDelete).not.toHaveBeenCalled();
   });
 });

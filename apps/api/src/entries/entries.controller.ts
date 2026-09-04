@@ -32,7 +32,7 @@ export class EntriesController {
 
   @Post(':comparisonId/entries')
   @ApiOperation({ summary: 'Create an entry with values' })
-  @ApiBody({ schema: { type: 'object', required: ['values'], properties: { values: { type: 'array', maxItems: 100, items: { oneOf: [{ type: 'object', required: ['criterionId', 'type', 'value'], properties: { criterionId: { type: 'integer', example: 2 }, type: { type: 'string', enum: ['number'] }, value: { type: 'number', example: 1299 } } }, { type: 'object', required: ['criterionId', 'type', 'value'], properties: { criterionId: { type: 'integer', example: 1 }, type: { type: 'string', enum: ['text'] }, value: { type: 'string', example: 'Pixel 8' } } }, { type: 'object', required: ['criterionId', 'type', 'value'], properties: { criterionId: { type: 'integer', example: 3 }, type: { type: 'string', enum: ['rating'] }, value: { type: 'number', example: 4 } } }] } } } } })
+  @ApiBody({ schema: { type: 'object', required: ['values'], properties: { values: { type: 'array', maxItems: 100, items: { type: 'object', required: ['criterionId', 'type', 'value'], properties: { criterionId: { type: 'integer', example: 2 }, type: { type: 'string', enum: ['number', 'text', 'boolean', 'rating', 'enum'] }, value: { oneOf: [{ type: 'number', example: 1299 }, { type: 'string', example: 'Pixel 8' }, { type: 'boolean', example: true }] } } } } } } })
   @ApiResponse({ status: 201, description: 'The created entry.' })
   public create(
     @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
@@ -75,7 +75,7 @@ export class EntriesController {
 
   @Post(':comparisonId/entries/:entryId/values/:criterionId')
   @ApiOperation({ summary: 'Create or replace one entry value' })
-  @ApiBody({ schema: { oneOf: [{ type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['number'] }, value: { type: 'number', example: 1299 } } }, { type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['text'] }, value: { type: 'string', example: 'Pixel 8' } } }, { type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['boolean'] }, value: { type: 'boolean', example: true } } }, { type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['rating'] }, value: { type: 'number', example: 4 } } }, { type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['enum'] }, value: { type: 'string', example: 'B2B' } } }] } })
+  @ApiBody({ schema: { type: 'object', required: ['type', 'value'], properties: { type: { type: 'string', enum: ['number', 'text', 'boolean', 'rating', 'enum'] }, value: { oneOf: [{ type: 'number', example: 1299 }, { type: 'string', example: 'Pixel 8' }, { type: 'boolean', example: true }] } } } })
   @ApiResponse({ status: 201, description: 'The upserted entry value.' })
   public upsertValue(
     @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,

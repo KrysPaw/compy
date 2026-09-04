@@ -1,19 +1,15 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateComparisonSchema, CreateCriterionSchema, IdSchema, UpdateComparisonSchema } from '@compy/shared';
-import type { CreateComparisonInput, CreateCriterionInput, UpdateComparisonInput } from '@compy/shared';
+import { CreateComparisonSchema, IdSchema, UpdateComparisonSchema } from '@compy/shared';
+import type { CreateComparisonInput, UpdateComparisonInput } from '@compy/shared';
 import { ComparisonsService } from './comparisons.service.js';
-import { CriteriaService } from '../criteria/criteria.service.js';
 
 @Controller('comparisons')
 @ApiTags('comparisons')
 export class ComparisonsController {
 
-  constructor(
-    private readonly comparisonsService: ComparisonsService,
-    private readonly criteriaService: CriteriaService,
-  ) { }
+  constructor(private readonly comparisonsService: ComparisonsService) { }
 
   @Get()
   @ApiOperation({ summary: 'List comparisons' })
@@ -64,14 +60,4 @@ export class ComparisonsController {
     return this.comparisonsService.remove(id);
   }
 
-  @Post(':id/criteria')
-  @ApiOperation({ summary: 'Add a criterion to a comparison' })
-  @ApiBody({ schema: { type: 'object', required: ['name', 'type', 'is_comparable'], properties: { name: { type: 'string', example: 'Price' }, type: { type: 'string', enum: ['number', 'text', 'boolean', 'rating', 'enum'], example: 'number' }, is_comparable: { type: 'boolean', example: true }, config: { type: 'object', nullable: true, example: { min: 1, max: 5 } } } } })
-  @ApiResponse({ status: 201, description: 'The created criterion.' })
-  public createCriterion(
-    @Param('id', new ZodValidationPipe(IdSchema)) comparisonId: number,
-    @Body(new ZodValidationPipe(CreateCriterionSchema)) body: CreateCriterionInput,
-  ) {
-    return this.criteriaService.create(comparisonId, body);
-  }
 }

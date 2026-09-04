@@ -12,10 +12,14 @@
 - [x] Add regression tests for the changes.
 - [x] Build `@compy/shared` before `@compy/api` in the root build script.
 - [x] Add Swagger UI at `/docs` and OpenAPI JSON at `/docs-json`.
+- [x] Keep criterion creation owned by a single controller route.
+- [x] Require the built-in name value when creating an entry.
+- [x] Return `404 Not Found` when deleting a missing entry value.
+- [x] Enable configurable CORS with the `WEB_ORIGIN` environment variable.
 
 ## Current verification
 
-- API tests: 41 passing.
+- API tests: 42 passing.
 - Lint: passing.
 - Root build: passing (`@compy/shared` followed by `@compy/api`).
 - Swagger smoke test: `GET /docs-json` returned HTTP 200.

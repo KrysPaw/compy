@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { ComparisonsController } from './comparisons.controller.js';
 import { ComparisonsService } from './comparisons.service.js';
-import { CriteriaService } from '../criteria/criteria.service.js';
 
 describe('ComparisonsController', () => {
   let controller: ComparisonsController;
@@ -11,7 +10,6 @@ describe('ComparisonsController', () => {
   const getById = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
   const update = vi.fn().mockResolvedValue({ id: 1, name: 'Mobile phones' });
   const remove = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
-  const createCriterion = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -22,10 +20,6 @@ describe('ComparisonsController', () => {
         {
           provide: ComparisonsService,
           useValue: { createComparison, getAll, getById, update, remove },
-        },
-        {
-          provide: CriteriaService,
-          useValue: { create: createCriterion },
         },
       ],
     }).compile();
@@ -80,13 +74,4 @@ describe('ComparisonsController', () => {
     expect(remove).toHaveBeenCalledWith(1);
   });
 
-  it('delegates creating a criterion to the service', async () => {
-    const body = { name: 'Price', type: 'number', is_comparable: true } as const;
-
-    await expect(controller.createCriterion(1, body)).resolves.toEqual({
-      id: 2,
-      name: 'Price',
-    });
-    expect(createCriterion).toHaveBeenCalledWith(1, body);
-  });
 });

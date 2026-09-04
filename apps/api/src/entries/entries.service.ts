@@ -111,7 +111,7 @@ export class EntriesService {
     }
   }
 
-  private validateValuesForComparison(comparisonId: number, values: ValueInput[]) {
+  private validateValuesForComparison(comparisonId: number, values: ValueInput[], requireKeyValue = false) {
     const criteria = this.getComparisonCriteria(comparisonId);
 
     return Promise.resolve(criteria).then((allCriteria) => {
@@ -126,12 +126,19 @@ export class EntriesService {
 
         this.validateValueAgainstCriterion(valueInput, criterion as { id: number; type: string; config: unknown; is_key: boolean });
       }
+
+      if (requireKeyValue) {
+        const keyCriterion = allCriteria.find((criterion) => criterion.is_key);
+        if (keyCriterion && !values.some((value) => value.criterionId === keyCriterion.id)) {
+          throw new BadRequestException('A value for the built-in name criterion is required.');
+        }
+      }
     });
   }
 
   public async create(comparisonId: number, data: CreateEntryInput) {
     await this.ensureComparisonExists(comparisonId);
-    await this.validateValuesForComparison(comparisonId, data.values);
+    await this.validateValuesForComparison(comparisonId, data.values, true);
 
     return this.prisma.$transaction(async (transaction) => {
       const entry = await transaction.entry.create({
@@ -304,6 +311,15 @@ export class EntriesService {
 
     if (!criterion) {
       throw new NotFoundException(`Criterion ${criterionId} does not belong to comparison ${comparisonId}`);
+    }
+
+    const value = await this.prisma.entryValue.findFirst({
+      where: { entryId, criterionId },
+      select: { id: true },
+    });
+
+    if (value === null) {
+      throw new NotFoundException(`Value for criterion ${criterionId} was not found.`);
     }
 
     return this.prisma.entryValue.delete({

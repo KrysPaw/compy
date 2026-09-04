@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ValueInputSchema } from './value.js';
 
 export const CreateEntrySchema = z.object({
-  values: z.array(ValueInputSchema).max(100),
+  values: z.array(ValueInputSchema).min(1).max(100),
 });
 export type CreateEntryInput = z.infer<typeof CreateEntrySchema>;
 
