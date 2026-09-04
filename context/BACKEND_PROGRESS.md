@@ -11,12 +11,14 @@
 - [x] Return `404 Not Found` when updating a missing criterion.
 - [x] Add regression tests for the changes.
 - [x] Build `@compy/shared` before `@compy/api` in the root build script.
+- [x] Add Swagger UI at `/docs` and OpenAPI JSON at `/docs-json`.
 
 ## Current verification
 
 - API tests: 41 passing.
 - Lint: passing.
 - Root build: passing (`@compy/shared` followed by `@compy/api`).
+- Swagger smoke test: `GET /docs-json` returned HTTP 200.
 
 ## Next backend follow-up
 

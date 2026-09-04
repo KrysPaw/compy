@@ -23,7 +23,16 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+NestJS API for Compy comparisons, criteria, entries, and entry values.
+
+## API documentation
+
+Start the API with `npm run start:dev` from the repository root using `npm run dev:api`, then open:
+
+- Swagger UI: `http://localhost:3000/docs`
+- OpenAPI JSON: `http://localhost:3000/docs-json`
+
+The OpenAPI document describes the REST endpoints and request examples. Runtime validation is still enforced by the shared Zod schemas used by the API; Swagger documents the public HTTP contract but does not replace that validation.
 
 ## Project setup
 
