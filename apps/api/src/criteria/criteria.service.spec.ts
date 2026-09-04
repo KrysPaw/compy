@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import type { CreateCriterionInput } from '@compy/shared';
 import { describe, expect, it, vi } from 'vitest';
@@ -9,9 +9,32 @@ describe('CriteriaService', () => {
   let service: CriteriaService;
   const comparisonFindUnique = vi.fn().mockResolvedValue({ id: 1 });
   const criterionCreate = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
+  const criterionFindMany = vi.fn().mockResolvedValue([
+    { id: 1, comparisonId: 1, name: 'name', is_key: true },
+    { id: 2, comparisonId: 1, name: 'Price', is_key: false },
+  ]);
+  const criterionFindFirst = vi.fn().mockResolvedValue({
+    id: 2,
+    comparisonId: 1,
+    name: 'Price',
+    is_key: false,
+  });
+  const criterionUpdate = vi.fn().mockResolvedValue({
+    id: 2,
+    comparisonId: 1,
+    name: 'Updated price',
+    is_key: false,
+  });
+  const criterionDelete = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
   const prisma = {
     comparison: { findUnique: comparisonFindUnique },
-    criterion: { create: criterionCreate },
+    criterion: {
+      create: criterionCreate,
+      findMany: criterionFindMany,
+      findFirst: criterionFindFirst,
+      update: criterionUpdate,
+      delete: criterionDelete,
+    },
   } as unknown as PrismaService;
 
   beforeEach(async () => {
@@ -79,5 +102,68 @@ describe('CriteriaService', () => {
         is_key: false,
       },
     });
+  });
+
+  it('returns all criteria for a comparison', async () => {
+    const result = await service.findAll(1);
+
+    expect(comparisonFindUnique).toHaveBeenCalledWith({
+      where: { id: 1 },
+      select: { id: true },
+    });
+    expect(criterionFindMany).toHaveBeenCalledWith({
+      where: { comparisonId: 1 },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(result).toEqual([
+      { id: 1, comparisonId: 1, name: 'name', is_key: true },
+      { id: 2, comparisonId: 1, name: 'Price', is_key: false },
+    ]);
+  });
+
+  it('updates a custom criterion name', async () => {
+    const result = await service.update(1, 2, { name: 'Updated price' });
+
+    expect(criterionUpdate).toHaveBeenCalledWith({
+      where: { id: 2, comparisonId: 1 },
+      data: { name: 'Updated price' },
+    });
+    expect(result).toEqual({
+      id: 2,
+      comparisonId: 1,
+      name: 'Updated price',
+      is_key: false,
+    });
+  });
+
+  it('allows the built-in name criterion to be renamed but refuses deletion', async () => {
+    criterionFindFirst
+      .mockResolvedValueOnce({
+        id: 1,
+        comparisonId: 1,
+        name: 'name',
+        is_key: true,
+      })
+      .mockResolvedValueOnce({
+        id: 1,
+        comparisonId: 1,
+        name: 'name',
+        is_key: true,
+      });
+
+    const result = await service.update(1, 1, { name: 'Entry name' });
+
+    expect(result).toEqual({
+      id: 2,
+      comparisonId: 1,
+      name: 'Updated price',
+      is_key: false,
+    });
+    await expect(service.remove(1, 1)).rejects.toThrow(BadRequestException);
+    expect(criterionUpdate).toHaveBeenCalledWith({
+      where: { id: 1, comparisonId: 1 },
+      data: { name: 'Entry name' },
+    });
+    expect(criterionDelete).not.toHaveBeenCalled();
   });
 });

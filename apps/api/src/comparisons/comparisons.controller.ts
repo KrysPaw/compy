@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import { CreateComparisonSchema, CreateCriterionSchema, IdSchema } from '@compy/shared';
 import type { CreateComparisonInput, CreateCriterionInput } from '@compy/shared';
-import { CriteriaService } from '../criteria/criteria.service.js';
 import { ComparisonsService } from './comparisons.service.js';
+import { CriteriaService } from '../criteria/criteria.service.js';
 
 @Controller('comparisons')
 export class ComparisonsController {
