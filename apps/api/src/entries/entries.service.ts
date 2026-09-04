@@ -215,4 +215,93 @@ export class EntriesService {
       where: { id: entryId },
     });
   }
+
+  public async findAllValues(comparisonId: number, entryId: number) {
+    await this.ensureComparisonExists(comparisonId);
+    await this.ensureEntryBelongsToComparison(comparisonId, entryId);
+
+    return this.prisma.entryValue.findMany({
+      where: {
+        entryId,
+      },
+      include: {
+        criterion: true,
+      },
+      orderBy: {
+        criterionId: 'asc',
+      },
+    });
+  }
+
+  public async upsertValue(
+    comparisonId: number,
+    entryId: number,
+    criterionId: number,
+    data: Pick<ValueInput, 'type' | 'value'>,
+  ) {
+    await this.ensureComparisonExists(comparisonId);
+    await this.ensureEntryBelongsToComparison(comparisonId, entryId);
+
+    const criteria = await this.getComparisonCriteria(comparisonId);
+    const criterion = criteria.find((item) => item.id === criterionId);
+
+    if (!criterion) {
+      throw new NotFoundException(`Criterion ${criterionId} does not belong to comparison ${comparisonId}`);
+    }
+
+    const valueInput = (() => {
+      switch (data.type) {
+        case 'number':
+          return { criterionId, type: 'number' as const, value: Number(data.value) };
+        case 'text':
+          return { criterionId, type: 'text' as const, value: String(data.value) };
+        case 'boolean':
+          return { criterionId, type: 'boolean' as const, value: Boolean(data.value) };
+        case 'rating':
+          return { criterionId, type: 'rating' as const, value: Number(data.value) };
+        case 'enum':
+          return { criterionId, type: 'enum' as const, value: String(data.value) };
+        default:
+          throw new BadRequestException(`Unsupported criterion type: ${String(data.type)}`);
+      }
+    })();
+
+    this.validateValueAgainstCriterion(valueInput, criterion as { id: number; type: string; config: unknown; is_key: boolean });
+
+    return this.prisma.entryValue.upsert({
+      where: {
+        entryId_criterionId: {
+          entryId,
+          criterionId,
+        },
+      },
+      update: { value: valueInput.value },
+      create: {
+        entryId,
+        criterionId,
+        value: valueInput.value,
+      },
+    });
+  }
+
+  public async removeValue(comparisonId: number, entryId: number, criterionId: number) {
+    await this.ensureComparisonExists(comparisonId);
+    await this.ensureEntryBelongsToComparison(comparisonId, entryId);
+
+    const criteria = await this.getComparisonCriteria(comparisonId);
+    const criterion = criteria.find((item) => item.id === criterionId);
+
+    if (!criterion) {
+      throw new NotFoundException(`Criterion ${criterionId} does not belong to comparison ${comparisonId}`);
+    }
+
+    return this.prisma.entryValue.delete({
+      where: {
+        entryId_criterionId: {
+          entryId,
+          criterionId,
+        },
+      },
+    });
+  }
 }
