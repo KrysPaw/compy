@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateComparisonSchema } from '@compy/shared';
+import { CreateComparisonSchema, IdSchema } from '@compy/shared';
 import type { CreateComparisonInput } from '@compy/shared';
 import { ComparisonsService } from './comparisons.service.js';
 
@@ -12,6 +12,13 @@ export class ComparisonsController {
   @Get()
   public getComparisons() {
     return this.comparisonsService.getAll();
+  }
+
+  @Get(':id')
+  public getComparisonById(
+    @Param('id', new ZodValidationPipe(IdSchema)) id: number
+  ) {
+    return this.comparisonsService.getById(id);
   }
 
   @Post()

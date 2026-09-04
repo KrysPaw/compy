@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ComparisonsService } from './comparisons.service.js';
 import { describe, expect, it, vi } from 'vitest';
@@ -30,9 +31,32 @@ describe('ComparisonsService', () => {
   const comparisonCreate = vi.fn().mockResolvedValue(comparison);
   const criterionCreate = vi.fn().mockResolvedValue(createdComparison.criteria[0]);
   const comparisonFindUnique = vi.fn().mockResolvedValue(createdComparison);
+  const comparisonDetail = {
+    ...createdComparison,
+    entries: [
+      {
+        id: 1,
+        comparisonId: comparison.id,
+        createdAt: comparison.createdAt,
+        updatedAt: comparison.updatedAt,
+        entryValues: [
+          {
+            id: 1,
+            entryId: 1,
+            criterionId: 1,
+            value: 'Pixel',
+            createdAt: comparison.createdAt,
+            updatedAt: comparison.updatedAt,
+          },
+        ],
+      },
+    ],
+  };
+  const comparisonDetailFindUnique = vi.fn().mockResolvedValue(comparisonDetail);
   const comparisonFindMany = vi.fn().mockResolvedValue([createdComparison]);
   const prisma = {
     comparison: {
+      findUnique: comparisonDetailFindUnique,
       findMany: comparisonFindMany,
     },
     $transaction: vi.fn(async (callback: (transaction: unknown) => unknown) =>
@@ -93,5 +117,28 @@ describe('ComparisonsService', () => {
       orderBy: { updatedAt: 'desc' },
     });
     expect(result).toEqual([createdComparison]);
+  });
+
+  it('returns a comparison with criteria, entries, and entry values', async () => {
+    const result = await service.getById(1);
+
+    expect(comparisonDetailFindUnique).toHaveBeenCalledWith({
+      where: { id: 1 },
+      include: {
+        criteria: true,
+        entries: {
+          include: {
+            entryValues: true,
+          },
+        },
+      },
+    });
+    expect(result).toEqual(comparisonDetail);
+  });
+
+  it('throws NotFoundException when the comparison does not exist', async () => {
+    comparisonDetailFindUnique.mockResolvedValueOnce(null);
+
+    await expect(service.getById(999)).rejects.toThrowError(NotFoundException);
   });
 });

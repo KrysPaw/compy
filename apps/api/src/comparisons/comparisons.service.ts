@@ -1,10 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateComparisonInput } from '@compy/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ComparisonsService {
   constructor(private readonly prisma: PrismaService) { }
+
+  public async getById(id: number) {
+    const comparison = await this.prisma.comparison.findUnique({
+      where: {
+        id
+      },
+      include: {
+        criteria: true,
+        entries: {
+          include: {
+            entryValues: true
+          }
+        }
+      }
+    });
+
+    if (comparison === null) {
+      throw new NotFoundException();
+    }
+
+    return comparison;
+  }
 
   public getAll() {
     return this.prisma.comparison.findMany({
