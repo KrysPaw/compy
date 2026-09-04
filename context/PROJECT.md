@@ -53,39 +53,40 @@ This is primarily a **portfolio / learning project**: clear product thinking, a 
 ```
 Comparison
   └── Criteria (columns)
-        ├── role: identity
-        │     ├── built-in: "name" (always present, not removable)
+        ├── is_comparable: false
+        │     ├── built-in criterion: is_key = true (always present, not removable)
         │     └── custom: e.g. Offer URL, Source, …
-        └── role: comparable   e.g. Price, Distance, Rating
+        └── is_comparable: true   e.g. Price, Distance, Rating
   └── Entries (rows)
         └── Values             cell at entry × criterion (including name)
 ```
 
 - **Comparison** — Named container for one decision (e.g. “Lisbon hotels”, “Junior backend offers”).
-- **Criterion** — User-defined (or system) attribute with a **type**, a **role** (`identity` | `comparable`), and a display name. Becomes a table column.
-- **Built-in identity criterion `name`** — Every comparison has exactly one system criterion: identity, named **"name"** (text). It is created with the comparison, **cannot be deleted**, and is the canonical row label.
-- **Entry** — One thing being compared. Becomes a table row. No separate `name` column on `Entry` itself — the name lives as a **value** of the built-in `name` criterion (keeps one values model). Alternative at implementation: denormalize `Entry.name` synced with that criterion; prefer single values model unless UX requires otherwise.
+- **Criterion** — User-defined (or system) attribute with a **type**, an `is_comparable` flag, an `is_key` flag, and a display name. Becomes a table column. The business roles remain identity (`is_comparable: false`) and comparable (`is_comparable: true`).
+- **Built-in identity criterion** — Every comparison has exactly one built-in criterion with `is_key: true`. It is created with the comparison, **cannot be deleted**, and is the canonical row label. Its initial display name is **"name"**, but the display name may be changed; `is_key`, not the name, identifies it.
+- **Entry** — One thing being compared. Becomes a table row. No separate `name` column on `Entry` itself — the display name lives as a **value** of the built-in criterion (`is_key: true`) (keeps one values model). Alternative at implementation: denormalize `Entry.name` synced with that criterion; prefer single values model unless UX requires otherwise.
 - **Value** — The datum for one entry on one criterion. Hard-deleted if a **removable** criterion or entry is deleted. Deleting an entry removes its name value with it.
 
 There are **no category templates** in v1. Users may add more identity criteria (URL, source, …) and any comparable criteria.
 
 ### 4.1 Criterion roles
 
-| Role | Purpose | UX (v1) |
+| `is_comparable` | Purpose | UX (v1) |
 |------|---------|---------|
-| **identity** | Who/what is this row? Built-in **name** plus optional custom fields (offer URL, source, notes, …) | Built-in **name** pinned first; other identity columns follow; render URLs as links when applicable; sort allowed but not the primary “compare” story |
-| **comparable** | Facts used to decide | Normal columns; header click sorts |
+| **false** | Who/what is this row? Built-in criterion plus optional custom fields (offer URL, source, notes, …) | Built-in criterion pinned first; other identity columns follow; render URLs as links when applicable; sort allowed but not the primary “compare” story |
+| **true** | Facts used to decide | Normal columns; header click sorts |
 
-Same criterion **types** (number, text, boolean, rating, enum) apply to both roles, except the built-in **name** is always **text** + **identity**.
+Same criterion **types** (number, text, boolean, rating, enum) apply to both values of `is_comparable`, except the built-in criterion is always **text** + `is_comparable: false`.
 
-**Rules for built-in `name`:**
+**Rules for the built-in criterion:**
 - Created automatically with each comparison
-- Display name fixed as `name` (or localized label “Name” in UI, stable key `name`)
-- **Cannot be removed** or change role/type
+- Initially named `name`; the display name may be changed by the user
+- Identified exclusively by `is_key: true`
+- **Cannot be removed** or change `is_comparable`/type
 - Required value when creating/updating an entry? *(see open decisions — recommendation: required non-empty)*
 - Additional identity criteria: user-defined, removable, hard-delete values on remove
 
-**Row label:** always the built-in **name** value (fallback “Untitled entry” only if empty values are allowed).
+**Row label:** always the value belonging to the built-in criterion (`is_key: true`) (fallback “Untitled entry” only if empty values are allowed).
 
 ---
 
@@ -99,7 +100,7 @@ Same criterion **types** (number, text, boolean, rating, enum) apply to both rol
 | **Rating** | 1–5 (or fixed scale) | Numeric-like sort |
 | **Enum** | Contract type: B2B / UoP / contract | User-defined option list |
 
-Exact UX for defining enum options and rating scale bounds should follow a simple, consistent form (see §8). Every criterion also has a **role** (`identity` | `comparable`) — see §4.1. The built-in **name** criterion is always text + identity.
+Exact UX for defining enum options and rating scale bounds should follow a simple, consistent form (see §8). Every criterion has `is_comparable` — see §4.1. The built-in criterion is always text + `is_comparable: false` and is identified by `is_key: true`.
 
 ---
 
@@ -114,9 +115,9 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 
 **Criteria**
 - Each new comparison is created with a built-in identity criterion **`name`** (text, not removable)
-- Add custom criterion (**name + type + role** `identity` | `comparable`; enum options / rating bounds as needed)
-- Edit criterion (name for custom criteria only; type/role locked after create — see open decisions)
-- Delete **custom** criterion → **hard-delete** its values; **cannot delete** built-in `name`
+- Add custom criterion (**name + type + `is_comparable`**; enum options / rating bounds as needed)
+- Edit criterion (name for custom criteria only; type/`is_comparable` locked after create — see open decisions)
+- Delete **custom** criterion → **hard-delete** its values; **cannot delete** the criterion with `is_key: true`
 - Users may add further identity fields (e.g. offer link) as custom identity criteria
 
 **Entries**
@@ -125,8 +126,8 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 - Delete entry → **hard-delete** its values
 
 **Comparison (table)**
-- Spreadsheet-like **table**: rows = entries, columns = criteria (built-in name + custom identity + comparable)
-- Built-in **name** column first/pinned; other identity columns grouped with it
+- Spreadsheet-like **table**: rows = entries, columns = criteria (built-in criterion + custom identity + comparable)
+- Built-in criterion (`is_key: true`) column first/pinned; other identity columns grouped with it
 - **Sort by one column** via column header click (asc/desc toggle)
 - No multi-column sort, filters, or weighted scores in v1
 
@@ -217,7 +218,7 @@ Exact folder names can be adjusted at scaffold time; keep **web**, **api**, and 
 
 - **Day-one package:** `@compy/shared` depended on by both `web` and `api`.
 - **Schemas first:** define Zod schemas for create/update/list payloads (comparisons, criteria, entries, values); export types with `z.infer<typeof Schema>`.
-- **Criterion discrimination:** use Zod discriminated unions (or equivalent) so value payloads match criterion type (number / text / boolean / rating / enum). Include **`role: identity | comparable`** on criterion schemas; built-in `name` is not creatable/deletable via normal client APIs (server ensures it on comparison create).
+- **Criterion discrimination:** use Zod discriminated unions (or equivalent) so value payloads match criterion type (number / text / boolean / rating / enum). Include **`is_comparable: boolean`** on criterion schemas; `is_key` is server-managed and the built-in criterion is not creatable/deletable via normal client APIs (server ensures one on comparison create).
 - **NestJS integration:** use **`nestjs-zod`** (pipes/DTOs as per library patterns) so controllers validate with the same schemas as the client.
 - **Web integration:** import the same schemas in Next.js for form and client-side checks before/alongside API calls.
 - **Boundary:** `shared` must not import Nest, Next, Prisma, React, or `nestjs-zod` — Zod schemas and pure helpers only.
@@ -247,14 +248,14 @@ Criterion
 
 Entry
   id, comparisonId, createdAt, updatedAt
-  # display name = value of built-in name criterion (not a separate Entry.name field, unless denormalized later)
+  # display name = value of the built-in criterion (is_key: true), not a separate Entry.name field, unless denormalized later
 
 Value
   id, entryId, criterionId, (typed payload or unified storage), updatedAt
   unique (entryId, criterionId)
 ```
 
-**Delete behavior:** deleting a **custom** `Criterion` or an `Entry` hard-deletes related `Value` rows (DB cascade). Built-in `name` criterion **cannot** be deleted. Deleting `Comparison` cascades to all criteria (including built-in), entries, and values.
+**Delete behavior:** deleting a **custom** `Criterion` or an `Entry` hard-deletes related `Value` rows (DB cascade). The criterion with `is_key: true` **cannot** be deleted. Deleting `Comparison` cascades to all criteria (including the built-in criterion), entries, and values.
 
 **Value storage:** either separate nullable columns per type or a single JSON/value column discriminated by criterion type — choose one approach at implementation time and keep API types consistent.
 
@@ -286,8 +287,8 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 ## 13. Success criteria (v1 done)
 
-- [ ] User can create a free-form comparison that always includes built-in identity criterion **name**, plus custom criteria of all five types with **identity** or **comparable** roles.
-- [ ] Built-in **name** cannot be removed; custom criteria can; deletes hard-remove dependent values.
+- [ ] User can create a free-form comparison that always includes one built-in criterion (`is_key: true`), plus custom criteria of all five types with `is_comparable: false` or `true`.
+- [ ] The built-in criterion cannot be removed; custom criteria can; deletes hard-remove dependent values.
 - [ ] User can add ~3–50 entries with editable values in a table (name + other identity + comparable columns).
 - [ ] User can sort by one column via header click.
 - [ ] App runs locally with Next.js, NestJS, Prisma, PostgreSQL, Zod, `nestjs-zod`, and `@compy/shared`.
@@ -299,15 +300,15 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 ## 14. Open decisions (resolve at implementation)
 
-1. **Custom criterion type/role change after create** — Disallow always, or allow only when no values exist? *(Recommendation: disallow; user deletes and recreates. Built-in `name` never changes.)*
+1. **Custom criterion type/`is_comparable` change after create** — Disallow always, or allow only when no values exist? *(Recommendation: disallow; user deletes and recreates. Built-in criterion never changes type or `is_comparable`.)*
 2. **Partial values** — Empty cells allowed for custom criteria (recommended: yes). **Name** value: required non-empty vs allow empty with “Untitled entry”? *(Recommendation: required non-empty.)*
-3. **Name uniqueness** — Must `name` values be unique within a comparison? *(Recommendation: allow duplicates.)*
-4. **Criterion / entry order** — Manual reorder in v1 or creation order only? *(Built-in name always first/left.)*
+3. **Criterion name uniqueness** — Must criterion display names be unique within a comparison? *(Decision: ignore duplicate names for now; criteria are identified by `id`, and the built-in criterion by `is_key`.)*
+4. **Criterion / entry order** — Manual reorder in v1 or creation order only? *(The criterion with is_key: true is always first/left.)*
 5. **API style** — REST JSON only for v1 (recommended).
 6. **URL / link fields** — Extra identity links as plain **text**, or dedicated **`url`** criterion type? *(Recommendation: dedicated `url` type if links are common; otherwise text + linkify.)*
 7. **Storage of name** — Value-only via built-in criterion (consistent model) vs also `Entry.name` denormalized for convenience?
 
-**Closed:** criterion roles; built-in non-removable identity criterion **`name`** on every comparison; users may add more identity criteria; `@compy/shared` + Zod + `nestjs-zod`; client reuses schemas. Row label = built-in name value.
+**Closed:** criterion roles represented by `is_comparable`; one built-in non-removable criterion (`is_key: true`) on every comparison; users may add more identity criteria; duplicate criterion names are currently allowed; `@compy/shared` + Zod + `nestjs-zod`; row label = value of the built-in criterion.
 
 ---
 
@@ -319,8 +320,8 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 | Name | Compy |
 | v1 users | Single instance, no auth, empty start |
 | Categories | Free-form only |
-| Criteria | Number, text, boolean, rating, enum; each has role **identity** or **comparable** |
-| Entry identity | Built-in non-removable criterion **`name`** + optional custom identity criteria |
+| Criteria | Number, text, boolean, rating, enum; each uses `is_comparable` |
+| Entry identity | Built-in non-removable criterion (`is_key: true`) + optional custom identity criteria |
 | Compare in v1 | Table + single-column header sort |
 | Deletes | Hard delete (cascade values) |
 | UI | Table only |

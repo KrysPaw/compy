@@ -10,9 +10,6 @@ export const CriterionTypeSchema = z.enum([
 ]);
 export type CriterionType = z.infer<typeof CriterionTypeSchema>;
 
-export const CriterionRoleSchema = z.enum(['identity', 'comparable']);
-export type CriterionRole = z.infer<typeof CriterionRoleSchema>;
-
 export const RatingConfigSchema = z.object({
   min: z.number().finite(),
   max: z.number().finite(),
@@ -37,7 +34,7 @@ export type CriterionConfig = z.infer<typeof CriterionConfigSchema>;
 
 export const CreateCriterionSchema = z.object({
   name: NameSchema,
-  role: CriterionRoleSchema,
+  is_comparable: z.boolean(),
 }).and(CriterionConfigSchema);
 export type CreateCriterionInput = z.infer<typeof CreateCriterionSchema>;
 

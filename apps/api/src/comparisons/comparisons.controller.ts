@@ -1,13 +1,17 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateComparisonSchema, IdSchema } from '@compy/shared';
-import type { CreateComparisonInput } from '@compy/shared';
+import { CreateComparisonSchema, CreateCriterionSchema, IdSchema } from '@compy/shared';
+import type { CreateComparisonInput, CreateCriterionInput } from '@compy/shared';
+import { CriteriaService } from './criteria.service.js';
 import { ComparisonsService } from './comparisons.service.js';
 
 @Controller('comparisons')
 export class ComparisonsController {
 
-  constructor(private readonly comparisonsService: ComparisonsService) { }
+  constructor(
+    private readonly comparisonsService: ComparisonsService,
+    private readonly criteriaService: CriteriaService,
+  ) { }
 
   @Get()
   public getComparisons() {
@@ -26,5 +30,13 @@ export class ComparisonsController {
     @Body(new ZodValidationPipe(CreateComparisonSchema)) body: CreateComparisonInput
   ) {
     return this.comparisonsService.createComparison(body);
+  }
+
+  @Post(':id/criteria')
+  public createCriterion(
+    @Param('id', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Body(new ZodValidationPipe(CreateCriterionSchema)) body: CreateCriterionInput,
+  ) {
+    return this.criteriaService.create(comparisonId, body);
   }
 }

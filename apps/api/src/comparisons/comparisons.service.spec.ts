@@ -141,4 +141,5 @@ describe('ComparisonsService', () => {
 
     await expect(service.getById(999)).rejects.toThrowError(NotFoundException);
   });
+
 });
