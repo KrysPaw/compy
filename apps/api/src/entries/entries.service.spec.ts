@@ -256,13 +256,33 @@ describe('EntriesService', () => {
     });
   });
 
+  it('rejects a value type that does not match the criterion type', async () => {
+    criterionFindMany.mockResolvedValueOnce([
+      {
+        id: 2,
+        comparisonId: 1,
+        name: 'Price',
+        type: 'Float',
+        config: null,
+        is_comparable: true,
+        is_key: false,
+      },
+    ]);
+
+    await expect(service.upsertValue(1, 10, 2, {
+      type: 'text',
+      value: '999',
+    })).rejects.toThrow(BadRequestException);
+    expect(entryValueUpsert).not.toHaveBeenCalled();
+  });
+
   it('accepts a rating within the configured range', async () => {
     criterionFindMany.mockResolvedValueOnce([
       {
         id: 3,
         comparisonId: 1,
         name: 'Quality',
-        type: 'Float',
+        type: 'Rating',
         config: { min: 1, max: 5 },
         is_comparable: true,
         is_key: false,
@@ -287,7 +307,7 @@ describe('EntriesService', () => {
         id: 3,
         comparisonId: 1,
         name: 'Quality',
-        type: 'Float',
+        type: 'Rating',
         config: { min: 1, max: 5 },
         is_comparable: true,
         is_key: false,

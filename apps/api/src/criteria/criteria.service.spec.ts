@@ -136,6 +136,13 @@ describe('CriteriaService', () => {
     });
   });
 
+  it('throws NotFoundException when updating a missing criterion', async () => {
+    criterionFindFirst.mockResolvedValueOnce(null);
+
+    await expect(service.update(1, 999, { name: 'Missing' })).rejects.toThrow(NotFoundException);
+    expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
   it('allows the built-in name criterion to be renamed but refuses deletion', async () => {
     criterionFindFirst
       .mockResolvedValueOnce({

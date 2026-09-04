@@ -1,11 +1,18 @@
 import { z } from 'zod';
 import { IdSchema } from './common/primitives.js';
 
-export const ValueInputSchema = z.discriminatedUnion('type', [
-  z.object({ criterionId: IdSchema, type: z.literal('number'), value: z.number().finite() }),
-  z.object({ criterionId: IdSchema, type: z.literal('text'), value: z.string() }),
-  z.object({ criterionId: IdSchema, type: z.literal('boolean'), value: z.boolean() }),
-  z.object({ criterionId: IdSchema, type: z.literal('rating'), value: z.number().finite() }),
-  z.object({ criterionId: IdSchema, type: z.literal('enum'), value: z.string() }),
+const ValuePayloadSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('number'), value: z.number().finite() }),
+  z.object({ type: z.literal('text'), value: z.string() }),
+  z.object({ type: z.literal('boolean'), value: z.boolean() }),
+  z.object({ type: z.literal('rating'), value: z.number().finite() }),
+  z.object({ type: z.literal('enum'), value: z.string() }),
 ]);
+
+export const ValueInputSchema = ValuePayloadSchema.and(z.object({
+  criterionId: IdSchema,
+}));
 export type ValueInput = z.infer<typeof ValueInputSchema>;
+
+export const EntryValueUpsertSchema = ValuePayloadSchema;
+export type EntryValueUpsertInput = z.infer<typeof EntryValueUpsertSchema>;

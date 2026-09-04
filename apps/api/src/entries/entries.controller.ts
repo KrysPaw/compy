@@ -1,16 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { z } from 'zod';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateEntrySchema, IdSchema, UpdateEntrySchema } from '@compy/shared';
-import type { CreateEntryInput, UpdateEntryInput } from '@compy/shared';
+import { CreateEntrySchema, EntryValueUpsertSchema, IdSchema, UpdateEntrySchema } from '@compy/shared';
+import type { CreateEntryInput, EntryValueUpsertInput, UpdateEntryInput } from '@compy/shared';
 import { EntriesService } from './entries.service.js';
-
-const EntryValueUpsertBodySchema = z.object({
-  type: z.enum(['number', 'text', 'boolean', 'rating', 'enum']),
-  value: z.union([z.number(), z.string(), z.boolean()]),
-});
-
-type EntryValueUpsertBody = z.infer<typeof EntryValueUpsertBodySchema>;
 
 @Controller('comparisons')
 export class EntriesController {
@@ -69,7 +61,7 @@ export class EntriesController {
     @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
     @Param('entryId', new ZodValidationPipe(IdSchema)) entryId: number,
     @Param('criterionId', new ZodValidationPipe(IdSchema)) criterionId: number,
-    @Body(new ZodValidationPipe(EntryValueUpsertBodySchema)) body: EntryValueUpsertBody,
+    @Body(new ZodValidationPipe(EntryValueUpsertSchema)) body: EntryValueUpsertInput,
   ) {
     return this.entriesService.upsertValue(comparisonId, entryId, criterionId, body);
   }

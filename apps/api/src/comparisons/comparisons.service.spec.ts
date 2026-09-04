@@ -31,6 +31,8 @@ describe('ComparisonsService', () => {
   const comparisonCreate = vi.fn().mockResolvedValue(comparison);
   const criterionCreate = vi.fn().mockResolvedValue(createdComparison.criteria[0]);
   const comparisonFindUnique = vi.fn().mockResolvedValue(createdComparison);
+  const comparisonUpdate = vi.fn().mockResolvedValue({ ...comparison, name: 'Mobile phones' });
+  const comparisonDelete = vi.fn().mockResolvedValue(comparison);
   const comparisonDetail = {
     ...createdComparison,
     entries: [
@@ -58,6 +60,8 @@ describe('ComparisonsService', () => {
     comparison: {
       findUnique: comparisonDetailFindUnique,
       findMany: comparisonFindMany,
+      update: comparisonUpdate,
+      delete: comparisonDelete,
     },
     $transaction: vi.fn(async (callback: (transaction: unknown) => unknown) =>
       callback({
@@ -140,6 +144,30 @@ describe('ComparisonsService', () => {
     comparisonDetailFindUnique.mockResolvedValueOnce(null);
 
     await expect(service.getById(999)).rejects.toThrowError(NotFoundException);
+  });
+
+  it('renames an existing comparison', async () => {
+    const result = await service.update(1, { name: 'Mobile phones' });
+
+    expect(comparisonUpdate).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { name: 'Mobile phones' },
+    });
+    expect(result).toEqual({ ...comparison, name: 'Mobile phones' });
+  });
+
+  it('deletes an existing comparison', async () => {
+    const result = await service.remove(1);
+
+    expect(comparisonDelete).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(result).toEqual(comparison);
+  });
+
+  it('rejects renaming a missing comparison', async () => {
+    comparisonDetailFindUnique.mockResolvedValueOnce(null);
+
+    await expect(service.update(999, { name: 'Missing' })).rejects.toThrowError(NotFoundException);
+    expect(comparisonUpdate).not.toHaveBeenCalled();
   });
 
 });

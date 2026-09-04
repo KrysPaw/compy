@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateComparisonSchema, CreateCriterionSchema, IdSchema } from '@compy/shared';
-import type { CreateComparisonInput, CreateCriterionInput } from '@compy/shared';
+import { CreateComparisonSchema, CreateCriterionSchema, IdSchema, UpdateComparisonSchema } from '@compy/shared';
+import type { CreateComparisonInput, CreateCriterionInput, UpdateComparisonInput } from '@compy/shared';
 import { ComparisonsService } from './comparisons.service.js';
 import { CriteriaService } from '../criteria/criteria.service.js';
 
@@ -30,6 +30,21 @@ export class ComparisonsController {
     @Body(new ZodValidationPipe(CreateComparisonSchema)) body: CreateComparisonInput
   ) {
     return this.comparisonsService.createComparison(body);
+  }
+
+  @Patch(':id')
+  public updateComparison(
+    @Param('id', new ZodValidationPipe(IdSchema)) id: number,
+    @Body(new ZodValidationPipe(UpdateComparisonSchema)) body: UpdateComparisonInput,
+  ) {
+    return this.comparisonsService.update(id, body);
+  }
+
+  @Delete(':id')
+  public deleteComparison(
+    @Param('id', new ZodValidationPipe(IdSchema)) id: number,
+  ) {
+    return this.comparisonsService.remove(id);
   }
 
   @Post(':id/criteria')

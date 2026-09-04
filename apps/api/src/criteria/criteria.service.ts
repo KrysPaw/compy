@@ -69,6 +69,8 @@ export class CriteriaService {
   }
 
   public async update(comparisonId: number, criterionId: number, data: UpdateCriterionInput) {
+    await this.findCriterion(comparisonId, criterionId);
+
     return this.prisma.criterion.update({
       where: {
         id: criterionId,

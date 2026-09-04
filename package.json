@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev:api": "npm run start:dev -w @compy/api",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build --workspace @compy/shared && npm run build --workspace @compy/api",
     "test:e2e": "npm run test:e2e -w apps/web"
   },
   "allowScripts": {

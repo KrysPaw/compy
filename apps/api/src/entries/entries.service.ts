@@ -45,6 +45,17 @@ export class EntriesService {
     }
 
     const { type, value } = valueInput;
+    const expectedCriterionType = {
+      number: 'Float',
+      text: 'Text',
+      boolean: 'Boolean',
+      rating: 'Rating',
+      enum: 'Enum',
+    }[type];
+
+    if (criterion.type !== expectedCriterionType) {
+      throw new BadRequestException(`Criterion ${criterion.id} expects a ${criterion.type} value.`);
+    }
 
     if (criterion.is_key && type !== 'text') {
       throw new BadRequestException('The built-in name criterion must store text values.');
