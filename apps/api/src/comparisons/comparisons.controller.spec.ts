@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { ComparisonsController } from './comparisons.controller.js';
 import { ComparisonsService } from './comparisons.service.js';
-import { CriteriaService } from './criteria.service.js';
+import { CriteriaService } from '../criteria/criteria.service.js';
 
 describe('ComparisonsController', () => {
   let controller: ComparisonsController;
