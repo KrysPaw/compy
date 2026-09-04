@@ -6,6 +6,7 @@ import { ComparisonsService } from './comparisons.service.js';
 describe('ComparisonsController', () => {
   let controller: ComparisonsController;
   const createComparison = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
+  const getAll = vi.fn().mockResolvedValue([{ id: 1, name: 'Phones' }]);
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -15,7 +16,7 @@ describe('ComparisonsController', () => {
       providers: [
         {
           provide: ComparisonsService,
-          useValue: { createComparison },
+          useValue: { createComparison, getAll },
         },
       ],
     }).compile();
@@ -35,5 +36,12 @@ describe('ComparisonsController', () => {
       name: 'Phones',
     });
     expect(createComparison).toHaveBeenCalledWith(body);
+  });
+
+  it('delegates fetching comparisons to the service', async () => {
+    await expect(controller.getComparisons()).resolves.toEqual([
+      { id: 1, name: 'Phones' },
+    ]);
+    expect(getAll).toHaveBeenCalledOnce();
   });
 });

@@ -30,7 +30,11 @@ describe('ComparisonsService', () => {
   const comparisonCreate = vi.fn().mockResolvedValue(comparison);
   const criterionCreate = vi.fn().mockResolvedValue(createdComparison.criteria[0]);
   const comparisonFindUnique = vi.fn().mockResolvedValue(createdComparison);
+  const comparisonFindMany = vi.fn().mockResolvedValue([createdComparison]);
   const prisma = {
+    comparison: {
+      findMany: comparisonFindMany,
+    },
     $transaction: vi.fn(async (callback: (transaction: unknown) => unknown) =>
       callback({
         comparison: {
@@ -80,5 +84,14 @@ describe('ComparisonsService', () => {
       include: { criteria: true },
     });
     expect(result).toEqual(createdComparison);
+  });
+
+  it('returns all comparisons ordered by last update', async () => {
+    const result = await service.getAll();
+
+    expect(comparisonFindMany).toHaveBeenCalledWith({
+      orderBy: { updatedAt: 'desc' },
+    });
+    expect(result).toEqual([createdComparison]);
   });
 });

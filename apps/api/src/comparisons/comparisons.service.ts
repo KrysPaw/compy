@@ -6,6 +6,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 export class ComparisonsService {
   constructor(private readonly prisma: PrismaService) { }
 
+  public getAll() {
+    return this.prisma.comparison.findMany({
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
+  }
+
   public createComparison(data: CreateComparisonInput) {
     return this.prisma.$transaction(async (transaction) => {
       const comparison = await transaction.comparison.create({
