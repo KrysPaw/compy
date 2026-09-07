@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ComparisonActionsMenu } from '@/components/comparison-actions-menu';
+import { ComparisonDataTable } from '@/components/comparison-data-table';
 import { getComparisonById } from '@/lib/api';
 
 export default async function ComparisonPage({
@@ -37,7 +38,10 @@ export default async function ComparisonPage({
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        <ComparisonDataTable
+          criteria={comparison.criteria}
+          entries={comparison.entries}
+        />
       </div>
     </>
   );

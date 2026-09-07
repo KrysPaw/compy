@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import {
+  ComparisonDetailsResponseSchema,
   ComparisonResponseSchema,
   type ComparisonResponse,
 } from '@compy/shared';
+import type { ComparisonDetailsResponse } from '@compy/shared';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
@@ -38,6 +40,6 @@ export async function getComparisons(): Promise<ComparisonResponse[]> {
 
 export async function getComparisonById(
   id: number,
-): Promise<ComparisonResponse | null> {
-  return fetchJson(`/comparisons/${id}`, ComparisonResponseSchema);
+): Promise<ComparisonDetailsResponse | null> {
+  return fetchJson(`/comparisons/${id}`, ComparisonDetailsResponseSchema);
 }
