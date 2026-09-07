@@ -16,17 +16,20 @@
 - [x] Require the built-in name value when creating an entry.
 - [x] Return `404 Not Found` when deleting a missing entry value.
 - [x] Enable configurable CORS with the `WEB_ORIGIN` environment variable.
+- [x] Add Supertest HTTP coverage for health, comparisons, validation, Swagger, and CORS.
+- [x] Share application configuration between production bootstrap and HTTP tests.
 
 ## Current verification
 
 - API tests: 42 passing.
+- HTTP tests: 8 passing.
 - Lint: passing.
 - Root build: passing (`@compy/shared` followed by `@compy/api`).
 - Swagger smoke test: `GET /docs-json` returned HTTP 200.
 
 ## Next backend follow-up
 
-- [ ] Add HTTP-level tests for comparison, criterion, and entry routes.
+- [ ] Extend HTTP-level tests to criteria and entry CRUD/value routes.
 - [ ] Add cascade-delete integration coverage against PostgreSQL.
 - [ ] Add response schemas or DTO mapping if the frontend needs a stable public response shape.
 - [ ] Document local database setup and required environment variables.
