@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { ComparisonActionsMenu } from '@/components/comparison-actions-menu';
 import { getComparisonById } from '@/lib/api';
 
 export default async function ComparisonPage({
@@ -28,6 +29,12 @@ export default async function ComparisonPage({
           className="mr-2 data-vertical:h-4 data-vertical:self-auto"
         />
         <div>{comparison.name}</div>
+        <div className="ml-auto">
+          <ComparisonActionsMenu
+            comparisonId={comparison.id}
+            comparisonName={comparison.name}
+          />
+        </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4">
         <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />

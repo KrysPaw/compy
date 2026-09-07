@@ -11,6 +11,10 @@ export type CreateComparisonState = {
   comparisonId?: number;
 };
 
+export type DeleteComparisonState = {
+  error?: string;
+};
+
 export async function createComparison(
   formData: FormData,
 ): Promise<CreateComparisonState> {
@@ -34,4 +38,18 @@ export async function createComparison(
 
   const comparison = ComparisonResponseSchema.parse(await res.json());
   return { comparisonId: comparison.id };
+}
+
+export async function deleteComparison(
+  comparisonId: number,
+): Promise<DeleteComparisonState> {
+  const res = await fetch(`${API_URL}/comparisons/${comparisonId}`, {
+    method: 'DELETE',
+  });
+
+  if (!res.ok) {
+    return { error: 'Failed to delete comparison' };
+  }
+
+  return {};
 }
