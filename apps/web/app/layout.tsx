@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Noto_Sans, Playfair_Display } from 'next/font/google';
 import { cn } from '@/lib/utils';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const playfairDisplayHeading = Playfair_Display({
   subsets: ['latin'],
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         playfairDisplayHeading.variable,
       )}
     >
-      <body className={`min-h-full flex flex-col`}>{children}</body>
+      <body className={`min-h-full flex flex-col`}>
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

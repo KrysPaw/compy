@@ -27,6 +27,9 @@ const ComparisonCriterionSchema = z.object({
   id: z.coerce.number().int().positive(),
   name: z.string(),
   type: z.enum(["Text", "Int", "Float", "Enum", "Boolean", "Rating"]),
+  is_key: z.boolean(),
+  is_comparable: z.boolean(),
+  config: z.unknown(),
 });
 
 const ComparisonEntryValueSchema = z.object({
