@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { CriteriaDataTable } from '@/components/criteria-data-table';
+import { CreateCriterionDialog } from '@/components/create-criterion-dialog';
 import { getComparisonById } from '@/lib/api';
 
 export default async function CriteriaPage({
@@ -20,6 +21,12 @@ export default async function CriteriaPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">
+          Criteria identify an entry or let you compare entries.
+        </p>
+        <CreateCriterionDialog comparisonId={comparisonId} />
+      </div>
       <CriteriaDataTable criteria={comparison.criteria} />
     </div>
   );
