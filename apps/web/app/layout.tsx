@@ -1,19 +1,32 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { inter } from "./ui/fonts";
+import type { Metadata } from 'next';
+import './globals.css';
+import { Noto_Sans, Playfair_Display } from 'next/font/google';
+import { cn } from '@/lib/utils';
+
+const playfairDisplayHeading = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-heading',
+});
+
+const notoSans = Noto_Sans({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  title: "Compy",
-  description: "Comparison app",
+  title: 'Compy',
+  description: 'Comparison app',
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="en"
-      className="h-full antialiased"
+      className={cn(
+        'h-full antialiased',
+        'font-sans',
+        notoSans.variable,
+        playfairDisplayHeading.variable,
+      )}
     >
-      <body className={`${inter.className} min-h-full flex flex-col`}>{children}</body>
+      <body className={`min-h-full flex flex-col`}>{children}</body>
     </html>
   );
 }

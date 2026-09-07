@@ -1,26 +1,130 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #fffaf2;
+  --foreground: #1f2830;
+  --card: #ffffff;
+  --card-foreground: #1f2830;
+  --popover: #ffffff;
+  --popover-foreground: #1f2830;
+  --primary: #ffd54f;
+  --primary-foreground: #1f2830;
+  --secondary: #fff7d6;
+  --secondary-foreground: #1f2830;
+  --muted: #f7f3ed;
+  --muted-foreground: #687280;
+  --accent: #fff0bd;
+  --accent-foreground: #1f2830;
+  --destructive: #ef4444;
+  --border: #e7e1d9;
+  --input: #e7e1d9;
+  --ring: #ffd54f;
+  --chart-1: #ffd54f;
+  --chart-2: #16a280;
+  --chart-3: #3d6e8e;
+  --chart-4: #ff9f44;
+  --chart-5: #ef4444;
+  --radius: 0.375rem;
+  --sidebar: #fffdf8;
+  --sidebar-foreground: #1f2830;
+  --sidebar-primary: #ffd54f;
+  --sidebar-primary-foreground: #1f2830;
+  --sidebar-accent: #fff0bd;
+  --sidebar-accent-foreground: #1f2830;
+  --sidebar-border: #e7e1d9;
+  --sidebar-ring: #ffd54f;
+}
+
+.dark {
+  --background: #1f2830;
+  --foreground: #fffaf2;
+  --card: #27333d;
+  --card-foreground: #fffaf2;
+  --popover: #27333d;
+  --popover-foreground: #fffaf2;
+  --primary: #ffd54f;
+  --primary-foreground: #1f2830;
+  --secondary: #34414b;
+  --secondary-foreground: #fffaf2;
+  --muted: #34414b;
+  --muted-foreground: #b7c0c8;
+  --accent: #3c4953;
+  --accent-foreground: #fffaf2;
+  --destructive: #f56b6b;
+  --border: #46535d;
+  --input: #46535d;
+  --ring: #ffd54f;
+  --chart-1: #ffd54f;
+  --chart-2: #24b38e;
+  --chart-3: #71a6c8;
+  --chart-4: #ffb366;
+  --chart-5: #f56b6b;
+  --sidebar: #27333d;
+  --sidebar-foreground: #fffaf2;
+  --sidebar-primary: #ffd54f;
+  --sidebar-primary-foreground: #1f2830;
+  --sidebar-accent: #3c4953;
+  --sidebar-accent-foreground: #fffaf2;
+  --sidebar-border: #46535d;
+  --sidebar-ring: #ffd54f;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }
