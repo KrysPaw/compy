@@ -6,6 +6,8 @@ import {
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
+export { API_URL };
+
 async function fetchJson<Schema extends z.ZodType>(
   path: string,
   schema: Schema,

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { SidebarLogo } from '@/components/sidebar-logo';
 import { SidebarComparisonsMenu } from '@/components/sidebar-comparisons-menu';
+import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
 import { getComparisons } from '@/lib/api';
 import {
   Sidebar,
@@ -25,6 +26,7 @@ export async function AppSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>My Comparisons</SidebarGroupLabel>
+          <CreateComparisonDialog />
           <SidebarGroupContent>
             <SidebarComparisonsMenu comparisons={comparisons} />
           </SidebarGroupContent>
