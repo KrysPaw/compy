@@ -1,0 +1,198 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  createComparison,
+  createCriterion,
+  createEntry,
+  deleteComparison,
+} from './actions';
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+function jsonResponse(body: unknown, init?: ResponseInit) {
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+    ...init,
+  });
+}
+
+describe('createComparison', () => {
+  it('returns a validation error for an empty name', async () => {
+    const formData = new FormData();
+    formData.set('name', '   ');
+
+    await expect(createComparison(formData)).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('posts a valid name and returns the created id', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        id: 12,
+        name: 'Phones',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const formData = new FormData();
+    formData.set('name', 'Phones');
+
+    await expect(createComparison(formData)).resolves.toEqual({
+      comparisonId: 12,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons$/),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ name: 'Phones' }),
+      }),
+    );
+  });
+
+  it('returns a failure message when the API rejects the create', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 500 })),
+    );
+
+    const formData = new FormData();
+    formData.set('name', 'Phones');
+
+    await expect(createComparison(formData)).resolves.toEqual({
+      error: 'Failed to create comparison',
+    });
+  });
+});
+
+describe('createCriterion', () => {
+  it('returns a validation error for invalid input', async () => {
+    await expect(createCriterion(1, { name: '' })).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('posts valid criterion input and returns the created id', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ id: 3 }, { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      createCriterion(7, {
+        name: 'Price',
+        is_comparable: true,
+        type: 'number',
+      }),
+    ).resolves.toEqual({ criterionId: 3 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7\/criteria$/),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Price',
+          is_comparable: true,
+          type: 'number',
+        }),
+      }),
+    );
+  });
+
+  it('returns a failure message when the API rejects the create', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 400 })),
+    );
+
+    await expect(
+      createCriterion(7, {
+        name: 'Price',
+        is_comparable: false,
+        type: 'text',
+      }),
+    ).resolves.toEqual({ error: 'Failed to create criterion' });
+  });
+});
+
+describe('createEntry', () => {
+  it('returns a validation error for empty values', async () => {
+    await expect(createEntry(1, { values: [] })).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('posts valid values and returns the created id', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ id: 9 }, { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const input = {
+      values: [{ criterionId: 1, type: 'text' as const, value: 'Pixel 8' }],
+    };
+
+    await expect(createEntry(4, input)).resolves.toEqual({ entryId: 9 });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls[0]?.[0]).toMatch(/\/comparisons\/4\/entries$/);
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'POST' });
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual(
+      input,
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({ message: 'Duplicate key value' }, { status: 409 }),
+      ),
+    );
+
+    await expect(
+      createEntry(4, {
+        values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
+      }),
+    ).resolves.toEqual({ error: 'Duplicate key value' });
+  });
+
+  it('falls back when the error body cannot be read', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('not-json', { status: 500 })),
+    );
+
+    await expect(
+      createEntry(4, {
+        values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
+      }),
+    ).resolves.toEqual({ error: 'Failed to create entry' });
+  });
+});
+
+describe('deleteComparison', () => {
+  it('returns an empty object on success', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
+    );
+
+    await expect(deleteComparison(5)).resolves.toEqual({});
+  });
+
+  it('returns a failure message when delete fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 404 })),
+    );
+
+    await expect(deleteComparison(5)).resolves.toEqual({
+      error: 'Failed to delete comparison',
+    });
+  });
+});

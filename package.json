@@ -16,6 +16,7 @@
     "dev:api": "npm run start:dev -w @compy/api",
     "dev:web": "npm run dev -w @compy/web",
     "build": "npm run build --workspace @compy/shared && npm run build --workspace @compy/api && npm run build --workspace @compy/web",
+    "test:web": "npm run test -w @compy/web",
     "test:e2e": "npm run test:e2e -w apps/web"
   },
   "allowScripts": {
