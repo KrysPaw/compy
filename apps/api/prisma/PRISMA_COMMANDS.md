@@ -79,7 +79,21 @@ Run this if the generated client is out of date after a schema change.
 npx prisma migrate reset
 ```
 
-This drops the database, reapplies all migrations, and removes local data. Do not use it for a shared or production database.
+This drops the database, reapplies all migrations, removes local data, and runs the seed script. Do not use it for a shared or production database.
+
+## Seed mock data (manual testing)
+
+```powershell
+npm run db:seed
+```
+
+Or:
+
+```powershell
+npx prisma db seed
+```
+
+This recreates a `Cars` comparison with sample criteria and entries. Re-running replaces any existing comparison named `Cars`.
 
 ## Important migration notes
 
