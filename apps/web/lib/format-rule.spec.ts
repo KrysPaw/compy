@@ -28,7 +28,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { direction: 'lower' },
         }),
       ),
-    ).toBe('lower is better');
+    ).toBe('Lower is better');
 
     expect(
       formatRuleMessage(
@@ -39,7 +39,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { direction: 'higher' },
         }),
       ),
-    ).toBe('higher is better');
+    ).toBe('Higher is better');
   });
 
   it('describes boolean preferred value', () => {

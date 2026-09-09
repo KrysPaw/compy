@@ -206,9 +206,6 @@ export function RulesDataTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-muted-foreground" aria-live="polite">
-        Remaining: {remaining} / {WEIGHT_POOL_TOTAL}
-      </p>
       {error ? (
         <p className="text-sm text-destructive" role="alert">
           {error}
@@ -221,7 +218,17 @@ export function RulesDataTable({
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Rule</TableHead>
-                <TableHead>Weight</TableHead>
+                <TableHead>
+                  <div className="flex flex-col gap-0.5">
+                    <span>Weight</span>
+                    <span
+                      className="text-xs font-normal text-muted-foreground"
+                      aria-live="polite"
+                    >
+                      Remaining: <b>{remaining}</b> / {WEIGHT_POOL_TOTAL}
+                    </span>
+                  </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

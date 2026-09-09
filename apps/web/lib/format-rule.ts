@@ -37,8 +37,8 @@ export function formatRuleMessage(criterion: Criterion): string {
     hasDirection(ruleConfig)
   ) {
     return ruleConfig.direction === 'higher'
-      ? 'higher is better'
-      : 'lower is better';
+      ? 'Higher is better'
+      : 'Lower is better';
   }
 
   if (criterion.type === 'boolean' && hasPreferredValue(ruleConfig)) {

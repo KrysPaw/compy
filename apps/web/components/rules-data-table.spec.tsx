@@ -74,11 +74,15 @@ describe('RulesDataTable', () => {
 
     expect(bodyRows).toHaveLength(3);
     expect(screen.queryByRole('cell', { name: 'Name' })).not.toBeInTheDocument();
-    expect(screen.getByText('Remaining: 30 / 100')).toBeInTheDocument();
+
+    const weightHeader = screen.getByRole('columnheader', { name: /Weight/ });
+    expect(
+      within(weightHeader).getByText('Remaining: 30 / 100'),
+    ).toBeInTheDocument();
 
     const priceRow = screen.getByText('Price').closest('tr');
     expect(priceRow).not.toBeNull();
-    expect(within(priceRow!).getByText('lower is better')).toBeInTheDocument();
+    expect(within(priceRow!).getByText('Lower is better')).toBeInTheDocument();
     expect(within(priceRow!).getByLabelText('Weight for Price')).toHaveValue(
       '40',
     );
@@ -102,7 +106,11 @@ describe('RulesDataTable', () => {
     render(<RulesDataTable comparisonId={7} criteria={[criteria[0]]} />);
 
     expect(screen.getByText('No comparable criteria yet.')).toBeInTheDocument();
-    expect(screen.getByText('Remaining: 100 / 100')).toBeInTheDocument();
+
+    const weightHeader = screen.getByRole('columnheader', { name: /Weight/ });
+    expect(
+      within(weightHeader).getByText('Remaining: 100 / 100'),
+    ).toBeInTheDocument();
   });
 
   it('reduces the remaining pool when weight increases by 1', async () => {
