@@ -58,7 +58,12 @@ const criteria = [
     is_comparable: true,
     weight: 10,
     config: { options: ['Petrol', 'Diesel'] },
-    ruleConfig: { tiers: [] },
+    ruleConfig: {
+      tiers: [
+        { rank: 1, values: ['Petrol'] },
+        { rank: 2, values: ['Diesel'] },
+      ],
+    },
   },
   {
     id: 5,
@@ -119,7 +124,12 @@ describe('RulesDataTable', () => {
 
     const fuelRow = screen.getByText('Fuel').closest('tr');
     expect(fuelRow).not.toBeNull();
-    expect(within(fuelRow!).getByText('—')).toBeInTheDocument();
+    expect(
+      within(fuelRow!).getByText('Best: Petrol · Worst: Diesel'),
+    ).toBeInTheDocument();
+    expect(
+      within(fuelRow!).getByRole('button', { name: 'Edit' }),
+    ).toBeInTheDocument();
     expect(within(fuelRow!).getByLabelText('Weight for Fuel')).toHaveValue(
       '10',
     );
@@ -314,5 +324,29 @@ describe('RulesDataTable', () => {
     expect(
       within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
     ).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('saves a valid enum rule payload when every option is assigned', async () => {
+    const user = userEvent.setup();
+    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+
+    const fuelRow = screen.getByText('Fuel').closest('tr');
+    await user.click(within(fuelRow!).getByRole('button', { name: 'Edit' }));
+
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('button', { name: 'Save' })).toBeEnabled();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Add tier' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 4, {
+        tiers: [
+          { rank: 1, values: ['Petrol'] },
+          { rank: 2, values: ['Diesel'] },
+          { rank: 3, values: [] },
+        ],
+      });
+    });
   });
 });

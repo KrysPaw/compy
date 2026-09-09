@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import {
+  addEnumTier,
+  createEnumRuleDraft,
+  enumRuleDraftToConfig,
+  formatEnumRuleSummary,
   formatRuleMessage,
+  isEnumRuleDraftComplete,
+  moveEnumValue,
   nextBooleanRuleConfig,
   nextDirectionRuleConfig,
+  removeEnumTier,
 } from './format-rule';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
@@ -70,16 +77,35 @@ describe('formatRuleMessage', () => {
     ).toBe('no is better');
   });
 
-  it('shows a dash for enum and missing rule config', () => {
+  it('summarizes enum best and worst values', () => {
     expect(
       formatRuleMessage(
         criterion({
           id: 5,
           name: 'Fuel',
           type: 'enum',
-          ruleConfig: { tiers: [] },
+          config: { options: ['Petrol', 'Diesel', 'Hybrid'] },
+          ruleConfig: {
+            tiers: [
+              { rank: 1, values: ['Petrol'] },
+              { rank: 2, values: ['Hybrid'] },
+              { rank: 3, values: ['Diesel'] },
+            ],
+          },
         }),
       ),
+    ).toBe('Best: Petrol · Worst: Diesel');
+  });
+
+  it('shows a dash for missing or empty enum assignment', () => {
+    expect(formatEnumRuleSummary({ tiers: [] })).toBe('—');
+    expect(
+      formatEnumRuleSummary({
+        tiers: [
+          { rank: 1, values: [] },
+          { rank: 2, values: [] },
+        ],
+      }),
     ).toBe('—');
 
     expect(
@@ -125,5 +151,85 @@ describe('formatRuleMessage', () => {
 
   it('builds a boolean preferred-value payload', () => {
     expect(nextBooleanRuleConfig(false)).toEqual({ preferredValue: false });
+  });
+});
+
+describe('enum rule draft helpers', () => {
+  const options = ['Petrol', 'Diesel', 'Hybrid'];
+
+  it('starts from defaults and parks unknown options as unassigned', () => {
+    const draft = createEnumRuleDraft(options, null);
+
+    expect(draft.tiers).toHaveLength(3);
+    expect(draft.unassigned).toEqual(options);
+  });
+
+  it('reuses saved tiers and keeps leftover options unassigned', () => {
+    const draft = createEnumRuleDraft(options, {
+      tiers: [
+        { rank: 1, values: ['Petrol'] },
+        { rank: 3, values: ['Diesel'] },
+      ],
+    });
+
+    expect(draft.tiers.map((tier) => tier.rank)).toEqual([1, 3]);
+    expect(draft.unassigned).toEqual(['Hybrid']);
+  });
+
+  it('moves values between buckets without duplicates', () => {
+    const draft = createEnumRuleDraft(options, {
+      tiers: [
+        { rank: 1, values: [] },
+        { rank: 2, values: [] },
+      ],
+    });
+
+    const moved = moveEnumValue(draft, 'Petrol', 2);
+    expect(moved.unassigned).toEqual(['Diesel', 'Hybrid']);
+    expect(moved.tiers.find((tier) => tier.rank === 2)?.values).toEqual([
+      'Petrol',
+    ]);
+
+    const back = moveEnumValue(moved, 'Petrol', 'unassigned');
+    expect(back.unassigned).toContain('Petrol');
+    expect(back.tiers.every((tier) => !tier.values.includes('Petrol'))).toBe(
+      true,
+    );
+  });
+
+  it('adds and removes tiers within 2–10 and returns values on remove', () => {
+    let draft = createEnumRuleDraft(['A', 'B'], {
+      tiers: [
+        { rank: 1, values: ['A'] },
+        { rank: 2, values: ['B'] },
+      ],
+    });
+
+    draft = addEnumTier(draft);
+    expect(draft.tiers).toHaveLength(3);
+
+    draft = moveEnumValue(draft, 'B', 3);
+    draft = removeEnumTier(draft);
+    expect(draft.tiers).toHaveLength(2);
+    expect(draft.unassigned).toContain('B');
+  });
+
+  it('requires every option assigned exactly once before save', () => {
+    const incomplete = createEnumRuleDraft(options, {
+      tiers: [
+        { rank: 1, values: ['Petrol'] },
+        { rank: 2, values: ['Diesel'] },
+      ],
+    });
+    expect(isEnumRuleDraftComplete(incomplete, options)).toBe(false);
+
+    const complete = moveEnumValue(incomplete, 'Hybrid', 2);
+    expect(isEnumRuleDraftComplete(complete, options)).toBe(true);
+    expect(enumRuleDraftToConfig(complete)).toEqual({
+      tiers: [
+        { rank: 1, values: ['Petrol'] },
+        { rank: 2, values: ['Diesel', 'Hybrid'] },
+      ],
+    });
   });
 });

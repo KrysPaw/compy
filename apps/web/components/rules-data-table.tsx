@@ -23,6 +23,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { EnumRuleDialog } from '@/components/enum-rule-dialog';
+import { enumOptionsOf } from '@/lib/create-entry';
 import {
   formatRuleMessage,
   hasDirection,
@@ -116,7 +118,18 @@ function RuleEditor({
     );
   }
 
-  return formatRuleMessage(criterion);
+  if (criterion.type === 'enum') {
+    return (
+      <EnumRuleDialog
+        criterionName={criterion.name}
+        options={enumOptionsOf({ ...criterion, ruleConfig })}
+        ruleConfig={ruleConfig}
+        onSave={onChange}
+      />
+    );
+  }
+
+  return formatRuleMessage({ ...criterion, ruleConfig });
 }
 
 function WeightStepper({

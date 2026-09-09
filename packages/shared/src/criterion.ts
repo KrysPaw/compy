@@ -69,17 +69,16 @@ export const BooleanRuleConfigSchema = z
   })
   .strict();
 
-export const EnumTierRankSchema = z.number().int().min(1).max(5);
+export const EnumTierRankSchema = z.number().int().min(1).max(10);
 
 export const EnumTierSchema = z.object({
   rank: EnumTierRankSchema,
-  label: z.string().trim().min(1).max(100),
   values: z.array(z.string().trim().min(1).max(100)),
 });
 
 export const EnumRuleConfigSchema = z
   .object({
-    tiers: z.array(EnumTierSchema).min(1).max(5),
+    tiers: z.array(EnumTierSchema).min(2).max(10),
   })
   .strict()
   .superRefine((value, ctx) => {
@@ -101,6 +100,18 @@ export const EnumRuleConfigSchema = z
       });
     }
   });
+export type EnumRuleConfig = z.infer<typeof EnumRuleConfigSchema>;
+
+/** Default draft: 3 empty tiers. Rank 1 is best; higher ranks are worse. */
+export function defaultEnumRuleConfig(): EnumRuleConfig {
+  return {
+    tiers: [
+      { rank: 1, values: [] },
+      { rank: 2, values: [] },
+      { rank: 3, values: [] },
+    ],
+  };
+}
 
 export const RatingRuleConfigSchema = z
   .object({

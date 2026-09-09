@@ -243,13 +243,53 @@ describe('CriteriaService', () => {
       service.update(1, 3, {
         ruleConfig: {
           tiers: [
-            { rank: 1, label: 'Bad', values: ['Petrol'] },
-            { rank: 5, label: 'Great', values: ['Diesel', 'Hybrid'] },
+            { rank: 1, values: ['Petrol'] },
+            { rank: 5, values: ['Diesel', 'Hybrid'] },
           ],
         },
       }),
     ).rejects.toThrow(BadRequestException);
     expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
+  it('accepts valid enum tiers covering all options', async () => {
+    criterionFindFirst.mockResolvedValueOnce({
+      id: 3,
+      comparisonId: 1,
+      name: 'fuel',
+      type: 'enum',
+      config: { options: ['Petrol', 'Diesel'] },
+      is_key: false,
+    });
+
+    await expect(
+      service.update(1, 3, {
+        ruleConfig: {
+          tiers: [
+            { rank: 1, values: ['Petrol'] },
+            { rank: 2, values: ['Diesel'] },
+          ],
+        },
+      }),
+    ).resolves.toEqual({
+      id: 2,
+      comparisonId: 1,
+      name: 'Updated price',
+      weight: 25,
+      ruleConfig: { direction: 'lower' },
+      is_key: false,
+    });
+    expect(criterionUpdate).toHaveBeenCalledWith({
+      where: { id: 3, comparisonId: 1 },
+      data: {
+        ruleConfig: {
+          tiers: [
+            { rank: 1, values: ['Petrol'] },
+            { rank: 2, values: ['Diesel'] },
+          ],
+        },
+      },
+    });
   });
 
   it('throws NotFoundException when updating a missing criterion', async () => {
