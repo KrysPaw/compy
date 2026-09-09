@@ -54,14 +54,14 @@ function RoleIcon({ role }: { role: Role }) {
 function formatConfig(criterion: Criterion) {
   const config = criterion.config;
 
-  if (criterion.type === 'Rating' && config && typeof config === 'object') {
+  if (criterion.type === 'rating' && config && typeof config === 'object') {
     const { min, max } = config as { min?: number; max?: number };
     if (typeof min === 'number' && typeof max === 'number') {
       return `${min}–${max}`;
     }
   }
 
-  if (criterion.type === 'Enum' && config && typeof config === 'object') {
+  if (criterion.type === 'enum' && config && typeof config === 'object') {
     const { options } = config as { options?: string[] };
     if (Array.isArray(options)) {
       const shown = options.slice(0, 3);

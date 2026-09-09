@@ -7,21 +7,6 @@ import type {
 export type Criterion = ComparisonDetailsResponse['criteria'][number];
 export type EntryFieldValue = string | boolean;
 
-const VALUE_TYPE_BY_CRITERION = {
-  Text: 'text',
-  Int: 'number',
-  Float: 'number',
-  Boolean: 'boolean',
-  Rating: 'rating',
-  Enum: 'enum',
-} as const satisfies Record<Criterion['type'], ValueInput['type']>;
-
-export function valueTypeForCriterion(
-  type: Criterion['type'],
-): ValueInput['type'] {
-  return VALUE_TYPE_BY_CRITERION[type];
-}
-
 export function orderedCriteria(criteria: Criterion[]): Criterion[] {
   return [
     ...criteria.filter((criterion) => criterion.is_key),
@@ -35,13 +20,17 @@ export function initialEntryFields(
   return Object.fromEntries(
     criteria.map((criterion) => [
       criterion.id,
-      criterion.type === 'Boolean' ? false : '',
+      criterion.type === 'boolean' ? false : '',
     ]),
   );
 }
 
 export function enumOptionsOf(criterion: Criterion): string[] {
-  if (criterion.type !== 'Enum' || !criterion.config || typeof criterion.config !== 'object') {
+  if (
+    criterion.type !== 'enum' ||
+    !criterion.config ||
+    typeof criterion.config !== 'object'
+  ) {
     return [];
   }
 
@@ -55,7 +44,11 @@ export function ratingBoundsOf(criterion: Criterion): {
   min?: number;
   max?: number;
 } {
-  if (criterion.type !== 'Rating' || !criterion.config || typeof criterion.config !== 'object') {
+  if (
+    criterion.type !== 'rating' ||
+    !criterion.config ||
+    typeof criterion.config !== 'object'
+  ) {
     return {};
   }
 
@@ -73,7 +66,7 @@ export function buildCreateEntryValues(
   const values: ValueInput[] = [];
 
   for (const criterion of criteria) {
-    const type = valueTypeForCriterion(criterion.type);
+    const type = criterion.type;
     const raw = fields[criterion.id];
 
     if (type === 'boolean') {

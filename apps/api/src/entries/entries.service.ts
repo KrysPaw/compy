@@ -1,10 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import type { CreateEntryInput, UpdateEntryInput, ValueInput } from '@compy/shared';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type {
+  CreateEntryInput,
+  UpdateEntryInput,
+  ValueInput,
+} from '@compy/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class EntriesService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private async ensureComparisonExists(comparisonId: number) {
     const comparison = await this.prisma.comparison.findUnique({
@@ -17,7 +25,10 @@ export class EntriesService {
     }
   }
 
-  private async ensureEntryBelongsToComparison(comparisonId: number, entryId: number) {
+  private async ensureEntryBelongsToComparison(
+    comparisonId: number,
+    entryId: number,
+  ) {
     const entry = await this.prisma.entry.findFirst({
       where: {
         id: entryId,
@@ -39,70 +50,112 @@ export class EntriesService {
     });
   }
 
-  private validateValueAgainstCriterion(valueInput: ValueInput, criterion: { id: number; type: string; config: unknown; is_key: boolean }) {
+  private validateValueAgainstCriterion(
+    valueInput: ValueInput,
+    criterion: { id: number; type: string; config: unknown; is_key: boolean },
+  ) {
     if (valueInput.criterionId !== Number(criterion.id)) {
-      throw new BadRequestException(`Value does not match criterion ${criterion.id}`);
+      throw new BadRequestException(
+        `Value does not match criterion ${criterion.id}`,
+      );
     }
 
     const { type, value } = valueInput;
     const expectedCriterionType = {
-      number: 'Float',
-      text: 'Text',
-      boolean: 'Boolean',
-      rating: 'Rating',
-      enum: 'Enum',
+      number: 'number',
+      text: 'text',
+      boolean: 'boolean',
+      rating: 'rating',
+      enum: 'enum',
     }[type];
 
     if (criterion.type !== expectedCriterionType) {
-      throw new BadRequestException(`Criterion ${criterion.id} expects a ${criterion.type} value.`);
+      throw new BadRequestException(
+        `Criterion ${criterion.id} expects a ${criterion.type} value.`,
+      );
     }
 
     if (criterion.is_key && type !== 'text') {
-      throw new BadRequestException('The built-in name criterion must store text values.');
+      throw new BadRequestException(
+        'The built-in name criterion must store text values.',
+      );
     }
 
-    if (criterion.is_key && typeof value === 'string' && value.trim().length === 0) {
-      throw new BadRequestException('The built-in name criterion value cannot be empty.');
+    if (
+      criterion.is_key &&
+      typeof value === 'string' &&
+      value.trim().length === 0
+    ) {
+      throw new BadRequestException(
+        'The built-in name criterion value cannot be empty.',
+      );
     }
 
     switch (type) {
       case 'number':
-        if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
-          throw new BadRequestException(`Criterion ${criterion.id} expects a finite number.`);
+        if (
+          typeof value !== 'number' ||
+          Number.isNaN(value) ||
+          !Number.isFinite(value)
+        ) {
+          throw new BadRequestException(
+            `Criterion ${criterion.id} expects a finite number.`,
+          );
         }
         break;
       case 'text':
         if (typeof value !== 'string') {
-          throw new BadRequestException(`Criterion ${criterion.id} expects a string.`);
+          throw new BadRequestException(
+            `Criterion ${criterion.id} expects a string.`,
+          );
         }
         break;
       case 'boolean':
         if (typeof value !== 'boolean') {
-          throw new BadRequestException(`Criterion ${criterion.id} expects a boolean.`);
+          throw new BadRequestException(
+            `Criterion ${criterion.id} expects a boolean.`,
+          );
         }
         break;
       case 'rating':
-        if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
-          throw new BadRequestException(`Criterion ${criterion.id} expects a finite number rating.`);
+        if (
+          typeof value !== 'number' ||
+          Number.isNaN(value) ||
+          !Number.isFinite(value)
+        ) {
+          throw new BadRequestException(
+            `Criterion ${criterion.id} expects a finite number rating.`,
+          );
         }
         if (criterion.config && typeof criterion.config === 'object') {
           const config = criterion.config as { min?: number; max?: number };
           if (typeof config.min === 'number' && value < config.min) {
-            throw new BadRequestException(`Rating for criterion ${criterion.id} is below the configured minimum.`);
+            throw new BadRequestException(
+              `Rating for criterion ${criterion.id} is below the configured minimum.`,
+            );
           }
           if (typeof config.max === 'number' && value > config.max) {
-            throw new BadRequestException(`Rating for criterion ${criterion.id} is above the configured maximum.`);
+            throw new BadRequestException(
+              `Rating for criterion ${criterion.id} is above the configured maximum.`,
+            );
           }
         }
         break;
       case 'enum':
         if (typeof value !== 'string') {
-          throw new BadRequestException(`Criterion ${criterion.id} expects a string enum value.`);
+          throw new BadRequestException(
+            `Criterion ${criterion.id} expects a string enum value.`,
+          );
         }
         if (criterion.config && typeof criterion.config === 'object') {
           const config = criterion.config as { options?: string[] };
-          if (Array.isArray(config.options) && !config.options.includes(value)) {
-            throw new BadRequestException(`Value "${value}" is not a valid option for criterion ${criterion.id}.`);
+          if (
+            Array.isArray(config.options) &&
+            !config.options.includes(value)
+          ) {
+            throw new BadRequestException(
+              `Value "${value}" is not a valid option for criterion ${criterion.id}.`,
+            );
           }
         }
         break;
@@ -111,26 +164,47 @@ export class EntriesService {
     }
   }
 
-  private validateValuesForComparison(comparisonId: number, values: ValueInput[], requireKeyValue = false) {
+  private validateValuesForComparison(
+    comparisonId: number,
+    values: ValueInput[],
+    requireKeyValue = false,
+  ) {
     const criteria = this.getComparisonCriteria(comparisonId);
 
     return Promise.resolve(criteria).then((allCriteria) => {
-      const criteriaMap = new Map(allCriteria.map((criterion) => [criterion.id, criterion]));
+      const criteriaMap = new Map(
+        allCriteria.map((criterion) => [criterion.id, criterion]),
+      );
 
       for (const valueInput of values) {
         const criterion = criteriaMap.get(valueInput.criterionId);
 
         if (!criterion) {
-          throw new NotFoundException(`Criterion ${valueInput.criterionId} does not belong to comparison ${comparisonId}`);
+          throw new NotFoundException(
+            `Criterion ${valueInput.criterionId} does not belong to comparison ${comparisonId}`,
+          );
         }
 
-        this.validateValueAgainstCriterion(valueInput, criterion as { id: number; type: string; config: unknown; is_key: boolean });
+        this.validateValueAgainstCriterion(
+          valueInput,
+          criterion as {
+            id: number;
+            type: string;
+            config: unknown;
+            is_key: boolean;
+          },
+        );
       }
 
       if (requireKeyValue) {
         const keyCriterion = allCriteria.find((criterion) => criterion.is_key);
-        if (keyCriterion && !values.some((value) => value.criterionId === keyCriterion.id)) {
-          throw new BadRequestException('A value for the built-in name criterion is required.');
+        if (
+          keyCriterion &&
+          !values.some((value) => value.criterionId === keyCriterion.id)
+        ) {
+          throw new BadRequestException(
+            'A value for the built-in name criterion is required.',
+          );
         }
       }
     });
@@ -195,7 +269,11 @@ export class EntriesService {
     return entry;
   }
 
-  public async update(comparisonId: number, entryId: number, data: UpdateEntryInput) {
+  public async update(
+    comparisonId: number,
+    entryId: number,
+    data: UpdateEntryInput,
+  ) {
     await this.ensureComparisonExists(comparisonId);
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
     await this.validateValuesForComparison(comparisonId, data.values);
@@ -264,27 +342,59 @@ export class EntriesService {
     const criterion = criteria.find((item) => item.id === criterionId);
 
     if (!criterion) {
-      throw new NotFoundException(`Criterion ${criterionId} does not belong to comparison ${comparisonId}`);
+      throw new NotFoundException(
+        `Criterion ${criterionId} does not belong to comparison ${comparisonId}`,
+      );
     }
 
     const valueInput = (() => {
       switch (data.type) {
         case 'number':
-          return { criterionId, type: 'number' as const, value: Number(data.value) };
+          return {
+            criterionId,
+            type: 'number' as const,
+            value: Number(data.value),
+          };
         case 'text':
-          return { criterionId, type: 'text' as const, value: String(data.value) };
+          return {
+            criterionId,
+            type: 'text' as const,
+            value: String(data.value),
+          };
         case 'boolean':
-          return { criterionId, type: 'boolean' as const, value: Boolean(data.value) };
+          return {
+            criterionId,
+            type: 'boolean' as const,
+            value: Boolean(data.value),
+          };
         case 'rating':
-          return { criterionId, type: 'rating' as const, value: Number(data.value) };
+          return {
+            criterionId,
+            type: 'rating' as const,
+            value: Number(data.value),
+          };
         case 'enum':
-          return { criterionId, type: 'enum' as const, value: String(data.value) };
+          return {
+            criterionId,
+            type: 'enum' as const,
+            value: String(data.value),
+          };
         default:
-          throw new BadRequestException(`Unsupported criterion type: ${String(data.type)}`);
+          throw new BadRequestException(
+            `Unsupported criterion type: ${String(data.type)}`,
+          );
       }
     })();
 
-    this.validateValueAgainstCriterion(valueInput, criterion as { id: number; type: string; config: unknown; is_key: boolean });
+    this.validateValueAgainstCriterion(
+      valueInput,
+      criterion as {
+        id: number;
+        type: string;
+        config: unknown;
+        is_key: boolean;
+      },
+    );
 
     return this.prisma.entryValue.upsert({
       where: {
@@ -302,7 +412,11 @@ export class EntriesService {
     });
   }
 
-  public async removeValue(comparisonId: number, entryId: number, criterionId: number) {
+  public async removeValue(
+    comparisonId: number,
+    entryId: number,
+    criterionId: number,
+  ) {
     await this.ensureComparisonExists(comparisonId);
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
 
@@ -310,7 +424,9 @@ export class EntriesService {
     const criterion = criteria.find((item) => item.id === criterionId);
 
     if (!criterion) {
-      throw new NotFoundException(`Criterion ${criterionId} does not belong to comparison ${comparisonId}`);
+      throw new NotFoundException(
+        `Criterion ${criterionId} does not belong to comparison ${comparisonId}`,
+      );
     }
 
     const value = await this.prisma.entryValue.findFirst({
@@ -319,7 +435,9 @@ export class EntriesService {
     });
 
     if (value === null) {
-      throw new NotFoundException(`Value for criterion ${criterionId} was not found.`);
+      throw new NotFoundException(
+        `Value for criterion ${criterionId} was not found.`,
+      );
     }
 
     return this.prisma.entryValue.delete({

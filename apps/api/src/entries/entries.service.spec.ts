@@ -13,7 +13,7 @@ describe('EntriesService', () => {
       id: 1,
       comparisonId: 1,
       name: 'name',
-      type: 'Text',
+      type: 'text',
       config: null,
       is_comparable: false,
       is_key: true,
@@ -22,7 +22,7 @@ describe('EntriesService', () => {
       id: 2,
       comparisonId: 1,
       name: 'Price',
-      type: 'Float',
+      type: 'number',
       config: null,
       is_comparable: true,
       is_key: false,
@@ -34,9 +34,7 @@ describe('EntriesService', () => {
     {
       id: 10,
       comparisonId: 1,
-      entryValues: [
-        { id: 1, entryId: 10, criterionId: 1, value: 'Pixel' },
-      ],
+      entryValues: [{ id: 1, entryId: 10, criterionId: 1, value: 'Pixel' }],
     },
   ]);
   const entryFindUnique = vi.fn().mockResolvedValue({
@@ -121,7 +119,7 @@ describe('EntriesService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [EntriesService],
     })
-      .useMocker((token) => token === PrismaService ? prisma : undefined)
+      .useMocker((token) => (token === PrismaService ? prisma : undefined))
       .compile();
 
     service = module.get<EntriesService>(EntriesService);
@@ -159,21 +157,27 @@ describe('EntriesService', () => {
   it('throws NotFoundException when the comparison does not exist', async () => {
     comparisonFindUnique.mockResolvedValueOnce(null);
 
-    await expect(service.create(999, {
-      values: [{ criterionId: 1, type: 'text', value: 'Pixel' }],
-    })).rejects.toThrow(NotFoundException);
+    await expect(
+      service.create(999, {
+        values: [{ criterionId: 1, type: 'text', value: 'Pixel' }],
+      }),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('rejects empty built-in name values', async () => {
-    await expect(service.create(1, {
-      values: [{ criterionId: 1, type: 'text', value: '   ' }],
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      service.create(1, {
+        values: [{ criterionId: 1, type: 'text', value: '   ' }],
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('requires the built-in name value when creating an entry', async () => {
-    await expect(service.create(1, {
-      values: [{ criterionId: 2, type: 'number', value: 999 }],
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      service.create(1, {
+        values: [{ criterionId: 2, type: 'number', value: 999 }],
+      }),
+    ).rejects.toThrow(BadRequestException);
     expect(entryCreate).not.toHaveBeenCalled();
   });
 
@@ -244,7 +248,7 @@ describe('EntriesService', () => {
         id: 2,
         comparisonId: 1,
         name: 'Price',
-        type: 'Float',
+        type: 'number',
         config: null,
         is_comparable: true,
         is_key: false,
@@ -269,17 +273,19 @@ describe('EntriesService', () => {
         id: 2,
         comparisonId: 1,
         name: 'Price',
-        type: 'Float',
+        type: 'number',
         config: null,
         is_comparable: true,
         is_key: false,
       },
     ]);
 
-    await expect(service.upsertValue(1, 10, 2, {
-      type: 'text',
-      value: '999',
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      service.upsertValue(1, 10, 2, {
+        type: 'text',
+        value: '999',
+      }),
+    ).rejects.toThrow(BadRequestException);
     expect(entryValueUpsert).not.toHaveBeenCalled();
   });
 
@@ -289,7 +295,7 @@ describe('EntriesService', () => {
         id: 3,
         comparisonId: 1,
         name: 'Quality',
-        type: 'Rating',
+        type: 'rating',
         config: { min: 1, max: 5 },
         is_comparable: true,
         is_key: false,
@@ -314,17 +320,19 @@ describe('EntriesService', () => {
         id: 3,
         comparisonId: 1,
         name: 'Quality',
-        type: 'Rating',
+        type: 'rating',
         config: { min: 1, max: 5 },
         is_comparable: true,
         is_key: false,
       },
     ]);
 
-    await expect(service.upsertValue(1, 10, 3, {
-      type: 'rating',
-      value: 6,
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      service.upsertValue(1, 10, 3, {
+        type: 'rating',
+        value: 6,
+      }),
+    ).rejects.toThrow(BadRequestException);
     expect(entryValueUpsert).not.toHaveBeenCalled();
   });
 
@@ -334,7 +342,7 @@ describe('EntriesService', () => {
         id: 4,
         comparisonId: 1,
         name: 'Color',
-        type: 'Enum',
+        type: 'enum',
         config: { options: ['Black', 'White'] },
         is_comparable: false,
         is_key: false,
@@ -359,24 +367,28 @@ describe('EntriesService', () => {
         id: 4,
         comparisonId: 1,
         name: 'Color',
-        type: 'Enum',
+        type: 'enum',
         config: { options: ['Black', 'White'] },
         is_comparable: false,
         is_key: false,
       },
     ]);
 
-    await expect(service.upsertValue(1, 10, 4, {
-      type: 'enum',
-      value: 'Red',
-    })).rejects.toThrow(BadRequestException);
+    await expect(
+      service.upsertValue(1, 10, 4, {
+        type: 'enum',
+        value: 'Red',
+      }),
+    ).rejects.toThrow(BadRequestException);
     expect(entryValueUpsert).not.toHaveBeenCalled();
   });
 
   it('returns NotFoundException when deleting a missing entry value', async () => {
     entryValueFindFirst.mockResolvedValueOnce(null);
 
-    await expect(service.removeValue(1, 10, 2)).rejects.toThrow(NotFoundException);
+    await expect(service.removeValue(1, 10, 2)).rejects.toThrow(
+      NotFoundException,
+    );
     expect(entryValueDelete).not.toHaveBeenCalled();
   });
 });

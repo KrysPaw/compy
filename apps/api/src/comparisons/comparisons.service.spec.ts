@@ -19,7 +19,7 @@ describe('ComparisonsService', () => {
         id: 1,
         comparisonId: comparison.id,
         name: 'name',
-        type: 'Text',
+        type: 'text',
         config: null,
         is_comparable: false,
         is_key: true,
@@ -29,9 +29,13 @@ describe('ComparisonsService', () => {
     ],
   };
   const comparisonCreate = vi.fn().mockResolvedValue(comparison);
-  const criterionCreate = vi.fn().mockResolvedValue(createdComparison.criteria[0]);
+  const criterionCreate = vi
+    .fn()
+    .mockResolvedValue(createdComparison.criteria[0]);
   const comparisonFindUnique = vi.fn().mockResolvedValue(createdComparison);
-  const comparisonUpdate = vi.fn().mockResolvedValue({ ...comparison, name: 'Mobile phones' });
+  const comparisonUpdate = vi
+    .fn()
+    .mockResolvedValue({ ...comparison, name: 'Mobile phones' });
   const comparisonDelete = vi.fn().mockResolvedValue(comparison);
   const comparisonDetail = {
     ...createdComparison,
@@ -54,7 +58,9 @@ describe('ComparisonsService', () => {
       },
     ],
   };
-  const comparisonDetailFindUnique = vi.fn().mockResolvedValue(comparisonDetail);
+  const comparisonDetailFindUnique = vi
+    .fn()
+    .mockResolvedValue(comparisonDetail);
   const comparisonFindMany = vi.fn().mockResolvedValue([createdComparison]);
   const prisma = {
     comparison: {
@@ -82,7 +88,7 @@ describe('ComparisonsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [ComparisonsService],
     })
-      .useMocker((token) => token === PrismaService ? prisma : undefined)
+      .useMocker((token) => (token === PrismaService ? prisma : undefined))
       .compile();
 
     service = module.get<ComparisonsService>(ComparisonsService);
@@ -102,7 +108,7 @@ describe('ComparisonsService', () => {
       data: {
         comparisonId: comparison.id,
         name: 'name',
-        type: 'Text',
+        type: 'text',
         is_comparable: false,
         is_key: true,
       },
@@ -166,8 +172,9 @@ describe('ComparisonsService', () => {
   it('rejects renaming a missing comparison', async () => {
     comparisonDetailFindUnique.mockResolvedValueOnce(null);
 
-    await expect(service.update(999, { name: 'Missing' })).rejects.toThrowError(NotFoundException);
+    await expect(service.update(999, { name: 'Missing' })).rejects.toThrowError(
+      NotFoundException,
+    );
     expect(comparisonUpdate).not.toHaveBeenCalled();
   });
-
 });

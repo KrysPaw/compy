@@ -8,7 +8,7 @@ const criteria = [
   {
     id: 1,
     name: 'Name',
-    type: 'Text' as const,
+    type: 'text' as const,
     is_key: true,
     is_comparable: false,
     config: null,
@@ -16,7 +16,7 @@ const criteria = [
   {
     id: 2,
     name: 'Price',
-    type: 'Float' as const,
+    type: 'number' as const,
     is_key: false,
     is_comparable: true,
     config: null,

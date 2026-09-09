@@ -13,17 +13,20 @@ This is primarily a **portfolio / learning project**: clear product thinking, a 
 ## 2. Goals
 
 ### Product goals (v1)
+
 - Let one person run useful free-form comparisons in a spreadsheet-like table.
 - Support flexible criteria types so real decisions (price, distance, “has balcony”, rating, brand) fit without templates.
 - Make comparison usable via **single-column sort** from column headers.
 
 ### Learning / portfolio goals
+
 - Practice a monorepo with **Next.js** (UI) + **NestJS** (API) + **Prisma** + **PostgreSQL**.
 - Share contracts via **Zod** schemas and a **`packages/shared`** package from day one.
 - Ship automated UI coverage with **Playwright**.
 - Keep the app easy to run locally and later host as a public demo (empty start, no auth).
 
 ### Non-goals (v1)
+
 - User accounts, signup, or multi-tenancy
 - Sharing links or permissions
 - Real-time multi-user collaboration
@@ -36,12 +39,12 @@ This is primarily a **portfolio / learning project**: clear product thinking, a 
 
 ## 3. Users & access
 
-| Aspect | v1 decision |
-|--------|-------------|
-| Who | Single-user / single instance (whoever has the URL) |
-| Auth | **None** — open app |
-| Privacy | Data is effectively instance-private; no public share links |
-| Hosted demo | Starts **empty**; visitors can create and edit freely |
+| Aspect        | v1 decision                                                 |
+| ------------- | ----------------------------------------------------------- |
+| Who           | Single-user / single instance (whoever has the URL)         |
+| Auth          | **None** — open app                                         |
+| Privacy       | Data is effectively instance-private; no public share links |
+| Hosted demo   | Starts **empty**; visitors can create and edit freely       |
 | Collaboration | Not in v1 (planned later: e.g. friends picking a trip stay) |
 
 **Implication:** A public demo can be wiped or filled with junk. Acceptable for portfolio; optional Basic Auth or reset tooling can be added later if needed.
@@ -71,19 +74,20 @@ There are **no category templates** in v1. Users may add more identity criteria 
 
 ### 4.1 Criterion roles
 
-| `is_comparable` | Purpose | UX (v1) |
-|------|---------|---------|
-| **false** | Who/what is this row? Built-in criterion plus optional custom fields (offer URL, source, notes, …) | Built-in criterion pinned first; other identity columns follow; render URLs as links when applicable; sort allowed but not the primary “compare” story |
-| **true** | Facts used to decide | Normal columns; header click sorts |
+| `is_comparable` | Purpose                                                                                            | UX (v1)                                                                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **false**       | Who/what is this row? Built-in criterion plus optional custom fields (offer URL, source, notes, …) | Built-in criterion pinned first; other identity columns follow; render URLs as links when applicable; sort allowed but not the primary “compare” story |
+| **true**        | Facts used to decide                                                                               | Normal columns; header click sorts                                                                                                                     |
 
 Same criterion **types** (number, text, boolean, rating, enum) apply to both values of `is_comparable`, except the built-in criterion is always **text** + `is_comparable: false`.
 
 **Rules for the built-in criterion:**
+
 - Created automatically with each comparison
 - Initially named `name`; the display name may be changed by the user
 - Identified exclusively by `is_key: true`
 - **Cannot be removed** or change `is_comparable`/type
-- Required value when creating/updating an entry? *(see open decisions — recommendation: required non-empty)*
+- Required value when creating/updating an entry? _(see open decisions — recommendation: required non-empty)_
 - Additional identity criteria: user-defined, removable, hard-delete values on remove
 
 **Row label:** always the value belonging to the built-in criterion (`is_key: true`) (fallback “Untitled entry” only if empty values are allowed).
@@ -92,13 +96,13 @@ Same criterion **types** (number, text, boolean, rating, enum) apply to both val
 
 ## 5. Criterion types (v1)
 
-| Type | Example | Notes |
-|------|---------|--------|
-| **Number** | Price, distance, storage GB | Numeric compare / sort |
-| **Text** | Brand, city, notes | Free text; lexicographic sort |
-| **Boolean** | Has balcony, remote OK | Yes/no |
-| **Rating** | 1–5 (or fixed scale) | Numeric-like sort |
-| **Enum** | Contract type: B2B / UoP / contract | User-defined option list |
+| Type        | Example                             | Notes                         |
+| ----------- | ----------------------------------- | ----------------------------- |
+| **number**  | Price, distance, storage GB         | Numeric compare / sort        |
+| **text**    | Brand, city, notes                  | Free text; lexicographic sort |
+| **boolean** | Has balcony, remote OK              | Yes/no                        |
+| **rating**  | 1–5 (or fixed scale)                | Numeric-like sort             |
+| **enum**    | Contract type: B2B / UoP / contract | User-defined option list      |
 
 Exact UX for defining enum options and rating scale bounds should follow a simple, consistent form (see §8). Every criterion has `is_comparable` — see §4.1. The built-in criterion is always text + `is_comparable: false` and is identified by `is_key: true`.
 
@@ -109,11 +113,13 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 ### 6.1 v1 — Must have
 
 **Comparisons**
+
 - Create, rename, delete a comparison
 - List all comparisons
 - Open one comparison into its table
 
 **Criteria**
+
 - Each new comparison is created with a built-in identity criterion **`name`** (text, not removable)
 - Add custom criterion (**name + type + `is_comparable`**; enum options / rating bounds as needed)
 - Edit criterion (name for custom criteria only; type/`is_comparable` locked after create — see open decisions)
@@ -121,30 +127,33 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 - Users may add further identity fields (e.g. offer link) as custom identity criteria
 
 **Entries**
+
 - Add entry (must supply **name** value for the built-in criterion if required; other values optional/partial as allowed)
 - Edit entry values (including name)
 - Delete entry → **hard-delete** its values
 
 **Comparison (table)**
+
 - Spreadsheet-like **table**: rows = entries, columns = criteria (built-in criterion + custom identity + comparable)
 - Built-in criterion (`is_key: true`) column first/pinned; other identity columns grouped with it
 - **Sort by one column** via column header click (asc/desc toggle)
 - No multi-column sort, filters, or weighted scores in v1
 
 **Persistence**
+
 - All comparisons, criteria, entries, and values stored in PostgreSQL via Prisma
 
 ### 6.2 Later — Explicit backlog
 
-| Theme | Ideas |
-|-------|--------|
-| Sharing | Private by default; shareable links (view / edit) |
-| Collaboration | Multiple people on one comparison (e.g. trip planning) |
-| Ranking | User-defined **weighted score** / “best overall” |
-| Views | Cards and other layouts beyond the table |
-| Auth / accounts | Real multi-user ownership |
-| Hosting | **Vercel** (Next.js) + **Railway** (NestJS + PostgreSQL) |
-| Demo hygiene | Seed data, reset button, or light protection if abuse appears |
+| Theme           | Ideas                                                         |
+| --------------- | ------------------------------------------------------------- |
+| Sharing         | Private by default; shareable links (view / edit)             |
+| Collaboration   | Multiple people on one comparison (e.g. trip planning)        |
+| Ranking         | User-defined **weighted score** / “best overall”              |
+| Views           | Cards and other layouts beyond the table                      |
+| Auth / accounts | Real multi-user ownership                                     |
+| Hosting         | **Vercel** (Next.js) + **Railway** (NestJS + PostgreSQL)      |
+| Demo hygiene    | Seed data, reset button, or light protection if abuse appears |
 
 ---
 
@@ -180,15 +189,15 @@ Scale assumption: on the order of **~3–50 entries** per comparison; modest num
 
 ### 9.1 Stack (required)
 
-| Layer | Choice |
-|-------|--------|
-| Frontend | Next.js + Tailwind |
-| Backend | NestJS |
-| Validation / shared contracts | **Zod** + **`nestjs-zod`** (API) |
-| Shared package | **`@compy/shared`** (from day one; schemas reused by web + api) |
-| ORM / DB | Prisma + **PostgreSQL** |
-| E2E tests | Playwright |
-| Package management | **npm** monorepo (npm workspaces; no Turborepo required) |
+| Layer                         | Choice                                                          |
+| ----------------------------- | --------------------------------------------------------------- |
+| Frontend                      | Next.js + Tailwind                                              |
+| Backend                       | NestJS                                                          |
+| Validation / shared contracts | **Zod** + **`nestjs-zod`** (API)                                |
+| Shared package                | **`@compy/shared`** (from day one; schemas reused by web + api) |
+| ORM / DB                      | Prisma + **PostgreSQL**                                         |
+| E2E tests                     | Playwright                                                      |
+| Package management            | **npm** monorepo (npm workspaces; no Turborepo required)        |
 
 ### 9.2 Monorepo layout (proposed)
 
@@ -226,11 +235,11 @@ Exact folder names can be adjusted at scaffold time; keep **web**, **api**, and 
 
 ### 9.5 Deployment roadmap
 
-| Phase | Target |
-|-------|--------|
-| Now | **Local only** (Docker Postgres or local Postgres) |
-| Later | **Vercel** for Next.js frontend |
-| Later | **Railway** for NestJS API + PostgreSQL |
+| Phase | Target                                             |
+| ----- | -------------------------------------------------- |
+| Now   | **Local only** (Docker Postgres or local Postgres) |
+| Later | **Vercel** for Next.js frontend                    |
+| Later | **Railway** for NestJS API + PostgreSQL            |
 
 Document CORS, env vars (`DATABASE_URL`, `NEXT_PUBLIC_API_URL`, etc.) when scaffolding. NestJS is **not** assumed to run on Vercel.
 
@@ -300,12 +309,12 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 ## 14. Open decisions (resolve at implementation)
 
-1. **Custom criterion type/`is_comparable` change after create** — Disallow always, or allow only when no values exist? *(Recommendation: disallow; user deletes and recreates. Built-in criterion never changes type or `is_comparable`.)*
-2. **Partial values** — Empty cells allowed for custom criteria (recommended: yes). **Name** value: required non-empty vs allow empty with “Untitled entry”? *(Recommendation: required non-empty.)*
-3. **Criterion name uniqueness** — Must criterion display names be unique within a comparison? *(Decision: ignore duplicate names for now; criteria are identified by `id`, and the built-in criterion by `is_key`.)*
-4. **Criterion / entry order** — Manual reorder in v1 or creation order only? *(The criterion with is_key: true is always first/left.)*
+1. **Custom criterion type/`is_comparable` change after create** — Disallow always, or allow only when no values exist? _(Recommendation: disallow; user deletes and recreates. Built-in criterion never changes type or `is_comparable`.)_
+2. **Partial values** — Empty cells allowed for custom criteria (recommended: yes). **Name** value: required non-empty vs allow empty with “Untitled entry”? _(Recommendation: required non-empty.)_
+3. **Criterion name uniqueness** — Must criterion display names be unique within a comparison? _(Decision: ignore duplicate names for now; criteria are identified by `id`, and the built-in criterion by `is_key`.)_
+4. **Criterion / entry order** — Manual reorder in v1 or creation order only? _(The criterion with is_key: true is always first/left.)_
 5. **API style** — REST JSON only for v1 (recommended).
-6. **URL / link fields** — Extra identity links as plain **text**, or dedicated **`url`** criterion type? *(Recommendation: dedicated `url` type if links are common; otherwise text + linkify.)*
+6. **URL / link fields** — Extra identity links as plain **text**, or dedicated **`url`** criterion type? _(Recommendation: dedicated `url` type if links are common; otherwise text + linkify.)_
 7. **Storage of name** — Value-only via built-in criterion (consistent model) vs also `Entry.name` denormalized for convenience?
 
 **Closed:** criterion roles represented by `is_comparable`; one built-in non-removable criterion (`is_key: true`) on every comparison; users may add more identity criteria; duplicate criterion names are currently allowed; `@compy/shared` + Zod + `nestjs-zod`; row label = value of the built-in criterion.
@@ -314,25 +323,25 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 
 ## 15. Summary of decisions
 
-| Topic | Decision |
-|-------|----------|
-| Purpose | Portfolio / learning |
-| Name | Compy |
-| v1 users | Single instance, no auth, empty start |
-| Categories | Free-form only |
-| Criteria | Number, text, boolean, rating, enum; each uses `is_comparable` |
-| Entry identity | Built-in non-removable criterion (`is_key: true`) + optional custom identity criteria |
-| Compare in v1 | Table + single-column header sort |
-| Deletes | Hard delete (cascade values) |
-| UI | Table only |
-| Scale | ~3–50 entries per comparison |
-| Stack | Next.js, NestJS, Prisma, PostgreSQL, Playwright, Tailwind, Zod, **nestjs-zod** |
+| Topic            | Decision                                                                                           |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| Purpose          | Portfolio / learning                                                                               |
+| Name             | Compy                                                                                              |
+| v1 users         | Single instance, no auth, empty start                                                              |
+| Categories       | Free-form only                                                                                     |
+| Criteria         | Number, text, boolean, rating, enum; each uses `is_comparable`                                     |
+| Entry identity   | Built-in non-removable criterion (`is_key: true`) + optional custom identity criteria              |
+| Compare in v1    | Table + single-column header sort                                                                  |
+| Deletes          | Hard delete (cascade values)                                                                       |
+| UI               | Table only                                                                                         |
+| Scale            | ~3–50 entries per comparison                                                                       |
+| Stack            | Next.js, NestJS, Prisma, PostgreSQL, Playwright, Tailwind, Zod, **nestjs-zod**                     |
 | Shared contracts | **`@compy/shared`** from day one; schemas reused by API (`nestjs-zod`) and web (client validation) |
-| Repo | npm workspaces monorepo |
-| Hosting now | Local |
-| Hosting later | Vercel (web) + Railway (api + DB) |
-| Later product | Share links, collaboration, weighted scores, more views, accounts |
+| Repo             | npm workspaces monorepo                                                                            |
+| Hosting now      | Local                                                                                              |
+| Hosting later    | Vercel (web) + Railway (api + DB)                                                                  |
+| Later product    | Share links, collaboration, weighted scores, more views, accounts                                  |
 
 ---
 
-*Source notes: `context/base_idea.txt` plus clarification Q&A. Update this doc when scope changes.*
+_Source notes: `context/base_idea.txt` plus clarification Q&A. Update this doc when scope changes._

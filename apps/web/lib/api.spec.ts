@@ -84,7 +84,7 @@ describe('getComparisonById', () => {
             {
               id: 1,
               name: 'Name',
-              type: 'Text',
+              type: 'text',
               is_key: true,
               is_comparable: false,
               config: null,
@@ -98,7 +98,7 @@ describe('getComparisonById', () => {
     await expect(getComparisonById(2)).resolves.toMatchObject({
       id: 2,
       name: 'Laptops',
-      criteria: [{ id: 1, name: 'Name', type: 'Text', is_key: true }],
+      criteria: [{ id: 1, name: 'Name', type: 'text', is_key: true }],
       entries: [],
     });
   });

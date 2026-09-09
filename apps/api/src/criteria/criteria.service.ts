@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   EnumConfigSchema,
   type CreateCriterionInput,
@@ -8,17 +12,16 @@ import {
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RULE_TYPE_BY_CRITERION_TYPE = {
-  Float: 'number',
-  Int: 'number',
-  Boolean: 'boolean',
-  Enum: 'enum',
-  Rating: 'rating',
-  Text: null,
+  number: 'number',
+  boolean: 'boolean',
+  enum: 'enum',
+  rating: 'rating',
+  text: null,
 } as const;
 
 @Injectable()
 export class CriteriaService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private async ensureComparisonExists(comparisonId: number) {
     const comparison = await this.prisma.comparison.findUnique({
@@ -54,7 +57,7 @@ export class CriteriaService {
     const expectedType = RULE_TYPE_BY_CRITERION_TYPE[criterionType];
 
     if (expectedType === null) {
-      throw new BadRequestException('Text criteria cannot have a rule config.');
+      throw new BadRequestException('text criteria cannot have a rule config.');
     }
 
     if (ruleConfig.type !== expectedType) {
@@ -66,12 +69,16 @@ export class CriteriaService {
     if (ruleConfig.type === 'enum') {
       const options = EnumConfigSchema.safeParse(criterionConfig);
       if (!options.success) {
-        throw new BadRequestException('Enum criterion is missing a valid options config.');
+        throw new BadRequestException(
+          'Enum criterion is missing a valid options config.',
+        );
       }
 
       const assignedValues = ruleConfig.tiers.flatMap((tier) => tier.values);
       const optionSet = new Set(options.data.options);
-      const unknownValues = assignedValues.filter((value) => !optionSet.has(value));
+      const unknownValues = assignedValues.filter(
+        (value) => !optionSet.has(value),
+      );
 
       if (unknownValues.length > 0) {
         throw new BadRequestException(
@@ -95,12 +102,12 @@ export class CriteriaService {
     await this.ensureComparisonExists(comparisonId);
 
     const type = {
-      number: 'Float',
-      text: 'Text',
-      boolean: 'Boolean',
-      rating: 'Rating',
-      enum: 'Enum',
-    }[data.type] as 'Float' | 'Text' | 'Boolean' | 'Rating' | 'Enum';
+      number: 'number',
+      text: 'text',
+      boolean: 'boolean',
+      rating: 'rating',
+      enum: 'enum',
+    }[data.type] as 'number' | 'text' | 'boolean' | 'rating' | 'enum';
 
     return this.prisma.criterion.create({
       data: {
@@ -127,11 +134,19 @@ export class CriteriaService {
     return this.findCriterion(comparisonId, criterionId);
   }
 
-  public async update(comparisonId: number, criterionId: number, data: UpdateCriterionInput) {
+  public async update(
+    comparisonId: number,
+    criterionId: number,
+    data: UpdateCriterionInput,
+  ) {
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (data.ruleConfig !== undefined) {
-      this.assertRuleConfigMatchesType(criterion.type, data.ruleConfig, criterion.config);
+      this.assertRuleConfigMatchesType(
+        criterion.type,
+        data.ruleConfig,
+        criterion.config,
+      );
     }
 
     return this.prisma.criterion.update({
@@ -142,7 +157,9 @@ export class CriteriaService {
       data: {
         ...(data.name !== undefined ? { name: data.name } : {}),
         ...(data.weight !== undefined ? { weight: data.weight } : {}),
-        ...(data.ruleConfig !== undefined ? { ruleConfig: data.ruleConfig } : {}),
+        ...(data.ruleConfig !== undefined
+          ? { ruleConfig: data.ruleConfig }
+          : {}),
       },
     });
   }
@@ -151,7 +168,9 @@ export class CriteriaService {
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (criterion.is_key) {
-      throw new BadRequestException('The built-in name criterion cannot be removed.');
+      throw new BadRequestException(
+        'The built-in name criterion cannot be removed.',
+      );
     }
 
     return this.prisma.criterion.delete({

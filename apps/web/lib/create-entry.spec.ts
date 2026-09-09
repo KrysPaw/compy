@@ -5,7 +5,6 @@ import {
   initialEntryFields,
   orderedCriteria,
   ratingBoundsOf,
-  valueTypeForCriterion,
   type Criterion,
 } from './create-entry';
 
@@ -20,24 +19,13 @@ function criterion(
   };
 }
 
-describe('valueTypeForCriterion', () => {
-  it('maps API criterion types to value input types', () => {
-    expect(valueTypeForCriterion('Text')).toBe('text');
-    expect(valueTypeForCriterion('Int')).toBe('number');
-    expect(valueTypeForCriterion('Float')).toBe('number');
-    expect(valueTypeForCriterion('Boolean')).toBe('boolean');
-    expect(valueTypeForCriterion('Rating')).toBe('rating');
-    expect(valueTypeForCriterion('Enum')).toBe('enum');
-  });
-});
-
 describe('orderedCriteria', () => {
   it('puts key criteria first and keeps relative order within groups', () => {
     const criteria = [
-      criterion({ id: 1, name: 'Price', type: 'Float', is_comparable: true }),
-      criterion({ id: 2, name: 'Name', type: 'Text', is_key: true }),
-      criterion({ id: 3, name: 'Brand', type: 'Text' }),
-      criterion({ id: 4, name: 'SKU', type: 'Text', is_key: true }),
+      criterion({ id: 1, name: 'Price', type: 'number', is_comparable: true }),
+      criterion({ id: 2, name: 'Name', type: 'text', is_key: true }),
+      criterion({ id: 3, name: 'Brand', type: 'text' }),
+      criterion({ id: 4, name: 'SKU', type: 'text', is_key: true }),
     ];
 
     expect(orderedCriteria(criteria).map((item) => item.id)).toEqual([
@@ -49,9 +37,9 @@ describe('orderedCriteria', () => {
 describe('initialEntryFields', () => {
   it('defaults booleans to false and everything else to empty string', () => {
     const criteria = [
-      criterion({ id: 1, name: 'Name', type: 'Text', is_key: true }),
-      criterion({ id: 2, name: 'In stock', type: 'Boolean' }),
-      criterion({ id: 3, name: 'Price', type: 'Float' }),
+      criterion({ id: 1, name: 'Name', type: 'text', is_key: true }),
+      criterion({ id: 2, name: 'In stock', type: 'boolean' }),
+      criterion({ id: 3, name: 'Price', type: 'number' }),
     ];
 
     expect(initialEntryFields(criteria)).toEqual({
@@ -69,7 +57,7 @@ describe('enumOptionsOf', () => {
         criterion({
           id: 1,
           name: 'Color',
-          type: 'Enum',
+          type: 'enum',
           config: { options: ['Red', 'Blue', 3, null] },
         }),
       ),
@@ -78,11 +66,11 @@ describe('enumOptionsOf', () => {
 
   it('returns an empty list for non-enum or invalid config', () => {
     expect(
-      enumOptionsOf(criterion({ id: 1, name: 'Name', type: 'Text' })),
+      enumOptionsOf(criterion({ id: 1, name: 'Name', type: 'text' })),
     ).toEqual([]);
     expect(
       enumOptionsOf(
-        criterion({ id: 2, name: 'Color', type: 'Enum', config: null }),
+        criterion({ id: 2, name: 'Color', type: 'enum', config: null }),
       ),
     ).toEqual([]);
   });
@@ -95,7 +83,7 @@ describe('ratingBoundsOf', () => {
         criterion({
           id: 1,
           name: 'Score',
-          type: 'Rating',
+          type: 'rating',
           config: { min: 1, max: 5 },
         }),
       ),
@@ -104,14 +92,14 @@ describe('ratingBoundsOf', () => {
 
   it('ignores non-rating criteria and non-numeric bounds', () => {
     expect(
-      ratingBoundsOf(criterion({ id: 1, name: 'Name', type: 'Text' })),
+      ratingBoundsOf(criterion({ id: 1, name: 'Name', type: 'text' })),
     ).toEqual({});
     expect(
       ratingBoundsOf(
         criterion({
           id: 2,
           name: 'Score',
-          type: 'Rating',
+          type: 'rating',
           config: { min: '1', max: 5 },
         }),
       ),
@@ -120,25 +108,25 @@ describe('ratingBoundsOf', () => {
 });
 
 describe('buildCreateEntryValues', () => {
-  const name = criterion({ id: 1, name: 'Name', type: 'Text', is_key: true });
-  const notes = criterion({ id: 2, name: 'Notes', type: 'Text' });
+  const name = criterion({ id: 1, name: 'Name', type: 'text', is_key: true });
+  const notes = criterion({ id: 2, name: 'Notes', type: 'text' });
   const price = criterion({
     id: 3,
     name: 'Price',
-    type: 'Float',
+    type: 'number',
     is_comparable: true,
   });
-  const inStock = criterion({ id: 4, name: 'In stock', type: 'Boolean' });
+  const inStock = criterion({ id: 4, name: 'In stock', type: 'boolean' });
   const score = criterion({
     id: 5,
     name: 'Score',
-    type: 'Rating',
+    type: 'rating',
     is_comparable: true,
   });
   const color = criterion({
     id: 6,
     name: 'Color',
-    type: 'Enum',
+    type: 'enum',
     is_comparable: true,
   });
 

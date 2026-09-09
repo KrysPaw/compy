@@ -99,7 +99,9 @@ async function seed() {
     });
 
     if (removed.count > 0) {
-      console.log(`Removed ${removed.count} existing "${COMPARISON_NAME}" comparison(s).`);
+      console.log(
+        `Removed ${removed.count} existing "${COMPARISON_NAME}" comparison(s).`,
+      );
     }
 
     const comparison = await prisma.comparison.create({
@@ -110,7 +112,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'name',
-        type: 'Text',
+        type: 'text',
         is_comparable: false,
         is_key: true,
       },
@@ -120,7 +122,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'brand',
-        type: 'Text',
+        type: 'text',
         is_comparable: false,
         is_key: false,
       },
@@ -130,7 +132,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'year',
-        type: 'Float',
+        type: 'number',
         weight: 1,
         is_comparable: true,
         is_key: false,
@@ -141,7 +143,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'price',
-        type: 'Float',
+        type: 'number',
         weight: 3,
         is_comparable: true,
         is_key: false,
@@ -152,7 +154,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'fuel',
-        type: 'Enum',
+        type: 'enum',
         config: { options: ['Petrol', 'Diesel', 'Hybrid', 'Electric'] },
         is_comparable: true,
         is_key: false,
@@ -163,7 +165,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'electric',
-        type: 'Boolean',
+        type: 'boolean',
         is_comparable: true,
         is_key: false,
       },
@@ -173,7 +175,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'rating',
-        type: 'Rating',
+        type: 'rating',
         weight: 2,
         config: { min: 1, max: 5 },
         is_comparable: true,
@@ -185,7 +187,7 @@ async function seed() {
       data: {
         comparisonId: comparison.id,
         name: 'horsepower',
-        type: 'Float',
+        type: 'number',
         weight: 1,
         is_comparable: true,
         is_key: false,
@@ -200,13 +202,33 @@ async function seed() {
       await prisma.entryValue.createMany({
         data: [
           { entryId: entry.id, criterionId: nameCriterion.id, value: car.name },
-          { entryId: entry.id, criterionId: brandCriterion.id, value: car.brand },
+          {
+            entryId: entry.id,
+            criterionId: brandCriterion.id,
+            value: car.brand,
+          },
           { entryId: entry.id, criterionId: yearCriterion.id, value: car.year },
-          { entryId: entry.id, criterionId: priceCriterion.id, value: car.price },
+          {
+            entryId: entry.id,
+            criterionId: priceCriterion.id,
+            value: car.price,
+          },
           { entryId: entry.id, criterionId: fuelCriterion.id, value: car.fuel },
-          { entryId: entry.id, criterionId: electricCriterion.id, value: car.electric },
-          { entryId: entry.id, criterionId: ratingCriterion.id, value: car.rating },
-          { entryId: entry.id, criterionId: horsepowerCriterion.id, value: car.horsepower },
+          {
+            entryId: entry.id,
+            criterionId: electricCriterion.id,
+            value: car.electric,
+          },
+          {
+            entryId: entry.id,
+            criterionId: ratingCriterion.id,
+            value: car.rating,
+          },
+          {
+            entryId: entry.id,
+            criterionId: horsepowerCriterion.id,
+            value: car.horsepower,
+          },
         ],
       });
     }

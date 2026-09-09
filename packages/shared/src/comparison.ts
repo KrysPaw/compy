@@ -26,7 +26,7 @@ export type ComparisonResponse = z.infer<typeof ComparisonResponseSchema>;
 const ComparisonCriterionSchema = z.object({
   id: z.coerce.number().int().positive(),
   name: z.string(),
-  type: z.enum(["Text", "Int", "Float", "Enum", "Boolean", "Rating"]),
+  type: z.enum(["text", "number", "enum", "boolean", "rating"]),
   is_key: z.boolean(),
   is_comparable: z.boolean(),
   config: z.unknown(),

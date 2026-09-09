@@ -22,12 +22,11 @@ model Comparison {
 }
 
 enum CriterionType {
-  Text    @map("text")
-  Int     @map("int")
-  Float   @map("float")
-  Enum    @map("enum")
-  Boolean @map("boolean")
-  Rating  @map("rating")
+  text
+  number
+  enum
+  boolean
+  rating
 }
 
 model Criterion {

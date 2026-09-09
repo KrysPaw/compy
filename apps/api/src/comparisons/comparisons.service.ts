@@ -1,24 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { CreateComparisonInput, UpdateComparisonInput } from '@compy/shared';
+import type {
+  CreateComparisonInput,
+  UpdateComparisonInput,
+} from '@compy/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class ComparisonsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   public async getById(id: number) {
     const comparison = await this.prisma.comparison.findUnique({
       where: {
-        id
+        id,
       },
       include: {
         criteria: true,
         entries: {
           include: {
-            entryValues: true
-          }
-        }
-      }
+            entryValues: true,
+          },
+        },
+      },
     });
 
     if (comparison === null) {
@@ -31,8 +34,8 @@ export class ComparisonsService {
   public getAll() {
     return this.prisma.comparison.findMany({
       orderBy: {
-        updatedAt: 'desc'
-      }
+        updatedAt: 'desc',
+      },
     });
   }
 
@@ -69,28 +72,28 @@ export class ComparisonsService {
     return this.prisma.$transaction(async (transaction) => {
       const comparison = await transaction.comparison.create({
         data: {
-          name: data.name
-        }
-      })
+          name: data.name,
+        },
+      });
 
       await transaction.criterion.create({
         data: {
           comparisonId: comparison.id,
           name: 'name',
-          type: 'Text',
+          type: 'text',
           is_comparable: false,
-          is_key: true
-        }
-      })
+          is_key: true,
+        },
+      });
 
       return transaction.comparison.findUnique({
         where: {
-          id: comparison.id
+          id: comparison.id,
         },
         include: {
-          criteria: true
-        }
-      })
+          criteria: true,
+        },
+      });
     });
   }
 }

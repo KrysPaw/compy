@@ -10,7 +10,6 @@ import {
   initialEntryFields,
   orderedCriteria,
   ratingBoundsOf,
-  valueTypeForCriterion,
   type Criterion,
   type EntryFieldValue,
 } from '@/lib/create-entry';
@@ -48,7 +47,7 @@ function EntryValueField({
   value: EntryFieldValue;
   onChange: (value: EntryFieldValue) => void;
 }) {
-  const type = valueTypeForCriterion(criterion.type);
+  const type = criterion.type;
   const id = fieldId(criterion);
   const required = criterion.is_key;
 
@@ -56,11 +55,7 @@ function EntryValueField({
     return (
       <div className="flex items-center justify-between">
         <Label htmlFor={id}>{criterion.name}</Label>
-        <Switch
-          id={id}
-          checked={value === true}
-          onCheckedChange={onChange}
-        />
+        <Switch id={id} checked={value === true} onCheckedChange={onChange} />
       </div>
     );
   }
@@ -72,10 +67,7 @@ function EntryValueField({
     return (
       <div className="flex flex-col gap-2">
         <Label htmlFor={id}>{criterion.name}</Label>
-        <Select
-          value={selected || undefined}
-          onValueChange={onChange}
-        >
+        <Select value={selected || undefined} onValueChange={onChange}>
           <SelectTrigger id={id} className="w-full">
             <SelectValue placeholder="Select an option" />
           </SelectTrigger>
@@ -140,7 +132,9 @@ export function CreateEntryDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
-  const [fields, setFields] = useState(() => initialEntryFields(fieldsCriteria));
+  const [fields, setFields] = useState(() =>
+    initialEntryFields(fieldsCriteria),
+  );
 
   function reset() {
     setFields(initialEntryFields(fieldsCriteria));
@@ -195,7 +189,10 @@ export function CreateEntryDialog({
             <EntryValueField
               key={criterion.id}
               criterion={criterion}
-              value={fields[criterion.id] ?? (criterion.type === 'Boolean' ? false : '')}
+              value={
+                fields[criterion.id] ??
+                (criterion.type === 'boolean' ? false : '')
+              }
               onChange={(value) =>
                 setFields((prev) => ({ ...prev, [criterion.id]: value }))
               }
