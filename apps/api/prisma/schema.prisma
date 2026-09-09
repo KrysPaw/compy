@@ -35,7 +35,9 @@ model Criterion {
   comparison    Comparison    @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
   name          String
   type          CriterionType
+  weight        Int           @default(0)
   config        Json?
+  ruleConfig    Json?
   is_comparable Boolean
   is_key        Boolean       @default(false)
   createdAt     DateTime      @default(now())
