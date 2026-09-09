@@ -17,12 +17,16 @@ describe('CriteriaService', () => {
     id: 2,
     comparisonId: 1,
     name: 'Price',
+    type: 'Float',
+    config: null,
     is_key: false,
   });
   const criterionUpdate = vi.fn().mockResolvedValue({
     id: 2,
     comparisonId: 1,
     name: 'Updated price',
+    weight: 25,
+    ruleConfig: { type: 'number', direction: 'lower' },
     is_key: false,
   });
   const criterionDelete = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
@@ -132,8 +136,72 @@ describe('CriteriaService', () => {
       id: 2,
       comparisonId: 1,
       name: 'Updated price',
+      weight: 25,
+      ruleConfig: { type: 'number', direction: 'lower' },
       is_key: false,
     });
+  });
+
+  it('updates criterion weight and rule config', async () => {
+    const result = await service.update(1, 2, {
+      weight: 25,
+      ruleConfig: { type: 'number', direction: 'lower' },
+    });
+
+    expect(criterionUpdate).toHaveBeenCalledWith({
+      where: { id: 2, comparisonId: 1 },
+      data: {
+        weight: 25,
+        ruleConfig: { type: 'number', direction: 'lower' },
+      },
+    });
+    expect(result.weight).toBe(25);
+    expect(result.ruleConfig).toEqual({ type: 'number', direction: 'lower' });
+  });
+
+  it('rejects rule config that does not match the criterion type', async () => {
+    await expect(service.update(1, 2, {
+      ruleConfig: { type: 'boolean', preferredValue: true },
+    })).rejects.toThrow(BadRequestException);
+    expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
+  it('rejects rule config on text criteria', async () => {
+    criterionFindFirst.mockResolvedValueOnce({
+      id: 1,
+      comparisonId: 1,
+      name: 'name',
+      type: 'Text',
+      config: null,
+      is_key: true,
+    });
+
+    await expect(service.update(1, 1, {
+      ruleConfig: { type: 'number', direction: 'higher' },
+    })).rejects.toThrow(BadRequestException);
+    expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
+  it('validates enum rule assignments against criterion options', async () => {
+    criterionFindFirst.mockResolvedValueOnce({
+      id: 3,
+      comparisonId: 1,
+      name: 'fuel',
+      type: 'Enum',
+      config: { options: ['Petrol', 'Diesel'] },
+      is_key: false,
+    });
+
+    await expect(service.update(1, 3, {
+      ruleConfig: {
+        type: 'enum',
+        tiers: [
+          { rank: 1, label: 'Bad', values: ['Petrol'] },
+          { rank: 5, label: 'Great', values: ['Diesel', 'Hybrid'] },
+        ],
+      },
+    })).rejects.toThrow(BadRequestException);
+    expect(criterionUpdate).not.toHaveBeenCalled();
   });
 
   it('throws NotFoundException when updating a missing criterion', async () => {
@@ -149,12 +217,16 @@ describe('CriteriaService', () => {
         id: 1,
         comparisonId: 1,
         name: 'name',
+        type: 'Text',
+        config: null,
         is_key: true,
       })
       .mockResolvedValueOnce({
         id: 1,
         comparisonId: 1,
         name: 'name',
+        type: 'Text',
+        config: null,
         is_key: true,
       });
 
@@ -164,6 +236,8 @@ describe('CriteriaService', () => {
       id: 2,
       comparisonId: 1,
       name: 'Updated price',
+      weight: 25,
+      ruleConfig: { type: 'number', direction: 'lower' },
       is_key: false,
     });
     await expect(service.remove(1, 1)).rejects.toThrow(BadRequestException);

@@ -1,6 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import type { CreateCriterionInput, UpdateCriterionInput } from '@compy/shared';
+import {
+  EnumConfigSchema,
+  type CreateCriterionInput,
+  type RuleConfig,
+  type UpdateCriterionInput,
+} from '@compy/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
+
+const RULE_TYPE_BY_CRITERION_TYPE = {
+  Float: 'number',
+  Int: 'number',
+  Boolean: 'boolean',
+  Enum: 'enum',
+  Rating: 'rating',
+  Text: null,
+} as const;
 
 @Injectable()
 export class CriteriaService {
@@ -30,6 +44,51 @@ export class CriteriaService {
     }
 
     return criterion;
+  }
+
+  private assertRuleConfigMatchesType(
+    criterionType: keyof typeof RULE_TYPE_BY_CRITERION_TYPE,
+    ruleConfig: RuleConfig,
+    criterionConfig: unknown,
+  ) {
+    const expectedType = RULE_TYPE_BY_CRITERION_TYPE[criterionType];
+
+    if (expectedType === null) {
+      throw new BadRequestException('Text criteria cannot have a rule config.');
+    }
+
+    if (ruleConfig.type !== expectedType) {
+      throw new BadRequestException(
+        `Rule config type "${ruleConfig.type}" does not match criterion type "${expectedType}".`,
+      );
+    }
+
+    if (ruleConfig.type === 'enum') {
+      const options = EnumConfigSchema.safeParse(criterionConfig);
+      if (!options.success) {
+        throw new BadRequestException('Enum criterion is missing a valid options config.');
+      }
+
+      const assignedValues = ruleConfig.tiers.flatMap((tier) => tier.values);
+      const optionSet = new Set(options.data.options);
+      const unknownValues = assignedValues.filter((value) => !optionSet.has(value));
+
+      if (unknownValues.length > 0) {
+        throw new BadRequestException(
+          `Enum rule config includes unknown values: ${unknownValues.join(', ')}.`,
+        );
+      }
+
+      const missingValues = options.data.options.filter(
+        (option) => !assignedValues.includes(option),
+      );
+
+      if (missingValues.length > 0) {
+        throw new BadRequestException(
+          `Enum rule config is missing values: ${missingValues.join(', ')}.`,
+        );
+      }
+    }
   }
 
   public async create(comparisonId: number, data: CreateCriterionInput) {
@@ -69,7 +128,11 @@ export class CriteriaService {
   }
 
   public async update(comparisonId: number, criterionId: number, data: UpdateCriterionInput) {
-    await this.findCriterion(comparisonId, criterionId);
+    const criterion = await this.findCriterion(comparisonId, criterionId);
+
+    if (data.ruleConfig !== undefined) {
+      this.assertRuleConfigMatchesType(criterion.type, data.ruleConfig, criterion.config);
+    }
 
     return this.prisma.criterion.update({
       where: {
@@ -77,7 +140,9 @@ export class CriteriaService {
         comparisonId,
       },
       data: {
-        name: data.name,
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.weight !== undefined ? { weight: data.weight } : {}),
+        ...(data.ruleConfig !== undefined ? { ruleConfig: data.ruleConfig } : {}),
       },
     });
   }

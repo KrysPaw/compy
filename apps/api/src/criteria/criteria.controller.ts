@@ -41,8 +41,9 @@ export class CriteriaController {
   }
 
   @Patch(':comparisonId/criteria/:criterionId')
-  @ApiOperation({ summary: 'Rename a criterion' })
-  @ApiResponse({ status: 200, description: 'The renamed criterion.' })
+  @ApiOperation({ summary: 'Update a criterion name, weight, or rule config' })
+  @ApiResponse({ status: 200, description: 'The updated criterion.' })
+  @ApiResponse({ status: 400, description: 'Invalid weight, rule config, or empty update body.' })
   @ApiResponse({ status: 404, description: 'Criterion not found.' })
   public update(
     @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
