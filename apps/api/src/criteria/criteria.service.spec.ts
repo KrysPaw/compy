@@ -20,6 +20,8 @@ describe('CriteriaService', () => {
     type: 'number',
     config: null,
     is_key: false,
+    is_comparable: true,
+    weight: 25,
   });
   const criterionUpdate = vi.fn().mockResolvedValue({
     id: 2,
@@ -145,11 +147,19 @@ describe('CriteriaService', () => {
   });
 
   it('updates criterion weight and rule config', async () => {
+    criterionFindMany.mockResolvedValueOnce([
+      { id: 2, weight: 10, is_comparable: true },
+    ]);
+
     const result = await service.update(1, 2, {
       weight: 25,
       ruleConfig: { direction: 'lower' },
     });
 
+    expect(criterionFindMany).toHaveBeenCalledWith({
+      where: { comparisonId: 1, is_comparable: true },
+      select: { id: true, weight: true, is_comparable: true },
+    });
     expect(criterionUpdate).toHaveBeenCalledWith({
       where: { id: 2, comparisonId: 1 },
       data: {
@@ -159,6 +169,37 @@ describe('CriteriaService', () => {
     });
     expect(result.weight).toBe(25);
     expect(result.ruleConfig).toEqual({ direction: 'lower' });
+  });
+
+  it('rejects a weight that would exceed the comparable pool', async () => {
+    criterionFindMany.mockResolvedValueOnce([
+      { id: 2, weight: 40, is_comparable: true },
+      { id: 3, weight: 60, is_comparable: true },
+    ]);
+
+    await expect(service.update(1, 2, { weight: 41 })).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
+  it('rejects weight updates on non-comparable criteria', async () => {
+    criterionFindFirst.mockResolvedValueOnce({
+      id: 1,
+      comparisonId: 1,
+      name: 'name',
+      type: 'text',
+      config: null,
+      is_key: true,
+      is_comparable: false,
+      weight: 0,
+    });
+
+    await expect(service.update(1, 1, { weight: 10 })).rejects.toThrow(
+      BadRequestException,
+    );
+    expect(criterionFindMany).not.toHaveBeenCalled();
+    expect(criterionUpdate).not.toHaveBeenCalled();
   });
 
   it('rejects rule config that does not match the criterion type', async () => {

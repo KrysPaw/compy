@@ -24,7 +24,10 @@ export default async function RulesPage({
         Rules define how comparable criteria affect ranking and how much each
         counts.
       </p>
-      <RulesDataTable criteria={comparison.criteria} />
+      <RulesDataTable
+        comparisonId={comparison.id}
+        criteria={comparison.criteria}
+      />
     </div>
   );
 }

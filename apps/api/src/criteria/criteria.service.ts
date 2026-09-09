@@ -9,6 +9,7 @@ import {
   EnumRuleConfigSchema,
   NumberRuleConfigSchema,
   RatingRuleConfigSchema,
+  remainingWeightPool,
   type CreateCriterionInput,
   type UpdateCriterionInput,
 } from '@compy/shared';
@@ -161,6 +162,29 @@ export class CriteriaService {
     data: UpdateCriterionInput,
   ) {
     const criterion = await this.findCriterion(comparisonId, criterionId);
+
+    if (data.weight !== undefined) {
+      if (!criterion.is_comparable) {
+        throw new BadRequestException(
+          'Only comparable criteria can have a weight.',
+        );
+      }
+
+      const nextWeight = data.weight;
+      const comparableCriteria = await this.prisma.criterion.findMany({
+        where: { comparisonId, is_comparable: true },
+        select: { id: true, weight: true, is_comparable: true },
+      });
+      const nextCriteria = comparableCriteria.map((item) =>
+        item.id === criterionId ? { ...item, weight: nextWeight } : item,
+      );
+
+      if (remainingWeightPool(nextCriteria) < 0) {
+        throw new BadRequestException(
+          'Comparable criteria weights cannot exceed 100.',
+        );
+      }
+    }
 
     if (data.ruleConfig !== undefined) {
       this.assertRuleConfigMatchesType(

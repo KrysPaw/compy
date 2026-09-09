@@ -15,7 +15,9 @@ export class ComparisonsService {
         id,
       },
       include: {
-        criteria: true,
+        criteria: {
+          orderBy: { createdAt: 'asc' },
+        },
         entries: {
           include: {
             entryValues: true,
@@ -91,7 +93,9 @@ export class ComparisonsService {
           id: comparison.id,
         },
         include: {
-          criteria: true,
+          criteria: {
+            orderBy: { createdAt: 'asc' },
+          },
         },
       });
     });

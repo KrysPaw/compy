@@ -47,6 +47,16 @@ export const CriterionWeightSchema = z
   .min(0)
   .max(WEIGHT_POOL_TOTAL);
 
+export function remainingWeightPool(
+  criteria: ReadonlyArray<{ is_comparable: boolean; weight: number }>,
+): number {
+  const assigned = criteria
+    .filter((criterion) => criterion.is_comparable)
+    .reduce((sum, criterion) => sum + criterion.weight, 0);
+
+  return WEIGHT_POOL_TOTAL - assigned;
+}
+
 export const NumberRuleConfigSchema = z
   .object({
     direction: RuleDirectionSchema,

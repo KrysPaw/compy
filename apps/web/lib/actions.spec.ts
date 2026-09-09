@@ -4,6 +4,7 @@ import {
   createCriterion,
   createEntry,
   deleteComparison,
+  updateCriterionWeight,
 } from './actions';
 
 afterEach(() => {
@@ -172,6 +173,44 @@ describe('createEntry', () => {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
       }),
     ).resolves.toEqual({ error: 'Failed to create entry' });
+  });
+});
+
+describe('updateCriterionWeight', () => {
+  it('returns a validation error for a negative weight', async () => {
+    await expect(updateCriterionWeight(1, 2, -1)).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches a valid weight', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 2 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ weight: 25 }),
+      }),
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          { message: 'Comparable criteria weights cannot exceed 100.' },
+          { status: 400 },
+        ),
+      ),
+    );
+
+    await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({
+      error: 'Comparable criteria weights cannot exceed 100.',
+    });
   });
 });
 

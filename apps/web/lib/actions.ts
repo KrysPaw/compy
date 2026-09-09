@@ -6,6 +6,7 @@ import {
   ComparisonResponseSchema,
   CreateCriterionSchema,
   CreateEntrySchema,
+  UpdateCriterionSchema,
 } from '@compy/shared';
 import { API_URL } from './api';
 
@@ -126,6 +127,39 @@ export async function createEntry(
 
   const entry = EntryResponseSchema.parse(await res.json());
   return { entryId: entry.id };
+}
+
+export type UpdateCriterionWeightState = {
+  error?: string;
+};
+
+export async function updateCriterionWeight(
+  comparisonId: number,
+  criterionId: number,
+  weight: number,
+): Promise<UpdateCriterionWeightState> {
+  const parsed = UpdateCriterionSchema.safeParse({ weight });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid weight' };
+  }
+
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed.data),
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to update weight'),
+    };
+  }
+
+  return {};
 }
 
 export async function deleteComparison(

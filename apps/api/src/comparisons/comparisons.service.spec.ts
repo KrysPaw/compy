@@ -115,7 +115,11 @@ describe('ComparisonsService', () => {
     });
     expect(comparisonFindUnique).toHaveBeenCalledWith({
       where: { id: comparison.id },
-      include: { criteria: true },
+      include: {
+        criteria: {
+          orderBy: { createdAt: 'asc' },
+        },
+      },
     });
     expect(result).toEqual(createdComparison);
   });
@@ -135,7 +139,9 @@ describe('ComparisonsService', () => {
     expect(comparisonDetailFindUnique).toHaveBeenCalledWith({
       where: { id: 1 },
       include: {
-        criteria: true,
+        criteria: {
+          orderBy: { createdAt: 'asc' },
+        },
         entries: {
           include: {
             entryValues: true,
