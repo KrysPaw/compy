@@ -9,13 +9,16 @@ export function ComparisonTabs({ comparisonId }: { comparisonId: number }) {
   const entriesPath = `/comparisons/${comparisonId}/entries`;
   const criteriaPath = `/comparisons/${comparisonId}/criteria`;
   const rulesPath = `/comparisons/${comparisonId}/rules`;
+  const resultsPath = `/comparisons/${comparisonId}/results`;
 
-  let activeTab: 'rules' | 'criteria' | 'entries';
+  let activeTab: 'rules' | 'criteria' | 'entries' | 'results';
 
   if (pathname.endsWith('/rules')) {
     activeTab = 'rules';
   } else if (pathname.endsWith('/criteria')) {
     activeTab = 'criteria';
+  } else if (pathname.endsWith('/results')) {
+    activeTab = 'results';
   } else {
     activeTab = 'entries';
   }
@@ -31,6 +34,9 @@ export function ComparisonTabs({ comparisonId }: { comparisonId: number }) {
         </TabsTrigger>
         <TabsTrigger value="rules" asChild>
           <Link href={rulesPath}>Rules</Link>
+        </TabsTrigger>
+        <TabsTrigger value="results" asChild>
+          <Link href={resultsPath}>Results</Link>
         </TabsTrigger>
       </TabsList>
     </Tabs>
