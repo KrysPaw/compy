@@ -8,7 +8,17 @@ export function ComparisonTabs({ comparisonId }: { comparisonId: number }) {
   const pathname = usePathname();
   const entriesPath = `/comparisons/${comparisonId}/entries`;
   const criteriaPath = `/comparisons/${comparisonId}/criteria`;
-  const activeTab = pathname === criteriaPath ? 'criteria' : 'entries';
+  const rulesPath = `/comparisons/${comparisonId}/rules`;
+
+  let activeTab: 'rules' | 'criteria' | 'entries';
+
+  if (pathname.endsWith('/rules')) {
+    activeTab = 'rules';
+  } else if (pathname.endsWith('/criteria')) {
+    activeTab = 'criteria';
+  } else {
+    activeTab = 'entries';
+  }
 
   return (
     <Tabs value={activeTab} className="absolute left-1/2 -translate-x-1/2">
@@ -18,6 +28,9 @@ export function ComparisonTabs({ comparisonId }: { comparisonId: number }) {
         </TabsTrigger>
         <TabsTrigger value="entries" asChild>
           <Link href={entriesPath}>Entries</Link>
+        </TabsTrigger>
+        <TabsTrigger value="rules" asChild>
+          <Link href={rulesPath}>Rules</Link>
         </TabsTrigger>
       </TabsList>
     </Tabs>

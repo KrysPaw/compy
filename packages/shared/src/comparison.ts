@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { NameSchema, OptionalNameSchema } from "./common/primitives.js";
+import { CriterionWeightSchema } from "./criterion.js";
 
 export const CreateComparisonSchema = z.object({
   name: NameSchema,
@@ -29,7 +30,9 @@ const ComparisonCriterionSchema = z.object({
   type: z.enum(["text", "number", "enum", "boolean", "rating"]),
   is_key: z.boolean(),
   is_comparable: z.boolean(),
+  weight: CriterionWeightSchema,
   config: z.unknown(),
+  ruleConfig: z.unknown().nullable(),
 });
 
 const ComparisonEntryValueSchema = z.object({

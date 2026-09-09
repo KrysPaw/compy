@@ -11,7 +11,9 @@ const criteria = [
     type: 'text' as const,
     is_key: true,
     is_comparable: false,
+    weight: 0,
     config: null,
+    ruleConfig: null,
   },
   {
     id: 2,
@@ -19,7 +21,9 @@ const criteria = [
     type: 'number' as const,
     is_key: false,
     is_comparable: true,
+    weight: 25,
     config: null,
+    ruleConfig: { direction: 'lower' as const },
   },
 ];
 

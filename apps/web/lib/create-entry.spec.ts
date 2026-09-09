@@ -14,7 +14,9 @@ function criterion(
   return {
     is_key: false,
     is_comparable: false,
+    weight: 0,
     config: null,
+    ruleConfig: null,
     ...overrides,
   };
 }
