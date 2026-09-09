@@ -1,9 +1,10 @@
-import { rankEntries } from '@compy/shared';
+import { prosConsByEntry, rankEntries } from '@compy/shared';
 import { describe, expect, it } from 'vitest';
 
 function criterion(
   overrides: Partial<{
     id: number;
+    name: string;
     type: 'text' | 'number' | 'enum' | 'boolean' | 'rating';
     is_comparable: boolean;
     weight: number;
@@ -13,6 +14,7 @@ function criterion(
 ) {
   return {
     id: 1,
+    name: 'Score',
     type: 'number' as const,
     is_comparable: true,
     weight: 100,
@@ -173,5 +175,108 @@ describe('rankEntries', () => {
     expect(ranked.map((item) => item.entryId)).toEqual([10, 11]);
     expect(ranked[0]?.rate).toBe(60);
     expect(ranked[1]?.rate).toBe(40);
+  });
+});
+
+describe('prosConsByEntry', () => {
+  it('lists strong and weak criteria with type-aware labels', () => {
+    const byEntry = prosConsByEntry(
+      [
+        criterion({
+          id: 1,
+          name: 'Price',
+          weight: 25,
+          ruleConfig: { direction: 'lower' },
+        }),
+        criterion({
+          id: 2,
+          name: 'Fuel',
+          type: 'enum',
+          weight: 25,
+          ruleConfig: {
+            tiers: [
+              { rank: 1, values: ['Hybrid'] },
+              { rank: 2, values: ['Electric'] },
+              { rank: 3, values: ['Petrol'] },
+            ],
+          },
+        }),
+        criterion({
+          id: 3,
+          name: 'electric',
+          type: 'boolean',
+          weight: 25,
+          ruleConfig: { preferredValue: true },
+        }),
+        criterion({
+          id: 4,
+          name: 'rate',
+          type: 'rating',
+          weight: 25,
+          config: { min: 1, max: 5 },
+          ruleConfig: { direction: 'higher', min: 1, max: 5 },
+        }),
+      ],
+      [
+        entry(10, [
+          { criterionId: 1, value: 100 },
+          { criterionId: 2, value: 'Hybrid' },
+          { criterionId: 3, value: true },
+          { criterionId: 4, value: 5 },
+        ]),
+        entry(11, [
+          { criterionId: 1, value: 900 },
+          { criterionId: 2, value: 'Petrol' },
+          { criterionId: 3, value: false },
+          { criterionId: 4, value: 1 },
+        ]),
+      ],
+    );
+
+    expect(byEntry.get(10)).toEqual({
+      pros: ['Low Price', 'Fuel is Hybrid', 'electric', 'High rate'],
+      cons: [],
+    });
+    expect(byEntry.get(11)).toEqual({
+      pros: [],
+      cons: ['High Price', 'Fuel is Petrol', 'Not electric', 'Low rate'],
+    });
+  });
+
+  it('skips mid-range scores and zero-weight criteria', () => {
+    const byEntry = prosConsByEntry(
+      [
+        criterion({
+          id: 1,
+          name: 'Price',
+          weight: 100,
+          ruleConfig: { direction: 'higher' },
+        }),
+        criterion({
+          id: 2,
+          name: 'Ignored',
+          weight: 0,
+          ruleConfig: { direction: 'higher' },
+        }),
+      ],
+      [
+        entry(10, [
+          { criterionId: 1, value: 50 },
+          { criterionId: 2, value: 1 },
+        ]),
+        entry(11, [
+          { criterionId: 1, value: 0 },
+          { criterionId: 2, value: 100 },
+        ]),
+        entry(12, [
+          { criterionId: 1, value: 100 },
+          { criterionId: 2, value: 0 },
+        ]),
+      ],
+    );
+
+    expect(byEntry.get(10)).toEqual({ pros: [], cons: [] });
+    expect(byEntry.get(11)).toEqual({ pros: [], cons: ['Low Price'] });
+    expect(byEntry.get(12)).toEqual({ pros: ['High Price'], cons: [] });
   });
 });

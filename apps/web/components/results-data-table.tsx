@@ -1,5 +1,5 @@
-import type { ComparisonDetailsResponse } from '@compy/shared';
-import { MedalIcon } from 'lucide-react';
+import { prosConsByEntry, type ComparisonDetailsResponse } from '@compy/shared';
+import { MedalIcon, MinusIcon, PlusIcon } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -20,8 +20,8 @@ export type ResultsTableRow = {
   entryId: number;
   keyLabel: string;
   infoValues: string[];
-  pros: string;
-  cons: string;
+  pros: string[];
+  cons: string[];
   rate: number;
 };
 
@@ -57,6 +57,50 @@ function displayValue(value: unknown): string {
   return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
+function formatScore(rate: number): string {
+  return String(Math.round(rate));
+}
+
+function HighlightItems({
+  items,
+  kind,
+}: {
+  items: string[];
+  kind: 'pro' | 'con';
+}) {
+  const Icon = kind === 'pro' ? PlusIcon : MinusIcon;
+  const iconClass =
+    kind === 'pro'
+      ? 'size-3.5 shrink-0 text-emerald-600'
+      : 'size-3.5 shrink-0 text-red-600';
+
+  return items.map((item) => (
+    <li key={`${kind}:${item}`} className="inline-flex items-center gap-1.5">
+      <Icon aria-hidden className={iconClass} />
+      <span>{item}</span>
+    </li>
+  ));
+}
+
+function HighlightsCell({
+  pros,
+  cons,
+}: {
+  pros: string[];
+  cons: string[];
+}) {
+  if (pros.length === 0 && cons.length === 0) {
+    return '—';
+  }
+
+  return (
+    <ul className="flex list-none flex-col gap-1 p-0">
+      <HighlightItems items={pros} kind="pro" />
+      <HighlightItems items={cons} kind="con" />
+    </ul>
+  );
+}
+
 /** Non-key criteria that do not participate in ranking. */
 export function resultsInfoColumns(
   criteria: ReadonlyArray<Criterion>,
@@ -87,8 +131,8 @@ export function ResultsDataTable({
               {infoColumns.map((column) => (
                 <TableHead key={column.id}>{column.name}</TableHead>
               ))}
-              <TableHead>Pros</TableHead>
-              <TableHead>Cons</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Highlights</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -115,8 +159,10 @@ export function ResultsDataTable({
                       {row.infoValues[columnIndex] || '—'}
                     </TableCell>
                   ))}
-                  <TableCell>{row.pros || '—'}</TableCell>
-                  <TableCell>{row.cons || '—'}</TableCell>
+                  <TableCell>{formatScore(row.rate)}</TableCell>
+                  <TableCell>
+                    <HighlightsCell pros={row.pros} cons={row.cons} />
+                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -142,11 +188,17 @@ export function buildResultsRows(
     comparison.entries.map((entry) => [entry.id, entry]),
   );
 
+  const highlights = prosConsByEntry(
+    comparison.criteria,
+    comparison.entries,
+  );
+
   return ranked.map((item) => {
     const entry = entriesById.get(item.entryId);
     const raw = entry?.entryValues.find(
       (value) => value.criterionId === keyCriterion?.id,
     )?.value;
+    const entryHighlights = highlights.get(item.entryId);
 
     return {
       entryId: item.entryId,
@@ -157,8 +209,8 @@ export function buildResultsRows(
         )?.value;
         return displayValue(value);
       }),
-      pros: '',
-      cons: '',
+      pros: entryHighlights?.pros ?? [],
+      cons: entryHighlights?.cons ?? [],
       rate: item.rate,
     };
   });

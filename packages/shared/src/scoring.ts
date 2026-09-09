@@ -8,6 +8,11 @@ import {
 
 const NEUTRAL_SCORE = 0.5;
 
+/** Normalized score above this is listed as a pro. */
+export const PRO_SCORE_THRESHOLD = 0.7;
+/** Normalized score below this is listed as a con. */
+export const CON_SCORE_THRESHOLD = 0.3;
+
 export type ScorableCriterion = {
   id: number;
   type: "text" | "number" | "enum" | "boolean" | "rating";
@@ -15,6 +20,10 @@ export type ScorableCriterion = {
   weight: number;
   config: unknown;
   ruleConfig: unknown;
+};
+
+export type NamedScorableCriterion = ScorableCriterion & {
+  name: string;
 };
 
 export type ScorableEntry = {
@@ -28,6 +37,11 @@ export type ScorableEntry = {
 export type RankedEntry = {
   entryId: number;
   rate: number;
+};
+
+export type EntryProsCons = {
+  pros: string[];
+  cons: string[];
 };
 
 function valueOf(
@@ -284,4 +298,114 @@ export function rankEntries(
 
       return left.entryId - right.entryId;
     });
+}
+
+function directionLabel(
+  name: string,
+  direction: RuleDirection,
+  kind: "pro" | "con",
+): string {
+  const highIsGood = direction === "higher";
+  const useHigh =
+    (kind === "pro" && highIsGood) || (kind === "con" && !highIsGood);
+  return `${useHigh ? "High" : "Low"} ${name}`;
+}
+
+function booleanLabel(name: string, value: boolean): string {
+  return value ? name : `Not ${name}`;
+}
+
+function formatProsConsLabel(
+  criterion: NamedScorableCriterion,
+  value: unknown,
+  kind: "pro" | "con",
+): string | null {
+  if (criterion.type === "number") {
+    return directionLabel(criterion.name, numberDirection(criterion.ruleConfig), kind);
+  }
+
+  if (criterion.type === "rating") {
+    const rule = ratingRule(criterion.ruleConfig, criterion.config);
+    return directionLabel(criterion.name, rule.direction, kind);
+  }
+
+  if (criterion.type === "enum") {
+    const text = asString(value);
+    if (text === null) {
+      return null;
+    }
+    return `${criterion.name} is ${text}`;
+  }
+
+  if (criterion.type === "boolean") {
+    const flag = asBoolean(value);
+    if (flag === null) {
+      return null;
+    }
+    return booleanLabel(criterion.name, flag);
+  }
+
+  return null;
+}
+
+/**
+ * Builds human-readable pros/cons from normalized criterion scores.
+ * Pro: score > 0.7; Con: score < 0.3. Skips non-comparable and zero-weight criteria.
+ */
+export function prosConsByEntry(
+  criteria: ReadonlyArray<NamedScorableCriterion>,
+  entries: ReadonlyArray<ScorableEntry>,
+): Map<number, EntryProsCons> {
+  const result = new Map<number, EntryProsCons>();
+
+  for (const entry of entries) {
+    result.set(entry.id, { pros: [], cons: [] });
+  }
+
+  for (const criterion of criteria) {
+    if (!criterion.is_comparable || criterion.weight === 0) {
+      continue;
+    }
+
+    const normalized = normalizeCriterionScores(criterion, entries);
+
+    for (const entry of entries) {
+      const score = normalized.get(entry.id);
+      if (score === undefined) {
+        continue;
+      }
+
+      const bucket = result.get(entry.id);
+      if (!bucket) {
+        continue;
+      }
+
+      const kind =
+        score > PRO_SCORE_THRESHOLD
+          ? ("pro" as const)
+          : score < CON_SCORE_THRESHOLD
+            ? ("con" as const)
+            : null;
+      if (kind === null) {
+        continue;
+      }
+
+      const label = formatProsConsLabel(
+        criterion,
+        valueOf(entry, criterion.id),
+        kind,
+      );
+      if (label === null) {
+        continue;
+      }
+
+      if (kind === "pro") {
+        bucket.pros.push(label);
+      } else {
+        bucket.cons.push(label);
+      }
+    }
+  }
+
+  return result;
 }

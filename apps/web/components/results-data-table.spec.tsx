@@ -20,7 +20,7 @@ describe('ResultsDataTable', () => {
     expect(screen.getByText('No entries yet.')).toBeInTheDocument();
   });
 
-  it('renders info columns between key and Pros', () => {
+  it('renders Score then Highlights with pros above cons', () => {
     render(
       <ResultsDataTable
         keyCriterionName="Name"
@@ -30,32 +30,32 @@ describe('ResultsDataTable', () => {
             entryId: 11,
             keyLabel: 'iPhone 15',
             infoValues: ['Apple'],
-            pros: '',
-            cons: '',
+            pros: ['Low Price'],
+            cons: ['Not Electric'],
             rate: 80,
           },
           {
             entryId: 10,
             keyLabel: 'Pixel 8',
             infoValues: ['Google'],
-            pros: '',
-            cons: '',
+            pros: [],
+            cons: [],
             rate: 40,
           },
           {
             entryId: 12,
             keyLabel: 'Galaxy S24',
             infoValues: ['Samsung'],
-            pros: '',
-            cons: '',
+            pros: [],
+            cons: [],
             rate: 30,
           },
           {
             entryId: 13,
             keyLabel: 'Nothing Phone',
             infoValues: ['Nothing'],
-            pros: '',
-            cons: '',
+            pros: [],
+            cons: [],
             rate: 10,
           },
         ]}
@@ -66,11 +66,14 @@ describe('ResultsDataTable', () => {
       .getAllByRole('columnheader')
       .map((header) => header.textContent);
 
-    expect(headers).toEqual(['Name', 'Brand', 'Pros', 'Cons']);
+    expect(headers).toEqual(['Name', 'Brand', 'Score', 'Highlights']);
     expect(screen.getByLabelText('1st place')).toBeInTheDocument();
     expect(screen.getByLabelText('2nd place')).toBeInTheDocument();
     expect(screen.getByLabelText('3rd place')).toBeInTheDocument();
     expect(screen.queryByLabelText('4th place')).not.toBeInTheDocument();
+
+    expect(screen.getByText('Low Price')).toBeInTheDocument();
+    expect(screen.getByText('Not Electric')).toBeInTheDocument();
 
     const rows = screen
       .getAllByRole('row')
@@ -81,12 +84,15 @@ describe('ResultsDataTable', () => {
           .map((cell) => cell.textContent),
       );
 
-    expect(rows).toEqual([
-      ['iPhone 15', 'Apple', '—', '—'],
-      ['Pixel 8', 'Google', '—', '—'],
-      ['Galaxy S24', 'Samsung', '—', '—'],
-      ['Nothing Phone', 'Nothing', '—', '—'],
-    ]);
+    expect(rows[0]?.[0]).toContain('iPhone 15');
+    expect(rows[0]?.[1]).toBe('Apple');
+    expect(rows[0]?.[2]).toBe('80');
+    expect(rows[0]?.[3]).toContain('Low Price');
+    expect(rows[0]?.[3]).toContain('Not Electric');
+    expect(rows[0]?.[3]?.indexOf('Low Price')).toBeLessThan(
+      rows[0]?.[3]?.indexOf('Not Electric') ?? -1,
+    );
+    expect(rows[1]).toEqual(['Pixel 8', 'Google', '40', '—']);
   });
 });
 
@@ -130,7 +136,7 @@ describe('resultsInfoColumns', () => {
 });
 
 describe('buildResultsRows', () => {
-  it('maps ranked entries with info values and empty pros/cons', () => {
+  it('maps ranked entries with info values and typed pros/cons', () => {
     const criteria = [
       {
         id: 1,
@@ -158,9 +164,45 @@ describe('buildResultsRows', () => {
         type: 'number' as const,
         is_key: false,
         is_comparable: true,
-        weight: 100,
+        weight: 40,
         config: null,
         ruleConfig: { direction: 'lower' as const },
+      },
+      {
+        id: 4,
+        name: 'Fuel',
+        type: 'enum' as const,
+        is_key: false,
+        is_comparable: true,
+        weight: 20,
+        config: { options: ['Petrol', 'Hybrid', 'Electric'] },
+        ruleConfig: {
+          tiers: [
+            { rank: 1, values: ['Hybrid'] },
+            { rank: 2, values: ['Electric'] },
+            { rank: 3, values: ['Petrol'] },
+          ],
+        },
+      },
+      {
+        id: 5,
+        name: 'electric',
+        type: 'boolean' as const,
+        is_key: false,
+        is_comparable: true,
+        weight: 20,
+        config: null,
+        ruleConfig: { preferredValue: true },
+      },
+      {
+        id: 6,
+        name: 'rate',
+        type: 'rating' as const,
+        is_key: false,
+        is_comparable: true,
+        weight: 20,
+        config: { min: 1, max: 5 },
+        ruleConfig: { direction: 'higher' as const, min: 1, max: 5 },
       },
     ];
     const infoColumns = resultsInfoColumns(criteria);
@@ -174,7 +216,10 @@ describe('buildResultsRows', () => {
             entryValues: [
               { criterionId: 1, value: 'Pixel 8' },
               { criterionId: 2, value: 'Google' },
-              { criterionId: 3, value: 799 },
+              { criterionId: 3, value: 500 },
+              { criterionId: 4, value: 'Hybrid' },
+              { criterionId: 5, value: true },
+              { criterionId: 6, value: 5 },
             ],
           },
           {
@@ -183,33 +228,46 @@ describe('buildResultsRows', () => {
               { criterionId: 1, value: 'iPhone 15' },
               { criterionId: 2, value: 'Apple' },
               { criterionId: 3, value: 999 },
+              { criterionId: 4, value: 'Petrol' },
+              { criterionId: 5, value: false },
+              { criterionId: 6, value: 1 },
             ],
           },
         ],
       },
       [
-        { entryId: 11, rate: 90 },
-        { entryId: 10, rate: 10 },
+        { entryId: 10, rate: 100 },
+        { entryId: 11, rate: 0 },
       ],
       infoColumns,
     );
 
     expect(rows).toEqual([
       {
-        entryId: 11,
-        keyLabel: 'iPhone 15',
-        infoValues: ['Apple'],
-        pros: '',
-        cons: '',
-        rate: 90,
-      },
-      {
         entryId: 10,
         keyLabel: 'Pixel 8',
         infoValues: ['Google'],
-        pros: '',
-        cons: '',
-        rate: 10,
+        pros: [
+          'Low Price',
+          'Fuel is Hybrid',
+          'electric',
+          'High rate',
+        ],
+        cons: [],
+        rate: 100,
+      },
+      {
+        entryId: 11,
+        keyLabel: 'iPhone 15',
+        infoValues: ['Apple'],
+        pros: [],
+        cons: [
+          'High Price',
+          'Fuel is Petrol',
+          'Not electric',
+          'Low rate',
+        ],
+        rate: 0,
       },
     ]);
   });
