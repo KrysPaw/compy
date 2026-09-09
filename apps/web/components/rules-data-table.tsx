@@ -8,7 +8,10 @@ import {
   WEIGHT_POOL_TOTAL,
   type ComparisonDetailsResponse,
 } from '@compy/shared';
-import { updateCriterionWeight } from '@/lib/actions';
+import {
+  updateCriterionRuleConfig,
+  updateCriterionWeight,
+} from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,7 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatRuleMessage } from '@/lib/format-rule';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  formatRuleMessage,
+  hasDirection,
+  hasPreferredValue,
+  nextBooleanRuleConfig,
+  nextDirectionRuleConfig,
+} from '@/lib/format-rule';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
@@ -31,6 +41,82 @@ function weightsFrom(criteria: Criterion[]) {
       .filter((criterion) => criterion.is_comparable)
       .map((criterion) => [criterion.id, criterion.weight]),
   );
+}
+
+function ruleConfigsFrom(criteria: Criterion[]) {
+  return Object.fromEntries(
+    criteria
+      .filter((criterion) => criterion.is_comparable)
+      .map((criterion) => [criterion.id, criterion.ruleConfig]),
+  );
+}
+
+function sameRuleConfig(left: unknown, right: unknown) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function RuleEditor({
+  criterion,
+  ruleConfig,
+  onChange,
+}: {
+  criterion: Criterion;
+  ruleConfig: unknown;
+  onChange: (next: unknown) => void;
+}) {
+  if (criterion.type === 'number' || criterion.type === 'rating') {
+    const direction = hasDirection(ruleConfig) ? ruleConfig.direction : '';
+
+    return (
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        size="sm"
+        value={direction}
+        onValueChange={(next) => {
+          if (next !== 'higher' && next !== 'lower') {
+            return;
+          }
+
+          onChange(nextDirectionRuleConfig(criterion, next, ruleConfig));
+        }}
+        aria-label={`Rule for ${criterion.name}`}
+      >
+        <ToggleGroupItem value="higher">Higher is better</ToggleGroupItem>
+        <ToggleGroupItem value="lower">Lower is better</ToggleGroupItem>
+      </ToggleGroup>
+    );
+  }
+
+  if (criterion.type === 'boolean') {
+    const preferred = hasPreferredValue(ruleConfig)
+      ? ruleConfig.preferredValue
+        ? 'yes'
+        : 'no'
+      : '';
+
+    return (
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        size="sm"
+        value={preferred}
+        onValueChange={(next) => {
+          if (next !== 'yes' && next !== 'no') {
+            return;
+          }
+
+          onChange(nextBooleanRuleConfig(next === 'yes'));
+        }}
+        aria-label={`Rule for ${criterion.name}`}
+      >
+        <ToggleGroupItem value="yes">Yes is better</ToggleGroupItem>
+        <ToggleGroupItem value="no">No is better</ToggleGroupItem>
+      </ToggleGroup>
+    );
+  }
+
+  return formatRuleMessage(criterion);
 }
 
 function WeightStepper({
@@ -116,21 +202,33 @@ export function RulesDataTable({
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [weights, setWeights] = useState(() => weightsFrom(criteria));
+  const [ruleConfigs, setRuleConfigs] = useState(() =>
+    ruleConfigsFrom(criteria),
+  );
   const [error, setError] = useState<string>();
   const lastSavedRef = useRef(weightsFrom(criteria));
+  const lastSavedRulesRef = useRef(ruleConfigsFrom(criteria));
   const timersRef = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const pendingRulesRef = useRef(new Set<number>());
+  const ruleRequestRef = useRef(new Map<number, number>());
   const criteriaKey = criteria
-    .map((criterion) => `${criterion.id}:${criterion.weight}`)
+    .map(
+      (criterion) =>
+        `${criterion.id}:${criterion.weight}:${JSON.stringify(criterion.ruleConfig)}`,
+    )
     .join(',');
 
   useEffect(() => {
-    if (timersRef.current.size > 0) {
+    if (timersRef.current.size > 0 || pendingRulesRef.current.size > 0) {
       return;
     }
 
-    const next = weightsFrom(criteria);
-    setWeights(next);
-    lastSavedRef.current = next;
+    const nextWeights = weightsFrom(criteria);
+    setWeights(nextWeights);
+    lastSavedRef.current = nextWeights;
+    const nextRules = ruleConfigsFrom(criteria);
+    setRuleConfigs(nextRules);
+    lastSavedRulesRef.current = nextRules;
   }, [criteria, criteriaKey]);
 
   useEffect(() => {
@@ -204,6 +302,55 @@ export function RulesDataTable({
     scheduleSave(criterionId, nextWeight);
   }
 
+  function applyRule(criterion: Criterion, nextRuleConfig: unknown) {
+    const currentRuleConfig = ruleConfigs[criterion.id] ?? criterion.ruleConfig;
+
+    if (sameRuleConfig(currentRuleConfig, nextRuleConfig)) {
+      return;
+    }
+
+    const requestId = (ruleRequestRef.current.get(criterion.id) ?? 0) + 1;
+    ruleRequestRef.current.set(criterion.id, requestId);
+    pendingRulesRef.current.add(criterion.id);
+    setError(undefined);
+    setRuleConfigs((current) => ({
+      ...current,
+      [criterion.id]: nextRuleConfig,
+    }));
+
+    startTransition(async () => {
+      const result = await updateCriterionRuleConfig(
+        comparisonId,
+        criterion.id,
+        nextRuleConfig,
+      );
+
+      if (ruleRequestRef.current.get(criterion.id) !== requestId) {
+        return;
+      }
+
+      pendingRulesRef.current.delete(criterion.id);
+
+      if (result.error) {
+        setRuleConfigs((current) => {
+          if (!sameRuleConfig(current[criterion.id], nextRuleConfig)) {
+            return current;
+          }
+
+          return {
+            ...current,
+            [criterion.id]: lastSavedRulesRef.current[criterion.id] ?? null,
+          };
+        });
+        setError(result.error);
+        return;
+      }
+
+      lastSavedRulesRef.current[criterion.id] = nextRuleConfig;
+      router.refresh();
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {error ? (
@@ -250,7 +397,17 @@ export function RulesDataTable({
                       <TableCell className="font-medium text-foreground">
                         {criterion.name}
                       </TableCell>
-                      <TableCell>{formatRuleMessage(criterion)}</TableCell>
+                      <TableCell>
+                        <RuleEditor
+                          criterion={criterion}
+                          ruleConfig={
+                            ruleConfigs[criterion.id] ?? criterion.ruleConfig
+                          }
+                          onChange={(nextRuleConfig) =>
+                            applyRule(criterion, nextRuleConfig)
+                          }
+                        />
+                      </TableCell>
                       <TableCell>
                         <WeightStepper
                           name={criterion.name}

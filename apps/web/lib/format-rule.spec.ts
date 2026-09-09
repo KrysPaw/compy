@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { ComparisonDetailsResponse } from '@compy/shared';
-import { formatRuleMessage } from './format-rule';
+import {
+  formatRuleMessage,
+  nextBooleanRuleConfig,
+  nextDirectionRuleConfig,
+} from './format-rule';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
@@ -88,5 +92,38 @@ describe('formatRuleMessage', () => {
         }),
       ),
     ).toBe('—');
+  });
+
+  it('builds a number direction payload without extra fields', () => {
+    expect(
+      nextDirectionRuleConfig(
+        criterion({
+          id: 7,
+          name: 'Price',
+          type: 'number',
+          ruleConfig: { direction: 'lower' },
+        }),
+        'higher',
+      ),
+    ).toEqual({ direction: 'higher' });
+  });
+
+  it('preserves rating bounds when changing direction', () => {
+    expect(
+      nextDirectionRuleConfig(
+        criterion({
+          id: 8,
+          name: 'Score',
+          type: 'rating',
+          config: { min: 1, max: 10 },
+          ruleConfig: { direction: 'higher', min: 1, max: 10 },
+        }),
+        'lower',
+      ),
+    ).toEqual({ direction: 'lower', min: 1, max: 10 });
+  });
+
+  it('builds a boolean preferred-value payload', () => {
+    expect(nextBooleanRuleConfig(false)).toEqual({ preferredValue: false });
   });
 });

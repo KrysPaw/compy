@@ -162,6 +162,39 @@ export async function updateCriterionWeight(
   return {};
 }
 
+export type UpdateCriterionRuleConfigState = {
+  error?: string;
+};
+
+export async function updateCriterionRuleConfig(
+  comparisonId: number,
+  criterionId: number,
+  ruleConfig: unknown,
+): Promise<UpdateCriterionRuleConfigState> {
+  const parsed = UpdateCriterionSchema.safeParse({ ruleConfig });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid rule' };
+  }
+
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed.data),
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to update rule'),
+    };
+  }
+
+  return {};
+}
+
 export async function deleteComparison(
   comparisonId: number,
 ): Promise<DeleteComparisonState> {

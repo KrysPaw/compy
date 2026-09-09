@@ -6,6 +6,7 @@ import { RulesDataTable } from './rules-data-table';
 
 const refresh = vi.fn();
 const updateCriterionWeight = vi.fn();
+const updateCriterionRuleConfig = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh }),
@@ -14,6 +15,8 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/lib/actions', () => ({
   updateCriterionWeight: (...args: unknown[]) =>
     updateCriterionWeight(...args),
+  updateCriterionRuleConfig: (...args: unknown[]) =>
+    updateCriterionRuleConfig(...args),
 }));
 
 const criteria = [
@@ -57,6 +60,16 @@ const criteria = [
     config: { options: ['Petrol', 'Diesel'] },
     ruleConfig: { tiers: [] },
   },
+  {
+    id: 5,
+    name: 'Score',
+    type: 'rating' as const,
+    is_key: false,
+    is_comparable: true,
+    weight: 5,
+    config: { min: 1, max: 5 },
+    ruleConfig: { direction: 'higher' as const, min: 1, max: 5 },
+  },
 ];
 
 describe('RulesDataTable', () => {
@@ -64,6 +77,8 @@ describe('RulesDataTable', () => {
     refresh.mockReset();
     updateCriterionWeight.mockReset();
     updateCriterionWeight.mockResolvedValue({});
+    updateCriterionRuleConfig.mockReset();
+    updateCriterionRuleConfig.mockResolvedValue({});
   });
 
   it('renders only comparable criteria with rule and weight columns', () => {
@@ -72,24 +87,32 @@ describe('RulesDataTable', () => {
     const rows = screen.getAllByRole('row');
     const bodyRows = rows.slice(1);
 
-    expect(bodyRows).toHaveLength(3);
+    expect(bodyRows).toHaveLength(4);
     expect(screen.queryByRole('cell', { name: 'Name' })).not.toBeInTheDocument();
 
     const weightHeader = screen.getByRole('columnheader', { name: /Weight/ });
-    expect(
-      within(weightHeader).getByText('Remaining: 30 / 100'),
-    ).toBeInTheDocument();
+    expect(weightHeader).toHaveTextContent('Remaining: 25 / 100');
 
     const priceRow = screen.getByText('Price').closest('tr');
     expect(priceRow).not.toBeNull();
-    expect(within(priceRow!).getByText('Lower is better')).toBeInTheDocument();
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Lower is better' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
+    ).toHaveAttribute('aria-checked', 'false');
     expect(within(priceRow!).getByLabelText('Weight for Price')).toHaveValue(
       '40',
     );
 
     const electricRow = screen.getByText('Electric').closest('tr');
     expect(electricRow).not.toBeNull();
-    expect(within(electricRow!).getByText('yes is better')).toBeInTheDocument();
+    expect(
+      within(electricRow!).getByRole('radio', { name: 'Yes is better' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(
+      within(electricRow!).getByRole('radio', { name: 'No is better' }),
+    ).toHaveAttribute('aria-checked', 'false');
     expect(
       within(electricRow!).getByLabelText('Weight for Electric'),
     ).toHaveValue('20');
@@ -100,6 +123,15 @@ describe('RulesDataTable', () => {
     expect(within(fuelRow!).getByLabelText('Weight for Fuel')).toHaveValue(
       '10',
     );
+
+    const scoreRow = screen.getByText('Score').closest('tr');
+    expect(scoreRow).not.toBeNull();
+    expect(
+      within(scoreRow!).getByRole('radio', { name: 'Higher is better' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(
+      within(scoreRow!).getByRole('radio', { name: 'Lower is better' }),
+    ).toHaveAttribute('aria-checked', 'false');
   });
 
   it('shows an empty state when there are no comparable criteria', () => {
@@ -108,9 +140,7 @@ describe('RulesDataTable', () => {
     expect(screen.getByText('No comparable criteria yet.')).toBeInTheDocument();
 
     const weightHeader = screen.getByRole('columnheader', { name: /Weight/ });
-    expect(
-      within(weightHeader).getByText('Remaining: 100 / 100'),
-    ).toBeInTheDocument();
+    expect(weightHeader).toHaveTextContent('Remaining: 100 / 100');
   });
 
   it('reduces the remaining pool when weight increases by 1', async () => {
@@ -122,7 +152,9 @@ describe('RulesDataTable', () => {
     );
 
     expect(screen.getByLabelText('Weight for Price')).toHaveValue('41');
-    expect(screen.getByText('Remaining: 29 / 100')).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: /Weight/ }),
+    ).toHaveTextContent('Remaining: 24 / 100');
   });
 
   it('disables decrease when weight is 0', () => {
@@ -157,7 +189,9 @@ describe('RulesDataTable', () => {
       />,
     );
 
-    expect(screen.getByText('Remaining: 0 / 100')).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: /Weight/ }),
+    ).toHaveTextContent('Remaining: 0 / 100');
     expect(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
     ).toBeDisabled();
@@ -191,12 +225,94 @@ describe('RulesDataTable', () => {
       screen.getByRole('button', { name: 'Increase weight for Price' }),
     );
 
-    expect(screen.getByText('Remaining: 29 / 100')).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: /Weight/ }),
+    ).toHaveTextContent('Remaining: 24 / 100');
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent('Pool exceeded');
     });
     expect(screen.getByLabelText('Weight for Price')).toHaveValue('40');
-    expect(screen.getByText('Remaining: 30 / 100')).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: /Weight/ }),
+    ).toHaveTextContent('Remaining: 25 / 100');
+  });
+
+  it('saves a number direction change and keeps only one option active', async () => {
+    const user = userEvent.setup();
+    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+
+    const priceRow = screen.getByText('Price').closest('tr');
+    await user.click(
+      within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
+    );
+
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Lower is better' }),
+    ).toHaveAttribute('aria-checked', 'false');
+
+    await waitFor(() => {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 2, {
+        direction: 'higher',
+      });
+    });
+  });
+
+  it('saves a rating direction change without dropping min and max', async () => {
+    const user = userEvent.setup();
+    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+
+    const scoreRow = screen.getByText('Score').closest('tr');
+    await user.click(
+      within(scoreRow!).getByRole('radio', { name: 'Lower is better' }),
+    );
+
+    await waitFor(() => {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 5, {
+        direction: 'lower',
+        min: 1,
+        max: 5,
+      });
+    });
+  });
+
+  it('saves a boolean preferred-value change', async () => {
+    const user = userEvent.setup();
+    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+
+    const electricRow = screen.getByText('Electric').closest('tr');
+    await user.click(
+      within(electricRow!).getByRole('radio', { name: 'No is better' }),
+    );
+
+    await waitFor(() => {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 3, {
+        preferredValue: false,
+      });
+    });
+  });
+
+  it('rolls the rule back when saving fails', async () => {
+    const user = userEvent.setup();
+    updateCriterionRuleConfig.mockResolvedValue({ error: 'Invalid rule' });
+    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+
+    const priceRow = screen.getByText('Price').closest('tr');
+    await user.click(
+      within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent('Invalid rule');
+    });
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Lower is better' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    expect(
+      within(priceRow!).getByRole('radio', { name: 'Higher is better' }),
+    ).toHaveAttribute('aria-checked', 'false');
   });
 });

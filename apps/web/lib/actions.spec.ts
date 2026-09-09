@@ -4,6 +4,7 @@ import {
   createCriterion,
   createEntry,
   deleteComparison,
+  updateCriterionRuleConfig,
   updateCriterionWeight,
 } from './actions';
 
@@ -210,6 +211,50 @@ describe('updateCriterionWeight', () => {
 
     await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({
       error: 'Comparable criteria weights cannot exceed 100.',
+    });
+  });
+});
+
+describe('updateCriterionRuleConfig', () => {
+  it('returns a validation error for an invalid rule config', async () => {
+    await expect(
+      updateCriterionRuleConfig(1, 2, { direction: 'sideways' }),
+    ).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches a valid number direction rule', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 2 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      updateCriterionRuleConfig(7, 3, { direction: 'higher' }),
+    ).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ ruleConfig: { direction: 'higher' } }),
+      }),
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          { message: 'Rule config does not match criterion type.' },
+          { status: 400 },
+        ),
+      ),
+    );
+
+    await expect(
+      updateCriterionRuleConfig(7, 3, { preferredValue: true }),
+    ).resolves.toEqual({
+      error: 'Rule config does not match criterion type.',
     });
   });
 });
