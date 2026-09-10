@@ -32,6 +32,7 @@ describe('CriteriaService', () => {
     is_key: false,
   });
   const criterionDelete = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
+  const transactionCriterionUpdate = vi.fn();
   const prisma = {
     comparison: { findUnique: comparisonFindUnique },
     criterion: {
@@ -41,6 +42,13 @@ describe('CriteriaService', () => {
       update: criterionUpdate,
       delete: criterionDelete,
     },
+    $transaction: vi.fn(async (callback: (transaction: unknown) => unknown) =>
+      callback({
+        criterion: {
+          update: transactionCriterionUpdate,
+        },
+      }),
+    ),
   } as unknown as PrismaService;
 
   beforeEach(async () => {
@@ -336,5 +344,89 @@ describe('CriteriaService', () => {
       data: { name: 'Entry name' },
     });
     expect(criterionDelete).not.toHaveBeenCalled();
+  });
+
+  it('replaces all comparable weights in one transaction', async () => {
+    criterionFindMany
+      .mockResolvedValueOnce([{ id: 2 }, { id: 3 }, { id: 4 }])
+      .mockResolvedValueOnce([
+        { id: 2, weight: 100 },
+        { id: 3, weight: 0 },
+        { id: 4, weight: 0 },
+      ]);
+
+    const result = await service.replaceWeights(1, {
+      weights: [
+        { criterionId: 2, weight: 100 },
+        { criterionId: 3, weight: 0 },
+        { criterionId: 4, weight: 0 },
+      ],
+    });
+
+    expect(criterionFindMany).toHaveBeenNthCalledWith(1, {
+      where: { comparisonId: 1, is_comparable: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+    expect(prisma.$transaction).toHaveBeenCalledOnce();
+    expect(transactionCriterionUpdate).toHaveBeenCalledTimes(3);
+    expect(transactionCriterionUpdate).toHaveBeenNthCalledWith(1, {
+      where: { id: 2 },
+      data: { weight: 100 },
+    });
+    expect(transactionCriterionUpdate).toHaveBeenNthCalledWith(2, {
+      where: { id: 3 },
+      data: { weight: 0 },
+    });
+    expect(transactionCriterionUpdate).toHaveBeenNthCalledWith(3, {
+      where: { id: 4 },
+      data: { weight: 0 },
+    });
+    expect(criterionUpdate).not.toHaveBeenCalled();
+    expect(result).toEqual([
+      { id: 2, weight: 100 },
+      { id: 3, weight: 0 },
+      { id: 4, weight: 0 },
+    ]);
+  });
+
+  it('rejects a missing comparable criterion id', async () => {
+    criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
+
+    await expect(
+      service.replaceWeights(1, {
+        weights: [{ criterionId: 2, weight: 100 }],
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(criterionUpdate).not.toHaveBeenCalled();
+  });
+
+  it('rejects weights that do not sum to 100', async () => {
+    await expect(
+      service.replaceWeights(1, {
+        weights: [
+          { criterionId: 2, weight: 40 },
+          { criterionId: 3, weight: 40 },
+        ],
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(criterionFindMany).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('rejects a non-comparable criterion id', async () => {
+    criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
+
+    await expect(
+      service.replaceWeights(1, {
+        weights: [
+          { criterionId: 2, weight: 50 },
+          { criterionId: 1, weight: 50 },
+        ],
+      }),
+    ).rejects.toThrow(BadRequestException);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(criterionUpdate).not.toHaveBeenCalled();
   });
 });

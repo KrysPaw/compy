@@ -8,6 +8,7 @@ import {
   CreateEntrySchema,
   UpdateCriterionSchema,
   UpdateEntrySchema,
+  ReplaceCriterionWeightsSchema,
 } from '@compy/shared';
 import { API_URL } from './api';
 
@@ -229,6 +230,38 @@ export async function updateCriterionWeight(
   if (!res.ok) {
     return {
       error: await readApiErrorMessage(res, 'Failed to update weight'),
+    };
+  }
+
+  return {};
+}
+
+export type ReplaceCriterionWeightsState = {
+  error?: string;
+};
+
+export async function replaceCriterionWeights(
+  comparisonId: number,
+  input: unknown,
+): Promise<ReplaceCriterionWeightsState> {
+  const parsed = ReplaceCriterionWeightsSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid weights' };
+  }
+
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/criteria/weights`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed.data),
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to update weights'),
     };
   }
 

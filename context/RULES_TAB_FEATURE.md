@@ -239,7 +239,7 @@ This keeps the comparison view focused while giving a dedicated place for rankin
 
 Later, this model could support:
 
-- pairwise preference questionnaire for automatic initial weights
+- pairwise preference questionnaire for automatic initial weights ([shipped](features/pairwise_weight_questionnaire.md))
 - recommendation presets
 - weighted score explanation panel
 - “must-have” or veto criteria

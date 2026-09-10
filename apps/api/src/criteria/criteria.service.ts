@@ -10,7 +10,9 @@ import {
   NumberRuleConfigSchema,
   RatingRuleConfigSchema,
   remainingWeightPool,
+  WEIGHT_POOL_TOTAL,
   type CreateCriterionInput,
+  type ReplaceCriterionWeightsInput,
   type UpdateCriterionInput,
 } from '@compy/shared';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -207,6 +209,53 @@ export class CriteriaService {
           : {}),
       },
     });
+  }
+
+  public async replaceWeights(
+    comparisonId: number,
+    data: ReplaceCriterionWeightsInput,
+  ) {
+    await this.ensureComparisonExists(comparisonId);
+
+    const total = data.weights.reduce((sum, item) => sum + item.weight, 0);
+    if (total !== WEIGHT_POOL_TOTAL) {
+      throw new BadRequestException('Weights must sum to 100.');
+    }
+
+    const comparableCriteria = await this.prisma.criterion.findMany({
+      where: { comparisonId, is_comparable: true },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+    const comparableIds = comparableCriteria.map((criterion) => criterion.id);
+    const comparableIdSet = new Set(comparableIds);
+    const bodyIds = data.weights.map((item) => item.criterionId);
+
+    const extraIds = bodyIds.filter((id) => !comparableIdSet.has(id));
+    if (extraIds.length > 0) {
+      throw new BadRequestException(
+        'Unknown or non-comparable criterion id.',
+      );
+    }
+
+    const bodyIdSet = new Set(bodyIds);
+    const missingIds = comparableIds.filter((id) => !bodyIdSet.has(id));
+    if (missingIds.length > 0) {
+      throw new BadRequestException(
+        'Weights must cover every comparable criterion.',
+      );
+    }
+
+    await this.prisma.$transaction(async (transaction) => {
+      for (const item of data.weights) {
+        await transaction.criterion.update({
+          where: { id: item.criterionId },
+          data: { weight: item.weight },
+        });
+      }
+    });
+
+    return this.findAll(comparisonId);
   }
 
   public async remove(comparisonId: number, criterionId: number) {

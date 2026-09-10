@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Icon resembling &gt;=&lt;">
+  <title>&gt;=&lt; icon</title>
+
+  <!-- Left greater-than chevron (orange) -->
+  <polygon fill="#FF8A00" points="18,28 46,64 18,100 34,64"/>
+
+  <!-- Center equals sign (yellow) -->
+  <rect x="50" y="44" width="28" height="8" rx="3" fill="#FFD54F"/>
+  <rect x="50" y="72" width="28" height="8" rx="3" fill="#FFD54F"/>
+
+  <!-- Right less-than chevron (orange) -->
+  <polygon fill="#FF8A00" points="110,28 82,64 110,100 94,64"/>
+
+</svg>

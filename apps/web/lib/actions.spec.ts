@@ -6,6 +6,7 @@ import {
   deleteComparison,
   deleteCriterion,
   deleteEntry,
+  replaceCriterionWeights,
   updateCriterionName,
   updateCriterionRuleConfig,
   updateCriterionWeight,
@@ -288,6 +289,70 @@ describe('updateCriterionWeight', () => {
 
     await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({
       error: 'Comparable criteria weights cannot exceed 100.',
+    });
+  });
+});
+
+describe('replaceCriterionWeights', () => {
+  it('returns a validation error when weights do not sum to 100', async () => {
+    await expect(
+      replaceCriterionWeights(7, {
+        weights: [
+          { criterionId: 2, weight: 40 },
+          { criterionId: 3, weight: 40 },
+        ],
+      }),
+    ).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches a full comparable weight set', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse([{ id: 2 }]));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      replaceCriterionWeights(7, {
+        weights: [
+          { criterionId: 2, weight: 100 },
+          { criterionId: 3, weight: 0 },
+        ],
+      }),
+    ).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7\/criteria\/weights$/),
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({
+          weights: [
+            { criterionId: 2, weight: 100 },
+            { criterionId: 3, weight: 0 },
+          ],
+        }),
+      }),
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          { message: 'Unknown or non-comparable criterion id.' },
+          { status: 400 },
+        ),
+      ),
+    );
+
+    await expect(
+      replaceCriterionWeights(7, {
+        weights: [
+          { criterionId: 2, weight: 100 },
+          { criterionId: 3, weight: 0 },
+        ],
+      }),
+    ).resolves.toEqual({
+      error: 'Unknown or non-comparable criterion id.',
     });
   });
 });
