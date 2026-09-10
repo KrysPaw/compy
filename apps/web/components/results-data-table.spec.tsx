@@ -3,9 +3,31 @@ import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import {
   buildResultsRows,
+  denseMedalPlaceIndex,
   ResultsDataTable,
   resultsInfoColumns,
 } from './results-data-table';
+
+describe('denseMedalPlaceIndex', () => {
+  it('shares medals for tied scores using dense ranking', () => {
+    expect(denseMedalPlaceIndex([100, 100, 80, 70], 0)).toBe(0);
+    expect(denseMedalPlaceIndex([100, 100, 80, 70], 1)).toBe(0);
+    expect(denseMedalPlaceIndex([100, 100, 80, 70], 2)).toBe(1);
+    expect(denseMedalPlaceIndex([100, 100, 80, 70], 3)).toBe(2);
+  });
+
+  it('allows multiple 2nd and 3rd placers', () => {
+    expect(denseMedalPlaceIndex([90, 80, 80, 70, 70], 0)).toBe(0);
+    expect(denseMedalPlaceIndex([90, 80, 80, 70, 70], 1)).toBe(1);
+    expect(denseMedalPlaceIndex([90, 80, 80, 70, 70], 2)).toBe(1);
+    expect(denseMedalPlaceIndex([90, 80, 80, 70, 70], 3)).toBe(2);
+    expect(denseMedalPlaceIndex([90, 80, 80, 70, 70], 4)).toBe(2);
+  });
+
+  it('returns null below 3rd place', () => {
+    expect(denseMedalPlaceIndex([100, 90, 80, 70], 3)).toBeNull();
+  });
+});
 
 describe('ResultsDataTable', () => {
   it('shows an empty state when there are no rows', () => {
@@ -93,6 +115,93 @@ describe('ResultsDataTable', () => {
       rows[0]?.[3]?.indexOf('Not Electric') ?? -1,
     );
     expect(rows[1]).toEqual(['Pixel 8', 'Google', '40', '—']);
+  });
+
+  it('shows the same medal for tied top scores', () => {
+    render(
+      <ResultsDataTable
+        keyCriterionName="Name"
+        infoColumns={[]}
+        rows={[
+          {
+            entryId: 1,
+            keyLabel: 'A',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 100,
+          },
+          {
+            entryId: 2,
+            keyLabel: 'B',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 100,
+          },
+          {
+            entryId: 3,
+            keyLabel: 'C',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 50,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByLabelText('1st place')).toHaveLength(2);
+    expect(screen.getByLabelText('2nd place')).toBeInTheDocument();
+    expect(screen.queryByLabelText('3rd place')).not.toBeInTheDocument();
+  });
+
+  it('ties medals by displayed rounded scores, not raw floats', () => {
+    render(
+      <ResultsDataTable
+        keyCriterionName="Name"
+        infoColumns={[]}
+        rows={[
+          {
+            entryId: 1,
+            keyLabel: 'A',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 67.2,
+          },
+          {
+            entryId: 2,
+            keyLabel: 'B',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 66.4,
+          },
+          {
+            entryId: 3,
+            keyLabel: 'C',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 63.4,
+          },
+          {
+            entryId: 4,
+            keyLabel: 'D',
+            infoValues: [],
+            pros: [],
+            cons: [],
+            rate: 62.6,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByLabelText('1st place')).toBeInTheDocument();
+    expect(screen.getByLabelText('2nd place')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('3rd place')).toHaveLength(2);
+    expect(screen.getAllByText('63')).toHaveLength(2);
   });
 });
 

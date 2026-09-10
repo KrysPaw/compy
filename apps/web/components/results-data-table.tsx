@@ -31,7 +31,36 @@ const PLACE_MEDALS = [
   { label: '3rd place', color: '#CD7F32' },
 ] as const;
 
-function PlaceMedal({ placeIndex }: { placeIndex: number }) {
+/**
+ * Dense ranking for medals: equal *displayed* scores share a place, and the
+ * next distinct score takes the next place (1st → 2nd → 3rd). Returns null
+ * below 3rd. `scoresDescending` must already be sorted highest-first and should
+ * use the same rounding as the Score column.
+ */
+export function denseMedalPlaceIndex(
+  scoresDescending: ReadonlyArray<number>,
+  index: number,
+): number | null {
+  const score = scoresDescending[index];
+  if (score === undefined) {
+    return null;
+  }
+
+  let placeIndex = 0;
+  for (let i = 1; i <= index; i += 1) {
+    if (scoresDescending[i] !== scoresDescending[i - 1]) {
+      placeIndex += 1;
+    }
+  }
+
+  return placeIndex <= 2 ? placeIndex : null;
+}
+
+function PlaceMedal({ placeIndex }: { placeIndex: number | null }) {
+  if (placeIndex === null) {
+    return null;
+  }
+
   const medal = PLACE_MEDALS[placeIndex];
   if (!medal) {
     return null;
@@ -57,8 +86,13 @@ function displayValue(value: unknown): string {
   return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
+/** Rounded score shown in the UI; medals must use this for ties. */
+export function displayScore(rate: number): number {
+  return Math.round(rate);
+}
+
 function formatScore(rate: number): string {
-  return String(Math.round(rate));
+  return String(displayScore(rate));
 }
 
 function HighlightItems({
@@ -120,6 +154,7 @@ export function ResultsDataTable({
   rows: ResultsTableRow[];
 }) {
   const columnCount = 3 + infoColumns.length;
+  const displayScores = rows.map((row) => displayScore(row.rate));
 
   return (
     <div className="overflow-hidden rounded-xl border bg-background">
@@ -150,7 +185,9 @@ export function ResultsDataTable({
                 <TableRow key={row.entryId}>
                   <TableCell>
                     <span className="inline-flex items-center gap-2">
-                      <PlaceMedal placeIndex={index} />
+                      <PlaceMedal
+                        placeIndex={denseMedalPlaceIndex(displayScores, index)}
+                      />
                       {row.keyLabel || '—'}
                     </span>
                   </TableCell>

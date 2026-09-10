@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, StarIcon } from 'lucide-react';
 import type { ComparisonDetailsResponse } from '@compy/shared';
+import { EntryActionsMenu } from '@/components/entry-actions-menu';
+import { ratingBoundsOf } from '@/lib/create-entry';
 import {
   Table,
   TableBody,
@@ -23,6 +25,38 @@ function rawValue(value: unknown) {
   return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
+function EntryCellValue({
+  criterion,
+  value,
+}: {
+  criterion: Criterion;
+  value: unknown;
+}) {
+  const text = rawValue(value);
+  if (text.length === 0) {
+    return '—';
+  }
+
+  if (criterion.type === 'rating') {
+    const { max } = ratingBoundsOf(criterion);
+    const label = typeof max === 'number' ? `${text} / ${max}` : text;
+
+    return (
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <StarIcon
+          aria-hidden
+          className="size-3.5 shrink-0 text-amber-500"
+          fill="currentColor"
+          fillOpacity={0.35}
+        />
+      </span>
+    );
+  }
+
+  return text;
+}
+
 function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
   if (direction === 'asc') {
     return <ArrowUp aria-hidden="true" className="size-3.5" />;
@@ -35,10 +69,25 @@ function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
   return <ArrowUpDown aria-hidden="true" className="size-3.5" />;
 }
 
+function entryLabel(entry: Entry, criteria: Criterion[]) {
+  const keyCriterion = criteria.find((criterion) => criterion.is_key);
+  if (keyCriterion === undefined) {
+    return '';
+  }
+
+  return rawValue(
+    entry.entryValues.find((value) => value.criterionId === keyCriterion.id)
+      ?.value,
+  );
+}
+
 export function ComparisonDataTable({
+  comparisonId,
   criteria,
   entries,
-}: Pick<ComparisonDetailsResponse, 'criteria' | 'entries'>) {
+}: Pick<ComparisonDetailsResponse, 'criteria' | 'entries'> & {
+  comparisonId: number;
+}) {
   const [sort, setSort] = useState<{
     criterionId: number;
     direction: 'asc' | 'desc';
@@ -78,6 +127,8 @@ export function ComparisonDataTable({
     });
   }
 
+  const columnCount = criteria.length + 1;
+
   return (
     <div className="overflow-hidden rounded-xl border bg-background">
       <div className="overflow-x-auto">
@@ -101,13 +152,14 @@ export function ComparisonDataTable({
                   </TableHead>
                 );
               })}
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedEntries.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={criteria.length || 1}
+                  colSpan={columnCount}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No entries yet.
@@ -118,13 +170,26 @@ export function ComparisonDataTable({
                 <TableRow key={entry.id}>
                   {criteria.map((criterion: Criterion) => (
                     <TableCell key={criterion.id}>
-                      {rawValue(
-                        entry.entryValues.find(
-                          (value) => value.criterionId === criterion.id,
-                        )?.value,
-                      ) || '—'}
+                      <EntryCellValue
+                        criterion={criterion}
+                        value={
+                          entry.entryValues.find(
+                            (entryValue) =>
+                              entryValue.criterionId === criterion.id,
+                          )?.value
+                        }
+                      />
                     </TableCell>
                   ))}
+                  <TableCell className="text-right">
+                    <EntryActionsMenu
+                      comparisonId={comparisonId}
+                      entryId={entry.id}
+                      entryLabel={entryLabel(entry, criteria)}
+                      criteria={criteria}
+                      entryValues={entry.entryValues}
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             )}

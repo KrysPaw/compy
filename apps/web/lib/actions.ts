@@ -7,6 +7,7 @@ import {
   CreateCriterionSchema,
   CreateEntrySchema,
   UpdateCriterionSchema,
+  UpdateEntrySchema,
 } from '@compy/shared';
 import { API_URL } from './api';
 
@@ -127,6 +128,78 @@ export async function createEntry(
 
   const entry = EntryResponseSchema.parse(await res.json());
   return { entryId: entry.id };
+}
+
+export type UpdateEntryState = {
+  error?: string;
+};
+
+export async function updateEntry(
+  comparisonId: number,
+  entryId: number,
+  input: unknown,
+  clearCriterionIds: number[] = [],
+): Promise<UpdateEntryState> {
+  const parsed = UpdateEntrySchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/entries/${entryId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed.data),
+    },
+  );
+
+  if (!res.ok) {
+    return { error: await readApiErrorMessage(res, 'Failed to update entry') };
+  }
+
+  for (const criterionId of clearCriterionIds) {
+    const clearRes = await fetch(
+      `${API_URL}/comparisons/${comparisonId}/entries/${entryId}/values/${criterionId}`,
+      { method: 'DELETE' },
+    );
+
+    if (!clearRes.ok) {
+      return {
+        error: await readApiErrorMessage(
+          clearRes,
+          'Failed to clear entry value',
+        ),
+      };
+    }
+  }
+
+  return {};
+}
+
+export type DeleteEntryState = {
+  error?: string;
+};
+
+export async function deleteEntry(
+  comparisonId: number,
+  entryId: number,
+): Promise<DeleteEntryState> {
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/entries/${entryId}`,
+    {
+      method: 'DELETE',
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to delete entry'),
+    };
+  }
+
+  return {};
 }
 
 export type UpdateCriterionWeightState = {

@@ -31,6 +31,7 @@ export default async function EntriesPage({
         />
       </div>
       <ComparisonDataTable
+        comparisonId={comparisonId}
         criteria={comparison.criteria}
         entries={comparison.entries}
       />

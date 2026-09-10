@@ -25,6 +25,59 @@ export function initialEntryFields(
   );
 }
 
+export function fieldsFromEntryValues(
+  criteria: Criterion[],
+  entryValues: ReadonlyArray<{ criterionId: number; value: unknown }>,
+): Record<number, EntryFieldValue> {
+  const fields = initialEntryFields(criteria);
+
+  for (const criterion of criteria) {
+    const found = entryValues.find(
+      (entryValue) => entryValue.criterionId === criterion.id,
+    );
+    if (found === undefined) {
+      continue;
+    }
+
+    const value = found.value;
+    if (criterion.type === 'boolean') {
+      fields[criterion.id] = value === true;
+      continue;
+    }
+
+    if (value === null || value === undefined) {
+      fields[criterion.id] = '';
+      continue;
+    }
+
+    fields[criterion.id] = String(value);
+  }
+
+  return fields;
+}
+
+/** Criteria that previously had a value but were cleared in the edit form. */
+export function clearedCriterionIds(
+  criteria: Criterion[],
+  existingValues: ReadonlyArray<{ criterionId: number }>,
+  submittedValues: ReadonlyArray<{ criterionId: number }>,
+): number[] {
+  const submitted = new Set(
+    submittedValues.map((value) => value.criterionId),
+  );
+
+  return existingValues
+    .map((value) => value.criterionId)
+    .filter((criterionId) => {
+      if (submitted.has(criterionId)) {
+        return false;
+      }
+
+      const criterion = criteria.find((item) => item.id === criterionId);
+      return criterion !== undefined && !criterion.is_key;
+    });
+}
+
 export function enumOptionsOf(criterion: Criterion): string[] {
   if (
     criterion.type !== 'enum' ||

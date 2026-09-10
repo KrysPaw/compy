@@ -6,24 +6,12 @@ import { PlusIcon } from 'lucide-react';
 import { createEntry } from '@/lib/actions';
 import {
   buildCreateEntryValues,
-  enumOptionsOf,
   initialEntryFields,
   orderedCriteria,
-  ratingBoundsOf,
   type Criterion,
-  type EntryFieldValue,
 } from '@/lib/create-entry';
+import { EntryValueField } from '@/components/entry-value-field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -33,92 +21,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
-function fieldId(criterion: Criterion) {
-  return `entry-field-${criterion.id}`;
-}
-
-function EntryValueField({
-  criterion,
-  value,
-  onChange,
-}: {
-  criterion: Criterion;
-  value: EntryFieldValue;
-  onChange: (value: EntryFieldValue) => void;
-}) {
-  const type = criterion.type;
-  const id = fieldId(criterion);
-  const required = criterion.is_key;
-
-  if (type === 'boolean') {
-    return (
-      <div className="flex items-center justify-between">
-        <Label htmlFor={id}>{criterion.name}</Label>
-        <Switch id={id} checked={value === true} onCheckedChange={onChange} />
-      </div>
-    );
-  }
-
-  if (type === 'enum') {
-    const options = enumOptionsOf(criterion);
-    const selected = typeof value === 'string' ? value : '';
-
-    return (
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={id}>{criterion.name}</Label>
-        <Select value={selected || undefined} onValueChange={onChange}>
-          <SelectTrigger id={id} className="w-full">
-            <SelectValue placeholder="Select an option" />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  }
-
-  const textValue = typeof value === 'string' ? value : '';
-
-  if (type === 'number' || type === 'rating') {
-    const bounds = type === 'rating' ? ratingBoundsOf(criterion) : {};
-
-    return (
-      <div className="flex flex-col gap-2">
-        <Label htmlFor={id}>{criterion.name}</Label>
-        <Input
-          id={id}
-          type="number"
-          step="any"
-          min={bounds.min}
-          max={bounds.max}
-          value={textValue}
-          onChange={(event) => onChange(event.target.value)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{criterion.name}</Label>
-      <Input
-        id={id}
-        value={textValue}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={required ? 'Pixel 8' : undefined}
-        required={required}
-        maxLength={200}
-        autoFocus={required}
-      />
-    </div>
-  );
-}
 
 export function CreateEntryDialog({
   comparisonId,

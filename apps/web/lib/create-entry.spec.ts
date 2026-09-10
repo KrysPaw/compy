@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCreateEntryValues,
+  clearedCriterionIds,
   enumOptionsOf,
+  fieldsFromEntryValues,
   initialEntryFields,
   orderedCriteria,
   ratingBoundsOf,
@@ -49,6 +51,62 @@ describe('initialEntryFields', () => {
       2: false,
       3: '',
     });
+  });
+});
+
+describe('fieldsFromEntryValues', () => {
+  it('prefills known values and keeps defaults for missing ones', () => {
+    const criteria = [
+      criterion({ id: 1, name: 'Name', type: 'text', is_key: true }),
+      criterion({ id: 2, name: 'In stock', type: 'boolean' }),
+      criterion({ id: 3, name: 'Price', type: 'number' }),
+      criterion({ id: 4, name: 'Notes', type: 'text' }),
+    ];
+
+    expect(
+      fieldsFromEntryValues(criteria, [
+        { criterionId: 1, value: 'Pixel 8' },
+        { criterionId: 2, value: true },
+        { criterionId: 3, value: 799 },
+      ]),
+    ).toEqual({
+      1: 'Pixel 8',
+      2: true,
+      3: '799',
+      4: '',
+    });
+  });
+});
+
+describe('clearedCriterionIds', () => {
+  it('returns previously set optional criteria missing from the submit payload', () => {
+    const criteria = [
+      criterion({ id: 1, name: 'Name', type: 'text', is_key: true }),
+      criterion({ id: 2, name: 'Price', type: 'number' }),
+      criterion({ id: 3, name: 'Notes', type: 'text' }),
+    ];
+
+    expect(
+      clearedCriterionIds(
+        criteria,
+        [
+          { criterionId: 1 },
+          { criterionId: 2 },
+          { criterionId: 3 },
+        ],
+        [{ criterionId: 1 }, { criterionId: 3 }],
+      ),
+    ).toEqual([2]);
+  });
+
+  it('never clears the key criterion', () => {
+    const criteria = [
+      criterion({ id: 1, name: 'Name', type: 'text', is_key: true }),
+    ];
+
+    expect(
+      clearedCriterionIds(criteria, [{ criterionId: 1 }], []),
+    ).toEqual([]);
   });
 });
 

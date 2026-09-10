@@ -5,9 +5,11 @@ import {
   createEntry,
   deleteComparison,
   deleteCriterion,
+  deleteEntry,
   updateCriterionName,
   updateCriterionRuleConfig,
   updateCriterionWeight,
+  updateEntry,
 } from './actions';
 
 afterEach(() => {
@@ -176,6 +178,79 @@ describe('createEntry', () => {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
       }),
     ).resolves.toEqual({ error: 'Failed to create entry' });
+  });
+});
+
+describe('updateEntry', () => {
+  it('returns a validation error for empty values', async () => {
+    await expect(updateEntry(1, 2, { values: [] })).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches values and clears removed criterion values', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ id: 9 }, { status: 200 }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const input = {
+      values: [{ criterionId: 1, type: 'text' as const, value: 'Pixel 8a' }],
+    };
+
+    await expect(updateEntry(4, 9, input, [3])).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[0]).toMatch(
+      /\/comparisons\/4\/entries\/9$/,
+    );
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'PATCH' });
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual(
+      input,
+    );
+    expect(fetchMock.mock.calls[1]?.[0]).toMatch(
+      /\/comparisons\/4\/entries\/9\/values\/3$/,
+    );
+    expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({ method: 'DELETE' });
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({ message: 'Duplicate key value' }, { status: 409 }),
+      ),
+    );
+
+    await expect(
+      updateEntry(4, 9, {
+        values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
+      }),
+    ).resolves.toEqual({ error: 'Duplicate key value' });
+  });
+});
+
+describe('deleteEntry', () => {
+  it('returns an empty object on success', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
+    );
+
+    await expect(deleteEntry(4, 9)).resolves.toEqual({});
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({ message: 'Entry not found' }, { status: 404 }),
+      ),
+    );
+
+    await expect(deleteEntry(4, 9)).resolves.toEqual({
+      error: 'Entry not found',
+    });
   });
 });
 
