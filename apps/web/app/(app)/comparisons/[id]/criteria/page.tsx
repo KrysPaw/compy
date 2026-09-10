@@ -27,7 +27,10 @@ export default async function CriteriaPage({
         </p>
         <CreateCriterionDialog comparisonId={comparisonId} />
       </div>
-      <CriteriaDataTable criteria={comparison.criteria} />
+      <CriteriaDataTable
+        comparisonId={comparisonId}
+        criteria={comparison.criteria}
+      />
     </div>
   );
 }

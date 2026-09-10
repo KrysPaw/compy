@@ -208,3 +208,60 @@ export async function deleteComparison(
 
   return {};
 }
+
+export type UpdateCriterionNameState = {
+  error?: string;
+};
+
+export async function updateCriterionName(
+  comparisonId: number,
+  criterionId: number,
+  name: string,
+): Promise<UpdateCriterionNameState> {
+  const parsed = UpdateCriterionSchema.safeParse({ name });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid name' };
+  }
+
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(parsed.data),
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to update name'),
+    };
+  }
+
+  return {};
+}
+
+export type DeleteCriterionState = {
+  error?: string;
+};
+
+export async function deleteCriterion(
+  comparisonId: number,
+  criterionId: number,
+): Promise<DeleteCriterionState> {
+  const res = await fetch(
+    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    {
+      method: 'DELETE',
+    },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, 'Failed to delete criterion'),
+    };
+  }
+
+  return {};
+}

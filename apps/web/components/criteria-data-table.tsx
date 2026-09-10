@@ -1,5 +1,6 @@
 import { Fingerprint, KeyRound, Scale } from 'lucide-react';
 import type { ComparisonDetailsResponse } from '@compy/shared';
+import { CriterionActionsMenu } from '@/components/criterion-actions-menu';
 import {
   Table,
   TableBody,
@@ -76,8 +77,11 @@ function formatConfig(criterion: Criterion) {
 }
 
 export function CriteriaDataTable({
+  comparisonId,
   criteria,
-}: Pick<ComparisonDetailsResponse, 'criteria'>) {
+}: {
+  comparisonId: number;
+} & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const sortedCriteria = [...criteria].sort(
     (left, right) => ROLE_ORDER[roleOf(left)] - ROLE_ORDER[roleOf(right)],
   );
@@ -92,13 +96,14 @@ export function CriteriaDataTable({
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Config</TableHead>
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedCriteria.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No criteria yet.
@@ -115,6 +120,14 @@ export function CriteriaDataTable({
                   </TableCell>
                   <TableCell>{criterion.type}</TableCell>
                   <TableCell>{formatConfig(criterion)}</TableCell>
+                  <TableCell className="text-right">
+                    <CriterionActionsMenu
+                      comparisonId={comparisonId}
+                      criterionId={criterion.id}
+                      criterionName={criterion.name}
+                      canDelete={!criterion.is_key}
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             )}

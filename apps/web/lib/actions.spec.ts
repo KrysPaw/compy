@@ -4,6 +4,8 @@ import {
   createCriterion,
   createEntry,
   deleteComparison,
+  deleteCriterion,
+  updateCriterionName,
   updateCriterionRuleConfig,
   updateCriterionWeight,
 } from './actions';
@@ -277,6 +279,68 @@ describe('deleteComparison', () => {
 
     await expect(deleteComparison(5)).resolves.toEqual({
       error: 'Failed to delete comparison',
+    });
+  });
+});
+
+describe('updateCriterionName', () => {
+  it('returns a validation error for an empty name', async () => {
+    await expect(updateCriterionName(1, 2, '   ')).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches a valid name', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 2 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(updateCriterionName(7, 3, 'Price')).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ name: 'Price' }),
+      }),
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({ message: 'Name already exists' }, { status: 409 }),
+      ),
+    );
+
+    await expect(updateCriterionName(7, 3, 'Price')).resolves.toEqual({
+      error: 'Name already exists',
+    });
+  });
+});
+
+describe('deleteCriterion', () => {
+  it('returns an empty object on success', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
+    );
+
+    await expect(deleteCriterion(7, 3)).resolves.toEqual({});
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse(
+          { message: 'Key criterion cannot be deleted.' },
+          { status: 400 },
+        ),
+      ),
+    );
+
+    await expect(deleteCriterion(7, 1)).resolves.toEqual({
+      error: 'Key criterion cannot be deleted.',
     });
   });
 });
