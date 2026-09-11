@@ -2,7 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { MedalIcon, MinusIcon, PlusIcon } from 'lucide-react';
+import type { HighlightItem } from '@compy/shared';
 import type { ResultsInfoColumn, ResultsTableRow } from '@/lib/results';
+import { formatHighlightLabel } from '@/lib/format-highlight';
 import {
   Table,
   TableBody,
@@ -80,24 +82,40 @@ function HighlightItems({
   items,
   kind,
 }: {
-  items: string[];
+  items: HighlightItem[];
   kind: 'pro' | 'con';
 }) {
+  const t = useTranslations('results');
   const Icon = kind === 'pro' ? PlusIcon : MinusIcon;
   const iconClass =
     kind === 'pro'
       ? 'size-3.5 shrink-0 text-emerald-600'
       : 'size-3.5 shrink-0 text-red-600';
+  const messages = {
+    yes: t('highlightYes'),
+    no: t('highlightNo'),
+    high: t('highlightHigh'),
+    low: t('highlightLow'),
+  };
 
-  return items.map((item) => (
-    <li key={`${kind}:${item}`} className="inline-flex items-center gap-1.5">
-      <Icon aria-hidden className={iconClass} />
-      <span>{item}</span>
-    </li>
-  ));
+  return items.map((item) => {
+    const label = formatHighlightLabel(item, messages);
+    return (
+      <li key={`${kind}:${label}`} className="inline-flex items-center gap-1.5">
+        <Icon aria-hidden className={iconClass} />
+        <span>{label}</span>
+      </li>
+    );
+  });
 }
 
-function HighlightsCell({ pros, cons }: { pros: string[]; cons: string[] }) {
+function HighlightsCell({
+  pros,
+  cons,
+}: {
+  pros: HighlightItem[];
+  cons: HighlightItem[];
+}) {
   const t = useTranslations('common');
 
   if (pros.length === 0 && cons.length === 0) {

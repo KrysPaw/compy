@@ -39,9 +39,15 @@ export type RankedEntry = {
   rate: number;
 };
 
+/** Locale-agnostic highlight payload; UI formats with i18n. */
+export type HighlightItem =
+  | { type: "boolean"; name: string; value: boolean }
+  | { type: "enum"; name: string; value: string }
+  | { type: "direction"; name: string; level: "high" | "low" };
+
 export type EntryProsCons = {
-  pros: string[];
-  cons: string[];
+  pros: HighlightItem[];
+  cons: HighlightItem[];
 };
 
 function valueOf(
@@ -300,33 +306,36 @@ export function rankEntries(
     });
 }
 
-function directionLabel(
-  name: string,
+function directionLevel(
   direction: RuleDirection,
   kind: "pro" | "con",
-): string {
+): "high" | "low" {
   const highIsGood = direction === "higher";
   const useHigh =
     (kind === "pro" && highIsGood) || (kind === "con" && !highIsGood);
-  return `${useHigh ? "High" : "Low"} ${name}`;
+  return useHigh ? "high" : "low";
 }
 
-function booleanLabel(name: string, value: boolean): string {
-  return value ? name : `Not ${name}`;
-}
-
-function formatProsConsLabel(
+function highlightItem(
   criterion: NamedScorableCriterion,
   value: unknown,
   kind: "pro" | "con",
-): string | null {
+): HighlightItem | null {
   if (criterion.type === "number") {
-    return directionLabel(criterion.name, numberDirection(criterion.ruleConfig), kind);
+    return {
+      type: "direction",
+      name: criterion.name,
+      level: directionLevel(numberDirection(criterion.ruleConfig), kind),
+    };
   }
 
   if (criterion.type === "rating") {
     const rule = ratingRule(criterion.ruleConfig, criterion.config);
-    return directionLabel(criterion.name, rule.direction, kind);
+    return {
+      type: "direction",
+      name: criterion.name,
+      level: directionLevel(rule.direction, kind),
+    };
   }
 
   if (criterion.type === "enum") {
@@ -334,7 +343,7 @@ function formatProsConsLabel(
     if (text === null) {
       return null;
     }
-    return `${criterion.name} is ${text}`;
+    return { type: "enum", name: criterion.name, value: text };
   }
 
   if (criterion.type === "boolean") {
@@ -342,15 +351,16 @@ function formatProsConsLabel(
     if (flag === null) {
       return null;
     }
-    return booleanLabel(criterion.name, flag);
+    return { type: "boolean", name: criterion.name, value: flag };
   }
 
   return null;
 }
 
 /**
- * Builds human-readable pros/cons from normalized criterion scores.
+ * Builds structured pros/cons from normalized criterion scores.
  * Pro: score > 0.7; Con: score < 0.3. Skips non-comparable and zero-weight criteria.
+ * Labels are locale-agnostic — format in the UI with i18n.
  */
 export function prosConsByEntry(
   criteria: ReadonlyArray<NamedScorableCriterion>,
@@ -390,19 +400,19 @@ export function prosConsByEntry(
         continue;
       }
 
-      const label = formatProsConsLabel(
+      const item = highlightItem(
         criterion,
         valueOf(entry, criterion.id),
         kind,
       );
-      if (label === null) {
+      if (item === null) {
         continue;
       }
 
       if (kind === "pro") {
-        bucket.pros.push(label);
+        bucket.pros.push(item);
       } else {
-        bucket.cons.push(label);
+        bucket.cons.push(item);
       }
     }
   }

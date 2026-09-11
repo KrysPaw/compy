@@ -1,4 +1,8 @@
-import { prosConsByEntry, type ComparisonDetailsResponse } from '@compy/shared';
+import {
+  prosConsByEntry,
+  type ComparisonDetailsResponse,
+  type HighlightItem,
+} from '@compy/shared';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
@@ -11,8 +15,8 @@ export type ResultsTableRow = {
   entryId: number;
   keyLabel: string;
   infoValues: string[];
-  pros: string[];
-  cons: string[];
+  pros: HighlightItem[];
+  cons: HighlightItem[];
   rate: number;
 };
 

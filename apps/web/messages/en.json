@@ -149,7 +149,11 @@
     "empty": "No entries yet.",
     "firstPlace": "1st place",
     "secondPlace": "2nd place",
-    "thirdPlace": "3rd place"
+    "thirdPlace": "3rd place",
+    "highlightYes": "Yes",
+    "highlightNo": "No",
+    "highlightHigh": "High",
+    "highlightLow": "Low"
   },
   "criteriaTable": {
     "name": "Name",

@@ -149,7 +149,11 @@
     "empty": "Brak wariantów.",
     "firstPlace": "1. miejsce",
     "secondPlace": "2. miejsce",
-    "thirdPlace": "3. miejsce"
+    "thirdPlace": "3. miejsce",
+    "highlightYes": "Tak",
+    "highlightNo": "Nie",
+    "highlightHigh": "Wysoki",
+    "highlightLow": "Niski"
   },
   "criteriaTable": {
     "name": "Nazwa",

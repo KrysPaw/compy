@@ -20,7 +20,7 @@ type CarSeed = {
   year: number;
   price: number;
   fuel: 'Petrol' | 'Diesel' | 'Hybrid' | 'Electric';
-  electric: boolean;
+  automatic: boolean;
   rating: number;
   horsepower: number;
 };
@@ -32,7 +32,7 @@ const CARS: CarSeed[] = [
     year: 2022,
     price: 25_000,
     fuel: 'Hybrid',
-    electric: false,
+    automatic: true,
     rating: 4,
     horsepower: 120,
   },
@@ -42,7 +42,7 @@ const CARS: CarSeed[] = [
     year: 2023,
     price: 42_000,
     fuel: 'Electric',
-    electric: true,
+    automatic: true,
     rating: 5,
     horsepower: 283,
   },
@@ -52,7 +52,7 @@ const CARS: CarSeed[] = [
     year: 2021,
     price: 28_000,
     fuel: 'Petrol',
-    electric: false,
+    automatic: false,
     rating: 4,
     horsepower: 150,
   },
@@ -62,7 +62,7 @@ const CARS: CarSeed[] = [
     year: 2020,
     price: 35_000,
     fuel: 'Diesel',
-    electric: false,
+    automatic: true,
     rating: 4,
     horsepower: 190,
   },
@@ -72,7 +72,7 @@ const CARS: CarSeed[] = [
     year: 2024,
     price: 22_000,
     fuel: 'Hybrid',
-    electric: false,
+    automatic: false,
     rating: 3,
     horsepower: 116,
   },
@@ -161,10 +161,10 @@ async function seed() {
       },
     });
 
-    const electricCriterion = await prisma.criterion.create({
+    const automaticCriterion = await prisma.criterion.create({
       data: {
         comparisonId: comparison.id,
-        name: 'electric',
+        name: 'automatic',
         type: 'boolean',
         is_comparable: true,
         is_key: false,
@@ -216,8 +216,8 @@ async function seed() {
           { entryId: entry.id, criterionId: fuelCriterion.id, value: car.fuel },
           {
             entryId: entry.id,
-            criterionId: electricCriterion.id,
-            value: car.electric,
+            criterionId: automaticCriterion.id,
+            value: car.automatic,
           },
           {
             entryId: entry.id,

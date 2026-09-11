@@ -234,12 +234,22 @@ describe('prosConsByEntry', () => {
     );
 
     expect(byEntry.get(10)).toEqual({
-      pros: ['Low Price', 'Fuel is Hybrid', 'electric', 'High rate'],
+      pros: [
+        { type: 'direction', name: 'Price', level: 'low' },
+        { type: 'enum', name: 'Fuel', value: 'Hybrid' },
+        { type: 'boolean', name: 'electric', value: true },
+        { type: 'direction', name: 'rate', level: 'high' },
+      ],
       cons: [],
     });
     expect(byEntry.get(11)).toEqual({
       pros: [],
-      cons: ['High Price', 'Fuel is Petrol', 'Not electric', 'Low rate'],
+      cons: [
+        { type: 'direction', name: 'Price', level: 'high' },
+        { type: 'enum', name: 'Fuel', value: 'Petrol' },
+        { type: 'boolean', name: 'electric', value: false },
+        { type: 'direction', name: 'rate', level: 'low' },
+      ],
     });
   });
 
@@ -276,7 +286,13 @@ describe('prosConsByEntry', () => {
     );
 
     expect(byEntry.get(10)).toEqual({ pros: [], cons: [] });
-    expect(byEntry.get(11)).toEqual({ pros: [], cons: ['Low Price'] });
-    expect(byEntry.get(12)).toEqual({ pros: ['High Price'], cons: [] });
+    expect(byEntry.get(11)).toEqual({
+      pros: [],
+      cons: [{ type: 'direction', name: 'Price', level: 'low' }],
+    });
+    expect(byEntry.get(12)).toEqual({
+      pros: [{ type: 'direction', name: 'Price', level: 'high' }],
+      cons: [],
+    });
   });
 });

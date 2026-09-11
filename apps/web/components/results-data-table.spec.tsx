@@ -45,8 +45,8 @@ describe('ResultsDataTable', () => {
             entryId: 11,
             keyLabel: 'iPhone 15',
             infoValues: ['Apple'],
-            pros: ['Low Price'],
-            cons: ['Not Electric'],
+            pros: [{ type: 'direction', name: 'Price', level: 'low' }],
+            cons: [{ type: 'boolean', name: 'Electric', value: false }],
             rate: 80,
           },
           {
@@ -87,8 +87,8 @@ describe('ResultsDataTable', () => {
     expect(screen.getByLabelText('3rd place')).toBeInTheDocument();
     expect(screen.queryByLabelText('4th place')).not.toBeInTheDocument();
 
-    expect(screen.getByText('Low Price')).toBeInTheDocument();
-    expect(screen.getByText('Not Electric')).toBeInTheDocument();
+    expect(screen.getByText('Price · Low')).toBeInTheDocument();
+    expect(screen.getByText('Electric · No')).toBeInTheDocument();
 
     const rows = screen
       .getAllByRole('row')
@@ -102,10 +102,10 @@ describe('ResultsDataTable', () => {
     expect(rows[0]?.[0]).toContain('iPhone 15');
     expect(rows[0]?.[1]).toBe('Apple');
     expect(rows[0]?.[2]).toBe('80');
-    expect(rows[0]?.[3]).toContain('Low Price');
-    expect(rows[0]?.[3]).toContain('Not Electric');
-    expect(rows[0]?.[3]?.indexOf('Low Price')).toBeLessThan(
-      rows[0]?.[3]?.indexOf('Not Electric') ?? -1,
+    expect(rows[0]?.[3]).toContain('Price · Low');
+    expect(rows[0]?.[3]).toContain('Electric · No');
+    expect(rows[0]?.[3]?.indexOf('Price · Low')).toBeLessThan(
+      rows[0]?.[3]?.indexOf('Electric · No') ?? -1,
     );
     expect(rows[1]).toEqual(['Pixel 8', 'Google', '40', '—']);
   });
@@ -349,7 +349,12 @@ describe('buildResultsRows', () => {
         entryId: 10,
         keyLabel: 'Pixel 8',
         infoValues: ['Google'],
-        pros: ['Low Price', 'Fuel is Hybrid', 'electric', 'High rate'],
+        pros: [
+          { type: 'direction', name: 'Price', level: 'low' },
+          { type: 'enum', name: 'Fuel', value: 'Hybrid' },
+          { type: 'boolean', name: 'electric', value: true },
+          { type: 'direction', name: 'rate', level: 'high' },
+        ],
         cons: [],
         rate: 100,
       },
@@ -358,7 +363,12 @@ describe('buildResultsRows', () => {
         keyLabel: 'iPhone 15',
         infoValues: ['Apple'],
         pros: [],
-        cons: ['High Price', 'Fuel is Petrol', 'Not electric', 'Low rate'],
+        cons: [
+          { type: 'direction', name: 'Price', level: 'high' },
+          { type: 'enum', name: 'Fuel', value: 'Petrol' },
+          { type: 'boolean', name: 'electric', value: false },
+          { type: 'direction', name: 'rate', level: 'low' },
+        ],
         rate: 0,
       },
     ]);
