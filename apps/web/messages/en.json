@@ -153,7 +153,13 @@
     "highlightYes": "Yes",
     "highlightNo": "No",
     "highlightHigh": "High",
-    "highlightLow": "Low"
+    "highlightLow": "Low",
+    "configAlert": {
+      "weightsZero": "No weights assigned — all scores are equal.",
+      "weightsPartial": "Weight pool isn’t fully distributed (remaining {remaining}/{total}).",
+      "rulesUnset": "Some ranking rules aren’t set yet.",
+      "setRules": "Set rules"
+    }
   },
   "criteriaTable": {
     "name": "Name",

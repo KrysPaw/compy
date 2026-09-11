@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { rankEntries } from '@compy/shared';
+import { ResultsConfigAlert } from '@/components/results-config-alert';
 import { ResultsDataTable } from '@/components/results-data-table';
 import { getComparisonById } from '@/lib/api';
 import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
@@ -32,6 +33,10 @@ export default async function ResultsPage({
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
       <p className="text-sm text-muted-foreground">{t('pages.resultsBlurb')}</p>
+      <ResultsConfigAlert
+        comparisonId={comparisonId}
+        criteria={comparison.criteria}
+      />
       <ResultsDataTable
         keyCriterionName={keyCriterion?.name ?? t('common.entry')}
         infoColumns={infoColumns}

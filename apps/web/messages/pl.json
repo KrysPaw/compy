@@ -153,7 +153,13 @@
     "highlightYes": "Tak",
     "highlightNo": "Nie",
     "highlightHigh": "Wysoki",
-    "highlightLow": "Niski"
+    "highlightLow": "Niski",
+    "configAlert": {
+      "weightsZero": "Nie przypisano wag — wszystkie wyniki są równe.",
+      "weightsPartial": "Pula wag nie jest w pełni rozdzielona (pozostało {remaining}/{total}).",
+      "rulesUnset": "Niektóre reguły rankingu nie są jeszcze ustawione.",
+      "setRules": "Ustaw reguły"
+    }
   },
   "criteriaTable": {
     "name": "Nazwa",
