@@ -1,11 +1,14 @@
 import * as React from 'react';
+import { getTranslations } from 'next-intl/server';
 import { SidebarLogo } from '@/components/sidebar-logo';
 import { SidebarComparisonsMenu } from '@/components/sidebar-comparisons-menu';
 import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { getComparisons } from '@/lib/api';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -16,6 +19,7 @@ import {
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const t = await getTranslations('sidebar');
   const comparisons = await getComparisons();
 
   return (
@@ -25,13 +29,16 @@ export async function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>My Comparisons</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('myComparisons')}</SidebarGroupLabel>
           <CreateComparisonDialog />
           <SidebarGroupContent>
             <SidebarComparisonsMenu comparisons={comparisons} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <LanguageSwitcher />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

@@ -112,10 +112,25 @@ export function ratingBoundsOf(criterion: Criterion): {
   };
 }
 
+export type EntryValidationMessage =
+  | { id: 'createEntry.nameRequired' }
+  | { id: 'createEntry.mustBeANumber'; values: { name: string } };
+
+export function entryValidationText(
+  t: (id: EntryValidationMessage['id'], values?: { name: string }) => string,
+  error: EntryValidationMessage,
+) {
+  return error.id === 'createEntry.mustBeANumber'
+    ? t(error.id, error.values)
+    : t(error.id);
+}
+
 export function buildCreateEntryValues(
   criteria: Criterion[],
   fields: Record<number, EntryFieldValue>,
-): { values: CreateEntryInput['values'] } | { error: string } {
+):
+  | { values: CreateEntryInput['values'] }
+  | { error: EntryValidationMessage } {
   const values: ValueInput[] = [];
 
   for (const criterion of criteria) {
@@ -136,7 +151,7 @@ export function buildCreateEntryValues(
     if (type === 'text') {
       if (criterion.is_key) {
         if (text.length === 0) {
-          return { error: 'Name is required' };
+          return { error: { id: 'createEntry.nameRequired' } };
         }
 
         values.push({ criterionId: criterion.id, type, value: text });
@@ -153,7 +168,12 @@ export function buildCreateEntryValues(
 
       const value = Number(text);
       if (!Number.isFinite(value)) {
-        return { error: `${criterion.name} must be a number` };
+        return {
+          error: {
+            id: 'createEntry.mustBeANumber',
+            values: { name: criterion.name },
+          },
+        };
       }
 
       values.push({ criterionId: criterion.id, type, value });
@@ -166,7 +186,7 @@ export function buildCreateEntryValues(
   }
 
   if (values.length === 0) {
-    return { error: 'Name is required' };
+    return { error: { id: 'createEntry.nameRequired' } };
   }
 
   return { values };

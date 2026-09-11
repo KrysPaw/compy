@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { Criterion, EntryFieldValue } from '@/lib/create-entry';
 import { enumOptionsOf, ratingBoundsOf } from '@/lib/create-entry';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ export function EntryValueField({
   const type = criterion.type;
   const id = fieldId(criterion, idPrefix);
   const required = criterion.is_key;
+  const t = useTranslations('createEntry');
 
   if (type === 'boolean') {
     return (
@@ -50,7 +52,7 @@ export function EntryValueField({
         <Label htmlFor={id}>{criterion.name}</Label>
         <Select value={selected || undefined} onValueChange={onChange}>
           <SelectTrigger id={id} className="w-full">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={t('selectOption')} />
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
@@ -92,7 +94,7 @@ export function EntryValueField({
         id={id}
         value={textValue}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={required ? 'Pixel 8' : undefined}
+        placeholder={required ? t('namePlaceholder') : undefined}
         required={required}
         maxLength={200}
         autoFocus={required}

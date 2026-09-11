@@ -1,4 +1,7 @@
+'use client';
+
 import { Fingerprint, KeyRound, Scale } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import { CriterionActionsMenu } from '@/components/criterion-actions-menu';
 import {
@@ -17,42 +20,48 @@ import {
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
-type Role = 'Key' | 'Identity' | 'Comparable';
+type Role = 'key' | 'identity' | 'comparable';
 
 function roleOf(criterion: Criterion): Role {
   if (criterion.is_key) {
-    return 'Key';
+    return 'key';
   }
 
-  return criterion.is_comparable ? 'Comparable' : 'Identity';
+  return criterion.is_comparable ? 'comparable' : 'identity';
 }
 
 const ROLE_ICON: Record<Role, typeof KeyRound> = {
-  Key: KeyRound,
-  Identity: Fingerprint,
-  Comparable: Scale,
+  key: KeyRound,
+  identity: Fingerprint,
+  comparable: Scale,
 };
 
 const ROLE_ORDER: Record<Role, number> = {
-  Key: 0,
-  Identity: 1,
-  Comparable: 2,
+  key: 0,
+  identity: 1,
+  comparable: 2,
 };
 
 function RoleIcon({ role }: { role: Role }) {
+  const t = useTranslations('criteriaTable.roles');
   const Icon = ROLE_ICON[role];
+  const label = t(role);
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Icon aria-label={role} className="size-4 text-muted-foreground" />
+        <Icon aria-label={label} className="size-4 text-muted-foreground" />
       </TooltipTrigger>
-      <TooltipContent>{role}</TooltipContent>
+      <TooltipContent>{label}</TooltipContent>
     </Tooltip>
   );
 }
 
-function formatConfig(criterion: Criterion) {
+function formatConfig(
+  criterion: Criterion,
+  moreOptions: (list: string, count: number) => string,
+  emDash: string,
+) {
   const config = criterion.config;
 
   if (criterion.type === 'rating' && config && typeof config === 'object') {
@@ -68,12 +77,12 @@ function formatConfig(criterion: Criterion) {
       const shown = options.slice(0, 3);
       const remaining = options.length - shown.length;
       return remaining > 0
-        ? `${shown.join(', ')}, +${remaining} more`
+        ? moreOptions(shown.join(', '), remaining)
         : shown.join(', ');
     }
   }
 
-  return '—';
+  return emDash;
 }
 
 export function CriteriaDataTable({
@@ -82,6 +91,7 @@ export function CriteriaDataTable({
 }: {
   comparisonId: number;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
+  const t = useTranslations();
   const sortedCriteria = [...criteria].sort(
     (left, right) => ROLE_ORDER[roleOf(left)] - ROLE_ORDER[roleOf(right)],
   );
@@ -93,9 +103,9 @@ export function CriteriaDataTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-10" />
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Config</TableHead>
+              <TableHead>{t('criteriaTable.name')}</TableHead>
+              <TableHead>{t('criteriaTable.type')}</TableHead>
+              <TableHead>{t('criteriaTable.config')}</TableHead>
               <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
@@ -106,7 +116,7 @@ export function CriteriaDataTable({
                   colSpan={5}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No criteria yet.
+                  {t('criteriaTable.empty')}
                 </TableCell>
               </TableRow>
             ) : (
@@ -118,8 +128,17 @@ export function CriteriaDataTable({
                   <TableCell className="font-medium text-foreground">
                     {criterion.name}
                   </TableCell>
-                  <TableCell>{criterion.type}</TableCell>
-                  <TableCell>{formatConfig(criterion)}</TableCell>
+                  <TableCell>
+                    {t(`criteriaTable.types.${criterion.type}`)}
+                  </TableCell>
+                  <TableCell>
+                    {formatConfig(
+                      criterion,
+                      (list, count) =>
+                        t('criteriaTable.moreOptions', { list, count }),
+                      t('common.emDash'),
+                    )}
+                  </TableCell>
                   <TableCell className="text-right">
                     <CriterionActionsMenu
                       comparisonId={comparisonId}

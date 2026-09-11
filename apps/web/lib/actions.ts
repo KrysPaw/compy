@@ -10,11 +10,36 @@ import {
   UpdateEntrySchema,
   ReplaceCriterionWeightsSchema,
 } from '@compy/shared';
+import { getTranslations } from 'next-intl/server';
 import { API_URL } from './api';
 
 const CriterionResponseSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
+
+async function errorMessage(
+  key:
+    | 'invalidName'
+    | 'invalidInput'
+    | 'invalidWeight'
+    | 'invalidWeights'
+    | 'invalidRule'
+    | 'failedToCreateComparison'
+    | 'failedToCreateCriterion'
+    | 'failedToCreateEntry'
+    | 'failedToUpdateEntry'
+    | 'failedToClearEntryValue'
+    | 'failedToDeleteEntry'
+    | 'failedToUpdateWeight'
+    | 'failedToUpdateWeights'
+    | 'failedToUpdateRule'
+    | 'failedToDeleteComparison'
+    | 'failedToUpdateName'
+    | 'failedToDeleteCriterion',
+) {
+  const t = await getTranslations('errors');
+  return t(key);
+}
 
 export type CreateComparisonState = {
   error?: string;
@@ -33,7 +58,9 @@ export async function createComparison(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid name' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidName')),
+    };
   }
 
   const res = await fetch(`${API_URL}/comparisons`, {
@@ -43,7 +70,7 @@ export async function createComparison(
   });
 
   if (!res.ok) {
-    return { error: 'Failed to create comparison' };
+    return { error: await errorMessage('failedToCreateComparison') };
   }
 
   const comparison = ComparisonResponseSchema.parse(await res.json());
@@ -62,7 +89,9 @@ export async function createCriterion(
   const parsed = CreateCriterionSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidInput')),
+    };
   }
 
   const res = await fetch(`${API_URL}/comparisons/${comparisonId}/criteria`, {
@@ -72,7 +101,7 @@ export async function createCriterion(
   });
 
   if (!res.ok) {
-    return { error: 'Failed to create criterion' };
+    return { error: await errorMessage('failedToCreateCriterion') };
   }
 
   const criterion = CriterionResponseSchema.parse(await res.json());
@@ -114,7 +143,9 @@ export async function createEntry(
   const parsed = CreateEntrySchema.safeParse(input);
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidInput')),
+    };
   }
 
   const res = await fetch(`${API_URL}/comparisons/${comparisonId}/entries`, {
@@ -124,7 +155,12 @@ export async function createEntry(
   });
 
   if (!res.ok) {
-    return { error: await readApiErrorMessage(res, 'Failed to create entry') };
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToCreateEntry'),
+      ),
+    };
   }
 
   const entry = EntryResponseSchema.parse(await res.json());
@@ -144,7 +180,9 @@ export async function updateEntry(
   const parsed = UpdateEntrySchema.safeParse(input);
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidInput')),
+    };
   }
 
   const res = await fetch(
@@ -157,7 +195,12 @@ export async function updateEntry(
   );
 
   if (!res.ok) {
-    return { error: await readApiErrorMessage(res, 'Failed to update entry') };
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateEntry'),
+      ),
+    };
   }
 
   for (const criterionId of clearCriterionIds) {
@@ -170,7 +213,7 @@ export async function updateEntry(
       return {
         error: await readApiErrorMessage(
           clearRes,
-          'Failed to clear entry value',
+          await errorMessage('failedToClearEntryValue'),
         ),
       };
     }
@@ -196,7 +239,10 @@ export async function deleteEntry(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to delete entry'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToDeleteEntry'),
+      ),
     };
   }
 
@@ -215,7 +261,10 @@ export async function updateCriterionWeight(
   const parsed = UpdateCriterionSchema.safeParse({ weight });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid weight' };
+    return {
+      error:
+        parsed.error.issues[0]?.message ?? (await errorMessage('invalidWeight')),
+    };
   }
 
   const res = await fetch(
@@ -229,7 +278,10 @@ export async function updateCriterionWeight(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to update weight'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateWeight'),
+      ),
     };
   }
 
@@ -247,7 +299,11 @@ export async function replaceCriterionWeights(
   const parsed = ReplaceCriterionWeightsSchema.safeParse(input);
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid weights' };
+    return {
+      error:
+        parsed.error.issues[0]?.message ??
+        (await errorMessage('invalidWeights')),
+    };
   }
 
   const res = await fetch(
@@ -261,7 +317,10 @@ export async function replaceCriterionWeights(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to update weights'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateWeights'),
+      ),
     };
   }
 
@@ -280,7 +339,9 @@ export async function updateCriterionRuleConfig(
   const parsed = UpdateCriterionSchema.safeParse({ ruleConfig });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid rule' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidRule')),
+    };
   }
 
   const res = await fetch(
@@ -294,7 +355,10 @@ export async function updateCriterionRuleConfig(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to update rule'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateRule'),
+      ),
     };
   }
 
@@ -309,7 +373,7 @@ export async function deleteComparison(
   });
 
   if (!res.ok) {
-    return { error: 'Failed to delete comparison' };
+    return { error: await errorMessage('failedToDeleteComparison') };
   }
 
   return {};
@@ -327,7 +391,9 @@ export async function updateCriterionName(
   const parsed = UpdateCriterionSchema.safeParse({ name });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid name' };
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidName')),
+    };
   }
 
   const res = await fetch(
@@ -341,7 +407,10 @@ export async function updateCriterionName(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to update name'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateName'),
+      ),
     };
   }
 
@@ -365,7 +434,10 @@ export async function deleteCriterion(
 
   if (!res.ok) {
     return {
-      error: await readApiErrorMessage(res, 'Failed to delete criterion'),
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToDeleteCriterion'),
+      ),
     };
   }
 

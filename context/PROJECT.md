@@ -152,6 +152,7 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 | Ranking         | User-defined **weighted score** / “best overall”              |
 | Views           | Cards and other layouts beyond the table                      |
 | Auth / accounts | Real multi-user ownership                                     |
+| i18n            | English + Polish UI chrome; cookie + switcher (see [`features/i18n.md`](features/i18n.md)) |
 | Hosting         | **Vercel** (Next.js) + **Railway** (NestJS + PostgreSQL)      |
 | Demo hygiene    | Seed data, reset button, or light protection if abuse appears |
 

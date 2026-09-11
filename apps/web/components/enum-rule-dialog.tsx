@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 import {
   DndContext,
   DragOverlay,
@@ -137,6 +138,7 @@ function EnumRuleBoard({
   draft: EnumRuleDraft;
   onMove: (value: string, to: EnumRuleBucketId) => void;
 }) {
+  const t = useTranslations('enumRule');
   const [activeValue, setActiveValue] = useState<string | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -176,20 +178,20 @@ function EnumRuleBoard({
       <div className="grid gap-3">
         <DropBucket
           id={UNASSIGNED_ID}
-          title="Unassigned"
+          title={t('unassigned')}
           values={draft.unassigned}
         />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sortedTiers.map((tier, index) => {
             const isBest = index === 0;
             const isWorst = index === sortedTiers.length - 1;
-            const hint = isBest ? 'Best' : isWorst ? 'Worst' : undefined;
+            const hint = isBest ? t('best') : isWorst ? t('worst') : undefined;
 
             return (
               <DropBucket
                 key={tier.rank}
                 id={`tier:${tier.rank}`}
-                title={`Tier ${index + 1}`}
+                title={t('tier', { n: index + 1 })}
                 values={tier.values}
                 hint={hint}
               />
@@ -218,6 +220,7 @@ export function EnumRuleDialog({
   ruleConfig: unknown;
   onSave: (next: unknown) => void;
 }) {
+  const t = useTranslations();
   const titleId = useId();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(() =>
@@ -233,14 +236,18 @@ export function EnumRuleDialog({
 
   const canSave = isEnumRuleDraftComplete(draft, options);
   const summary = formatEnumRuleSummary(ruleConfig);
+  const summaryText =
+    summary.id === 'rules.enumSummary'
+      ? t(summary.id, summary.values)
+      : t(summary.id);
 
   return (
     <div className="flex min-w-0 items-center gap-2">
-      <span className="truncate text-sm">{summary}</span>
+      <span className="truncate text-sm">{summaryText}</span>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           <Button type="button" variant="outline" size="xs">
-            Edit
+            {t('enumRule.edit')}
           </Button>
         </DialogTrigger>
         <DialogContent
@@ -248,11 +255,10 @@ export function EnumRuleDialog({
           aria-labelledby={titleId}
         >
           <DialogHeader>
-            <DialogTitle id={titleId}>Edit rule · {criterionName}</DialogTitle>
-            <DialogDescription>
-              Drag options into tiers. Tier 1 is best; the last tier is worst.
-              Save when every option is assigned exactly once.
-            </DialogDescription>
+            <DialogTitle id={titleId}>
+              {t('enumRule.title', { name: criterionName })}
+            </DialogTitle>
+            <DialogDescription>{t('enumRule.description')}</DialogDescription>
           </DialogHeader>
 
           <div className="flex items-center gap-2">
@@ -260,20 +266,20 @@ export function EnumRuleDialog({
               type="button"
               variant="outline"
               size="icon-xs"
-              aria-label="Remove tier"
+              aria-label={t('enumRule.removeTier')}
               disabled={draft.tiers.length <= 2}
               onClick={() => setDraft((current) => removeEnumTier(current))}
             >
               <MinusIcon />
             </Button>
             <span className="text-xs tracking-wide text-muted-foreground uppercase">
-              {draft.tiers.length} tiers
+              {t('enumRule.tierCount', { count: draft.tiers.length })}
             </span>
             <Button
               type="button"
               variant="outline"
               size="icon-xs"
-              aria-label="Add tier"
+              aria-label={t('enumRule.addTier')}
               disabled={draft.tiers.length >= 10}
               onClick={() => setDraft((current) => addEnumTier(current))}
             >
@@ -294,7 +300,7 @@ export function EnumRuleDialog({
               variant="outline"
               onClick={() => setOpen(false)}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -304,7 +310,7 @@ export function EnumRuleDialog({
                 setOpen(false);
               }}
             >
-              Save
+              {t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>

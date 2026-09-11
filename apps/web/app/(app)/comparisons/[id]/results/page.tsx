@@ -1,11 +1,9 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { rankEntries } from '@compy/shared';
-import {
-  buildResultsRows,
-  ResultsDataTable,
-  resultsInfoColumns,
-} from '@/components/results-data-table';
+import { ResultsDataTable } from '@/components/results-data-table';
 import { getComparisonById } from '@/lib/api';
+import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
 
 export default async function ResultsPage({
   params,
@@ -29,14 +27,13 @@ export default async function ResultsPage({
   const keyCriterion = comparison.criteria.find(
     (criterion) => criterion.is_key,
   );
+  const t = await getTranslations();
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <p className="text-sm text-muted-foreground">
-        Results rank entries by weighted rules. Best match is at the top.
-      </p>
+      <p className="text-sm text-muted-foreground">{t('pages.resultsBlurb')}</p>
       <ResultsDataTable
-        keyCriterionName={keyCriterion?.name ?? 'Entry'}
+        keyCriterionName={keyCriterion?.name ?? t('common.entry')}
         infoColumns={infoColumns}
         rows={rows}
       />

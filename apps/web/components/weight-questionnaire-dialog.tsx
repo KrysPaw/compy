@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   comparablePairs,
   inferredAnswer,
@@ -51,6 +52,7 @@ export function WeightQuestionnaireDialog({
   comparisonId: number;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const router = useRouter();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<DialogStep>('intro');
   const [asked, setAsked] = useState<AskedStep[]>([]);
@@ -132,21 +134,19 @@ export function WeightQuestionnaireDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button type="button" size="sm" disabled={!canStart}>
-          Distribute weights
+          {t('weightQuestionnaire.trigger')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         {step === 'intro' ? (
           <>
             <DialogHeader>
-              <DialogTitle>Distribute weights</DialogTitle>
+              <DialogTitle>{t('weightQuestionnaire.title')}</DialogTitle>
               <DialogDescription>
-                You will answer short preference questions about your
-                comparable criteria. Each question asks which criterion
-                matters more, or whether both matter equally.{' '}
-                {`There will be at most ${pairs.length} question${pairs.length === 1 ? '' : 's'}.`}
+                {t('weightQuestionnaire.introDescription')}{' '}
+                {t('weightQuestionnaire.maxQuestions', { count: pairs.length })}
                 {hasExistingWeights
-                  ? ' Your current weights will be replaced when you finish.'
+                  ? ` ${t('weightQuestionnaire.replaceNote')}`
                   : null}
               </DialogDescription>
             </DialogHeader>
@@ -156,28 +156,30 @@ export function WeightQuestionnaireDialog({
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="button" onClick={() => setStep('questions')}>
-                Continue
+                {t('common.continue')}
               </Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>What is more important to you?</DialogTitle>
+              <DialogTitle>{t('weightQuestionnaire.question')}</DialogTitle>
               <DialogDescription>
-                Choose one criterion, or both if they matter equally.
+                {t('weightQuestionnaire.questionHint')}
               </DialogDescription>
             </DialogHeader>
 
             {currentPair ? (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-0.5 text-sm">
-                  <p>Question {questionNumber}</p>
+                  <p>
+                    {t('weightQuestionnaire.progress', { n: questionNumber })}
+                  </p>
                   <p className="text-muted-foreground">
-                    {`${remaining} undecided comparison${remaining === 1 ? '' : 's'}`}
+                    {t('weightQuestionnaire.undecided', { count: remaining })}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -203,7 +205,7 @@ export function WeightQuestionnaireDialog({
                     disabled={isPending}
                     onClick={() => handleAnswer('both')}
                   >
-                    Both
+                    {t('weightQuestionnaire.both')}
                   </Button>
                 </div>
               </div>
@@ -221,7 +223,7 @@ export function WeightQuestionnaireDialog({
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 type="button"
@@ -229,7 +231,7 @@ export function WeightQuestionnaireDialog({
                 disabled={asked.length === 0 || isPending}
                 onClick={handleBack}
               >
-                Back
+                {t('common.back')}
               </Button>
             </DialogFooter>
           </>

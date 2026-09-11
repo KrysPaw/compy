@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "description": "Aplikacja do porównywania"
+  },
+  "common": {
+    "emDash": "—",
+    "name": "Nazwa",
+    "create": "Utwórz",
+    "creating": "Tworzenie…",
+    "save": "Zapisz",
+    "saving": "Zapisywanie…",
+    "delete": "Usuń",
+    "deleting": "Usuwanie…",
+    "edit": "Edytuj",
+    "cancel": "Anuluj",
+    "back": "Wstecz",
+    "continue": "Dalej",
+    "entry": "Wariant",
+    "close": "Zamknij"
+  },
+  "a11y": {
+    "toggleSidebar": "Przełącz panel boczny",
+    "close": "Zamknij",
+    "sidebar": "Panel boczny",
+    "sidebarDescription": "Wyświetla panel boczny na urządzeniach mobilnych."
+  },
+  "languageSwitcher": {
+    "en": "English",
+    "pl": "Polski"
+  },
+  "sidebar": {
+    "myComparisons": "Moje porównania",
+    "newComparison": "Nowe porównanie"
+  },
+  "tabs": {
+    "criteria": "Kryteria",
+    "entries": "Warianty",
+    "rules": "Reguły",
+    "results": "Wyniki"
+  },
+  "home": {
+    "comparisonTitle": "Tytuł porównania"
+  },
+  "pages": {
+    "entriesBlurb": "Warianty to pozycje, które porównujesz według kryteriów.",
+    "criteriaBlurb": "Kryteria identyfikują wariant albo pozwalają porównywać warianty.",
+    "rulesBlurb": "Reguły określają, jak porównywalne kryteria wpływają na ranking i jak bardzo każde z nich się liczy.",
+    "resultsBlurb": "Wyniki porządkują warianty według ważonych reguł. Najlepsze dopasowanie jest na górze."
+  },
+  "createComparison": {
+    "title": "Nowe porównanie",
+    "description": "Nadaj porównaniu nazwę, aby zacząć.",
+    "placeholder": "Telefony 2026"
+  },
+  "createCriterion": {
+    "add": "Dodaj kryterium",
+    "title": "Nowe kryterium",
+    "description": "Kryteria opisują, jak warianty są nazywane i porównywane.",
+    "comparable": "Porównywalne",
+    "type": "Typ",
+    "min": "Min",
+    "max": "Maks",
+    "options": "Opcje",
+    "optionPlaceholder": "Opcja {n}",
+    "removeOption": "Usuń opcję",
+    "addOption": "Dodaj opcję",
+    "placeholder": "Cena",
+    "types": {
+      "number": "Liczba",
+      "boolean": "Logiczny",
+      "rating": "Ocena",
+      "enum": "Enumeracja"
+    }
+  },
+  "createEntry": {
+    "add": "Dodaj wariant",
+    "title": "Nowy wariant",
+    "description": "Nazwa jest wymagana. Pozostałe wartości kryteriów możesz uzupełnić później.",
+    "nameRequired": "Nazwa jest wymagana",
+    "mustBeANumber": "{name} musi być liczbą",
+    "selectOption": "Wybierz opcję",
+    "namePlaceholder": "Pixel 8"
+  },
+  "comparisonActions": {
+    "menuLabel": "Akcje porównania",
+    "deleteTitle": "Usunąć porównanie?",
+    "deleteDescription": "To trwale usunie porównanie wraz ze wszystkimi kryteriami i wariantami. Wpisz <name>{comparisonName}</name>, aby potwierdzić.",
+    "nameLabel": "Nazwa porównania"
+  },
+  "criterionActions": {
+    "menuLabel": "{name} — akcje",
+    "rename": "Zmień nazwę",
+    "renameTitle": "Zmień nazwę kryterium",
+    "renameDescription": "Typ i konfiguracja zostają bez zmian; zmienia się tylko wyświetlana nazwa.",
+    "deleteTitle": "Usunąć kryterium?",
+    "deleteDescription": "To trwale usunie <name>{criterionName}</name> oraz wszystkie wartości zapisane dla niego przy wariantach."
+  },
+  "entryActions": {
+    "menuLabel": "{name} — akcje",
+    "editTitle": "Edytuj wariant",
+    "editDescription": "Zaktualizuj wartości kryteriów dla tego wariantu. Wyczyszczenie opcjonalnej wartości usuwa ją.",
+    "deleteTitle": "Usunąć wariant?",
+    "deleteDescription": "To trwale usunie <name>{label}</name> oraz wszystkie jego wartości kryteriów."
+  },
+  "rules": {
+    "emDash": "—",
+    "higherIsBetter": "Im wyżej, tym lepiej",
+    "lowerIsBetter": "Im niżej, tym lepiej",
+    "yesIsBetter": "Tak jest lepsze",
+    "noIsBetter": "Nie jest lepsze",
+    "enumSummary": "Najlepsze: {best} · Najgorsze: {worst}",
+    "name": "Nazwa",
+    "rule": "Reguła",
+    "weight": "Waga",
+    "remaining": "Pozostało: <bold>{remaining}</bold> / {total}",
+    "empty": "Brak porównywalnych kryteriów.",
+    "ruleFor": "Reguła dla {name}",
+    "decreaseWeight": "Zmniejsz wagę {name}",
+    "weightFor": "Waga {name}",
+    "increaseWeight": "Zwiększ wagę {name}"
+  },
+  "enumRule": {
+    "edit": "Edytuj",
+    "title": "Edytuj regułę · {name}",
+    "description": "Przeciągnij opcje do poziomów. Poziom 1 jest najlepszy; ostatni poziom jest najgorszy. Zapisz, gdy każda opcja jest przypisana dokładnie raz.",
+    "unassigned": "Nieprzypisane",
+    "best": "Najlepsze",
+    "worst": "Najgorsze",
+    "tier": "Poziom {n}",
+    "removeTier": "Usuń poziom",
+    "addTier": "Dodaj poziom",
+    "tierCount": "{count, plural, one {# poziom} few {# poziomy} many {# poziomów} other {# poziomu}}"
+  },
+  "weightQuestionnaire": {
+    "trigger": "Określ wagi",
+    "title": "Określ wagi",
+    "introDescription": "Odpowiesz na krótkie pytania o preferencje dotyczące porównywalnych kryteriów. Każde pytanie pyta, które kryterium jest ważniejsze, albo czy oba są równie ważne.",
+    "maxQuestions": "{count, plural, one {Będzie co najwyżej # pytanie.} few {Będzie co najwyżej # pytania.} many {Będzie co najwyżej # pytań.} other {Będzie co najwyżej # pytania.}}",
+    "replaceNote": "Po zakończeniu bieżące wagi zostaną zastąpione.",
+    "question": "Co jest dla Ciebie ważniejsze?",
+    "questionHint": "Wybierz jedno kryterium albo oba, jeśli są równie ważne.",
+    "progress": "Pytanie {n}",
+    "undecided": "{count, plural, one {# nierozstrzygnięte porównanie} few {# nierozstrzygnięte porównania} many {# nierozstrzygniętych porównań} other {# nierozstrzygniętego porównania}}",
+    "both": "Oba"
+  },
+  "results": {
+    "score": "Wynik",
+    "highlights": "Plusy i minusy",
+    "empty": "Brak wariantów.",
+    "firstPlace": "1. miejsce",
+    "secondPlace": "2. miejsce",
+    "thirdPlace": "3. miejsce"
+  },
+  "criteriaTable": {
+    "name": "Nazwa",
+    "type": "Typ",
+    "config": "Konfiguracja",
+    "empty": "Brak kryteriów.",
+    "moreOptions": "{list}, +{count} więcej",
+    "roles": {
+      "key": "Klucz",
+      "identity": "Tożsamość",
+      "comparable": "Porównywalne"
+    },
+    "types": {
+      "text": "tekst",
+      "number": "liczba",
+      "boolean": "logiczny",
+      "rating": "ocena",
+      "enum": "enumeracja"
+    }
+  },
+  "comparisonTable": {
+    "empty": "Brak wariantów."
+  },
+  "errors": {
+    "invalidName": "Nieprawidłowa nazwa",
+    "invalidInput": "Nieprawidłowe dane",
+    "invalidWeight": "Nieprawidłowa waga",
+    "invalidWeights": "Nieprawidłowe wagi",
+    "invalidRule": "Nieprawidłowa reguła",
+    "failedToCreateComparison": "Nie udało się utworzyć porównania",
+    "failedToCreateCriterion": "Nie udało się utworzyć kryterium",
+    "failedToCreateEntry": "Nie udało się utworzyć wariantu",
+    "failedToUpdateEntry": "Nie udało się zaktualizować wariantu",
+    "failedToClearEntryValue": "Nie udało się wyczyścić wartości wariantu",
+    "failedToDeleteEntry": "Nie udało się usunąć wariantu",
+    "failedToUpdateWeight": "Nie udało się zaktualizować wagi",
+    "failedToUpdateWeights": "Nie udało się zaktualizować wag",
+    "failedToUpdateRule": "Nie udało się zaktualizować reguły",
+    "failedToDeleteComparison": "Nie udało się usunąć porównania",
+    "failedToUpdateName": "Nie udało się zaktualizować nazwy",
+    "failedToDeleteCriterion": "Nie udało się usunąć kryterium"
+  }
+}

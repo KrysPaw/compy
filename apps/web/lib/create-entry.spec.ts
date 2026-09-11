@@ -192,13 +192,13 @@ describe('buildCreateEntryValues', () => {
 
   it('requires the key text value', () => {
     expect(buildCreateEntryValues([name], { 1: '   ' })).toEqual({
-      error: 'Name is required',
+      error: { id: 'createEntry.nameRequired' },
     });
   });
 
   it('requires at least one value overall', () => {
     expect(buildCreateEntryValues([notes, price], { 2: '', 3: '' })).toEqual({
-      error: 'Name is required',
+      error: { id: 'createEntry.nameRequired' },
     });
   });
 
@@ -226,7 +226,12 @@ describe('buildCreateEntryValues', () => {
   it('rejects non-numeric number and rating input', () => {
     expect(
       buildCreateEntryValues([name, price], { 1: 'Phone', 3: 'abc' }),
-    ).toEqual({ error: 'Price must be a number' });
+    ).toEqual({
+      error: {
+        id: 'createEntry.mustBeANumber',
+        values: { name: 'Price' },
+      },
+    });
   });
 
   it('always includes boolean values, even when false', () => {

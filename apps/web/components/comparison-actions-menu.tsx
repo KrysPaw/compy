@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { EllipsisIcon, Trash2Icon } from 'lucide-react';
 import { deleteComparison } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ export function ComparisonActionsMenu({
   comparisonName,
 }: ComparisonActionsMenuProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [confirmationName, setConfirmationName] = useState('');
   const [error, setError] = useState<string>();
@@ -65,7 +67,7 @@ export function ComparisonActionsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Comparison actions">
+          <Button variant="ghost" size="icon" aria-label={t('comparisonActions.menuLabel')}>
             <EllipsisIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -75,7 +77,7 @@ export function ComparisonActionsMenu({
             onSelect={() => setOpen(true)}
           >
             <Trash2Icon />
-            Delete
+            {t('common.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -83,18 +85,22 @@ export function ComparisonActionsMenu({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete comparison?</DialogTitle>
+            <DialogTitle>{t('comparisonActions.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              This permanently deletes the comparison and all its criteria and
-              entries. Type{' '}
-              <span className="font-mono font-semibold text-foreground">
-                {comparisonName}
-              </span>{' '}
-              to confirm.
+              {t.rich('comparisonActions.deleteDescription', {
+                comparisonName,
+                name: (chunks) => (
+                  <span className="font-mono font-semibold text-foreground">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="delete-comparison-name">Comparison name</Label>
+            <Label htmlFor="delete-comparison-name">
+              {t('comparisonActions.nameLabel')}
+            </Label>
             <Input
               id="delete-comparison-name"
               value={confirmationName}
@@ -111,7 +117,7 @@ export function ComparisonActionsMenu({
               disabled={!isNameConfirmed || isPending}
               onClick={handleDelete}
             >
-              {isPending ? 'Deleting...' : 'Delete'}
+              {isPending ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

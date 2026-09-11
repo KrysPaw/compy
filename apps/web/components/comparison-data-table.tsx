@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowDown, ArrowUp, ArrowUpDown, StarIcon } from 'lucide-react';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import { EntryActionsMenu } from '@/components/entry-actions-menu';
@@ -32,9 +33,10 @@ function EntryCellValue({
   criterion: Criterion;
   value: unknown;
 }) {
+  const t = useTranslations('common');
   const text = rawValue(value);
   if (text.length === 0) {
-    return '—';
+    return t('emDash');
   }
 
   if (criterion.type === 'rating') {
@@ -88,6 +90,7 @@ export function ComparisonDataTable({
 }: Pick<ComparisonDetailsResponse, 'criteria' | 'entries'> & {
   comparisonId: number;
 }) {
+  const t = useTranslations('comparisonTable');
   const [sort, setSort] = useState<{
     criterionId: number;
     direction: 'asc' | 'desc';
@@ -162,7 +165,7 @@ export function ComparisonDataTable({
                   colSpan={columnCount}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No entries yet.
+                  {t('empty')}
                 </TableCell>
               </TableRow>
             ) : (

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { MinusIcon, PlusIcon } from 'lucide-react';
 import {
   remainingWeightPool,
@@ -66,6 +67,8 @@ function RuleEditor({
   ruleConfig: unknown;
   onChange: (next: unknown) => void;
 }) {
+  const t = useTranslations();
+
   if (criterion.type === 'number' || criterion.type === 'rating') {
     const direction = hasDirection(ruleConfig) ? ruleConfig.direction : '';
 
@@ -82,10 +85,14 @@ function RuleEditor({
 
           onChange(nextDirectionRuleConfig(criterion, next, ruleConfig));
         }}
-        aria-label={`Rule for ${criterion.name}`}
+        aria-label={t('rules.ruleFor', { name: criterion.name })}
       >
-        <ToggleGroupItem value="higher">Higher is better</ToggleGroupItem>
-        <ToggleGroupItem value="lower">Lower is better</ToggleGroupItem>
+        <ToggleGroupItem value="higher">
+          {t('rules.higherIsBetter')}
+        </ToggleGroupItem>
+        <ToggleGroupItem value="lower">
+          {t('rules.lowerIsBetter')}
+        </ToggleGroupItem>
       </ToggleGroup>
     );
   }
@@ -110,10 +117,10 @@ function RuleEditor({
 
           onChange(nextBooleanRuleConfig(next === 'yes'));
         }}
-        aria-label={`Rule for ${criterion.name}`}
+        aria-label={t('rules.ruleFor', { name: criterion.name })}
       >
-        <ToggleGroupItem value="yes">Yes is better</ToggleGroupItem>
-        <ToggleGroupItem value="no">No is better</ToggleGroupItem>
+        <ToggleGroupItem value="yes">{t('rules.yesIsBetter')}</ToggleGroupItem>
+        <ToggleGroupItem value="no">{t('rules.noIsBetter')}</ToggleGroupItem>
       </ToggleGroup>
     );
   }
@@ -129,7 +136,10 @@ function RuleEditor({
     );
   }
 
-  return formatRuleMessage({ ...criterion, ruleConfig });
+  const message = formatRuleMessage({ ...criterion, ruleConfig });
+  return message.id === 'rules.enumSummary'
+    ? t(message.id, message.values)
+    : t(message.id);
 }
 
 function WeightStepper({
@@ -143,6 +153,7 @@ function WeightStepper({
   remaining: number;
   onChange: (next: number) => void;
 }) {
+  const t = useTranslations();
   const max = Math.min(WEIGHT_POOL_TOTAL, value + Math.max(0, remaining));
   const [draft, setDraft] = useState(String(value));
 
@@ -172,7 +183,7 @@ function WeightStepper({
         type="button"
         variant="default"
         size="icon-xs"
-        aria-label={`Decrease weight for ${name}`}
+        aria-label={t('rules.decreaseWeight', { name })}
         disabled={value <= 0}
         onClick={() => onChange(value - 1)}
       >
@@ -181,7 +192,7 @@ function WeightStepper({
       <Input
         type="text"
         inputMode="numeric"
-        aria-label={`Weight for ${name}`}
+        aria-label={t('rules.weightFor', { name })}
         className="h-7 w-12 px-1 text-center"
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
@@ -196,7 +207,7 @@ function WeightStepper({
         type="button"
         variant="default"
         size="icon-xs"
-        aria-label={`Increase weight for ${name}`}
+        aria-label={t('rules.increaseWeight', { name })}
         disabled={remaining <= 0 || value >= WEIGHT_POOL_TOTAL}
         onClick={() => onChange(value + 1)}
       >
@@ -212,6 +223,7 @@ export function RulesDataTable({
 }: {
   comparisonId: number;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
+  const t = useTranslations();
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [weights, setWeights] = useState(() => weightsFrom(criteria));
@@ -376,16 +388,20 @@ export function RulesDataTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Rule</TableHead>
+                <TableHead>{t('rules.name')}</TableHead>
+                <TableHead>{t('rules.rule')}</TableHead>
                 <TableHead>
                   <div className="flex flex-col gap-0.5">
-                    <span>Weight</span>
+                    <span>{t('rules.weight')}</span>
                     <span
                       className="text-xs font-normal text-muted-foreground"
                       aria-live="polite"
                     >
-                      Remaining: <b>{remaining}</b> / {WEIGHT_POOL_TOTAL}
+                      {t.rich('rules.remaining', {
+                        remaining,
+                        total: WEIGHT_POOL_TOTAL,
+                        bold: (chunks) => <b>{chunks}</b>,
+                      })}
                     </span>
                   </div>
                 </TableHead>
@@ -398,7 +414,7 @@ export function RulesDataTable({
                     colSpan={3}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    No comparable criteria yet.
+                    {t('rules.empty')}
                   </TableCell>
                 </TableRow>
               ) : (

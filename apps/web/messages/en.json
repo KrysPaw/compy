@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "description": "Comparison app"
+  },
+  "common": {
+    "emDash": "—",
+    "name": "Name",
+    "create": "Create",
+    "creating": "Creating…",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "continue": "Continue",
+    "entry": "Entry",
+    "close": "Close"
+  },
+  "a11y": {
+    "toggleSidebar": "Toggle Sidebar",
+    "close": "Close",
+    "sidebar": "Sidebar",
+    "sidebarDescription": "Displays the mobile sidebar."
+  },
+  "languageSwitcher": {
+    "en": "English",
+    "pl": "Polski"
+  },
+  "sidebar": {
+    "myComparisons": "My Comparisons",
+    "newComparison": "New comparison"
+  },
+  "tabs": {
+    "criteria": "Criteria",
+    "entries": "Entries",
+    "rules": "Rules",
+    "results": "Results"
+  },
+  "home": {
+    "comparisonTitle": "Comparison title"
+  },
+  "pages": {
+    "entriesBlurb": "Entries are the items you compare against your criteria.",
+    "criteriaBlurb": "Criteria identify an entry or let you compare entries.",
+    "rulesBlurb": "Rules define how comparable criteria affect ranking and how much each counts.",
+    "resultsBlurb": "Results rank entries by weighted rules. Best match is at the top."
+  },
+  "createComparison": {
+    "title": "New comparison",
+    "description": "Give your comparison a name to get started.",
+    "placeholder": "Phones 2026"
+  },
+  "createCriterion": {
+    "add": "Add criterion",
+    "title": "New criterion",
+    "description": "Criteria describe how entries are named and compared.",
+    "comparable": "Comparable",
+    "type": "Type",
+    "min": "Min",
+    "max": "Max",
+    "options": "Options",
+    "optionPlaceholder": "Option {n}",
+    "removeOption": "Remove option",
+    "addOption": "Add option",
+    "placeholder": "Price",
+    "types": {
+      "number": "Number",
+      "boolean": "Boolean",
+      "rating": "Rating",
+      "enum": "Enum"
+    }
+  },
+  "createEntry": {
+    "add": "Add entry",
+    "title": "New entry",
+    "description": "Name is required. Other criterion values can be filled in later.",
+    "nameRequired": "Name is required",
+    "mustBeANumber": "{name} must be a number",
+    "selectOption": "Select an option",
+    "namePlaceholder": "Pixel 8"
+  },
+  "comparisonActions": {
+    "menuLabel": "Comparison actions",
+    "deleteTitle": "Delete comparison?",
+    "deleteDescription": "This permanently deletes the comparison and all its criteria and entries. Type <name>{comparisonName}</name> to confirm.",
+    "nameLabel": "Comparison name"
+  },
+  "criterionActions": {
+    "menuLabel": "{name} actions",
+    "rename": "Rename",
+    "renameTitle": "Rename criterion",
+    "renameDescription": "Type and config stay the same; only the display name changes.",
+    "deleteTitle": "Delete criterion?",
+    "deleteDescription": "This permanently deletes <name>{criterionName}</name> and all values stored for it on entries."
+  },
+  "entryActions": {
+    "menuLabel": "{name} actions",
+    "editTitle": "Edit entry",
+    "editDescription": "Update criterion values for this entry. Clearing an optional value removes it.",
+    "deleteTitle": "Delete entry?",
+    "deleteDescription": "This permanently deletes <name>{label}</name> and all of its criterion values."
+  },
+  "rules": {
+    "emDash": "—",
+    "higherIsBetter": "Higher is better",
+    "lowerIsBetter": "Lower is better",
+    "yesIsBetter": "Yes is better",
+    "noIsBetter": "No is better",
+    "enumSummary": "Best: {best} · Worst: {worst}",
+    "name": "Name",
+    "rule": "Rule",
+    "weight": "Weight",
+    "remaining": "Remaining: <bold>{remaining}</bold> / {total}",
+    "empty": "No comparable criteria yet.",
+    "ruleFor": "Rule for {name}",
+    "decreaseWeight": "Decrease weight for {name}",
+    "weightFor": "Weight for {name}",
+    "increaseWeight": "Increase weight for {name}"
+  },
+  "enumRule": {
+    "edit": "Edit",
+    "title": "Edit rule · {name}",
+    "description": "Drag options into tiers. Tier 1 is best; the last tier is worst. Save when every option is assigned exactly once.",
+    "unassigned": "Unassigned",
+    "best": "Best",
+    "worst": "Worst",
+    "tier": "Tier {n}",
+    "removeTier": "Remove tier",
+    "addTier": "Add tier",
+    "tierCount": "{count, plural, one {# tier} other {# tiers}}"
+  },
+  "weightQuestionnaire": {
+    "trigger": "Distribute weights",
+    "title": "Distribute weights",
+    "introDescription": "You will answer short preference questions about your comparable criteria. Each question asks which criterion matters more, or whether both matter equally.",
+    "maxQuestions": "{count, plural, one {There will be at most # question.} other {There will be at most # questions.}}",
+    "replaceNote": "Your current weights will be replaced when you finish.",
+    "question": "What is more important to you?",
+    "questionHint": "Choose one criterion, or both if they matter equally.",
+    "progress": "Question {n}",
+    "undecided": "{count, plural, one {# undecided comparison} other {# undecided comparisons}}",
+    "both": "Both"
+  },
+  "results": {
+    "score": "Score",
+    "highlights": "Highlights",
+    "empty": "No entries yet.",
+    "firstPlace": "1st place",
+    "secondPlace": "2nd place",
+    "thirdPlace": "3rd place"
+  },
+  "criteriaTable": {
+    "name": "Name",
+    "type": "Type",
+    "config": "Config",
+    "empty": "No criteria yet.",
+    "moreOptions": "{list}, +{count} more",
+    "roles": {
+      "key": "Key",
+      "identity": "Identity",
+      "comparable": "Comparable"
+    },
+    "types": {
+      "text": "text",
+      "number": "number",
+      "boolean": "boolean",
+      "rating": "rating",
+      "enum": "enum"
+    }
+  },
+  "comparisonTable": {
+    "empty": "No entries yet."
+  },
+  "errors": {
+    "invalidName": "Invalid name",
+    "invalidInput": "Invalid input",
+    "invalidWeight": "Invalid weight",
+    "invalidWeights": "Invalid weights",
+    "invalidRule": "Invalid rule",
+    "failedToCreateComparison": "Failed to create comparison",
+    "failedToCreateCriterion": "Failed to create criterion",
+    "failedToCreateEntry": "Failed to create entry",
+    "failedToUpdateEntry": "Failed to update entry",
+    "failedToClearEntryValue": "Failed to clear entry value",
+    "failedToDeleteEntry": "Failed to delete entry",
+    "failedToUpdateWeight": "Failed to update weight",
+    "failedToUpdateWeights": "Failed to update weights",
+    "failedToUpdateRule": "Failed to update rule",
+    "failedToDeleteComparison": "Failed to delete comparison",
+    "failedToUpdateName": "Failed to update name",
+    "failedToDeleteCriterion": "Failed to delete criterion"
+  }
+}

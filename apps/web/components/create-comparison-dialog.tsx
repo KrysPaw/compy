@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
 import { createComparison } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import {
 import { SidebarGroupAction } from '@/components/ui/sidebar';
 
 export function CreateComparisonDialog() {
+  const t = useTranslations();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
@@ -43,25 +45,25 @@ export function CreateComparisonDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <SidebarGroupAction title="New comparison">
+        <SidebarGroupAction title={t('sidebar.newComparison')}>
           <PlusIcon />
-          <span className="sr-only">New comparison</span>
+          <span className="sr-only">{t('sidebar.newComparison')}</span>
         </SidebarGroupAction>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New comparison</DialogTitle>
+          <DialogTitle>{t('createComparison.title')}</DialogTitle>
           <DialogDescription>
-            Give your comparison a name to get started.
+            {t('createComparison.description')}
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="comparison-name">Name</Label>
+            <Label htmlFor="comparison-name">{t('common.name')}</Label>
             <Input
               id="comparison-name"
               name="name"
-              placeholder="Phones 2026"
+              placeholder={t('createComparison.placeholder')}
               required
               maxLength={200}
               autoFocus
@@ -70,7 +72,7 @@ export function CreateComparisonDialog() {
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Creating…' : 'Create'}
+              {isPending ? t('common.creating') : t('common.create')}
             </Button>
           </DialogFooter>
         </form>

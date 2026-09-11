@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PlusIcon, XIcon } from 'lucide-react';
 import { createCriterion } from '@/lib/actions';
 import { cn } from '@/lib/utils';
@@ -28,12 +29,7 @@ import {
 
 type ComparableType = 'number' | 'boolean' | 'rating' | 'enum';
 
-const TYPE_LABELS: Record<ComparableType, string> = {
-  number: 'Number',
-  boolean: 'Boolean',
-  rating: 'Rating',
-  enum: 'Enum',
-};
+const TYPE_KEYS: ComparableType[] = ['number', 'boolean', 'rating', 'enum'];
 
 const INITIAL_STATE = {
   name: '',
@@ -72,6 +68,7 @@ export function CreateCriterionDialog({
 }: {
   comparisonId: number;
 }) {
+  const t = useTranslations();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
@@ -154,26 +151,26 @@ export function CreateCriterionDialog({
       <DialogTrigger asChild>
         <Button size="sm">
           <PlusIcon />
-          Add criterion
+          {t('createCriterion.add')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New criterion</DialogTitle>
+          <DialogTitle>{t('createCriterion.title')}</DialogTitle>
           <DialogDescription>
-            Criteria describe how entries are named and compared.
+            {t('createCriterion.description')}
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="criterion-name">Name</Label>
+            <Label htmlFor="criterion-name">{t('common.name')}</Label>
             <Input
               id="criterion-name"
               value={state.name}
               onChange={(event) =>
                 setState((prev) => ({ ...prev, name: event.target.value }))
               }
-              placeholder="Price"
+              placeholder={t('createCriterion.placeholder')}
               required
               maxLength={200}
               autoFocus
@@ -181,7 +178,9 @@ export function CreateCriterionDialog({
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="criterion-comparable">Comparable</Label>
+            <Label htmlFor="criterion-comparable">
+              {t('createCriterion.comparable')}
+            </Label>
             <Switch
               id="criterion-comparable"
               checked={state.isComparable}
@@ -193,7 +192,7 @@ export function CreateCriterionDialog({
 
           <Collapse open={state.isComparable}>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="criterion-type">Type</Label>
+              <Label htmlFor="criterion-type">{t('createCriterion.type')}</Label>
               <Select
                 value={state.type}
                 onValueChange={(value) =>
@@ -207,13 +206,11 @@ export function CreateCriterionDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(Object.keys(TYPE_LABELS) as ComparableType[]).map(
-                    (type) => (
-                      <SelectItem key={type} value={type}>
-                        {TYPE_LABELS[type]}
-                      </SelectItem>
-                    ),
-                  )}
+                  {TYPE_KEYS.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {t(`createCriterion.types.${type}`)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -221,7 +218,9 @@ export function CreateCriterionDialog({
             <Collapse open={state.isComparable && state.type === 'rating'}>
               <div className="flex gap-4">
                 <div className="flex flex-1 flex-col gap-2">
-                  <Label htmlFor="criterion-rating-min">Min</Label>
+                  <Label htmlFor="criterion-rating-min">
+                    {t('createCriterion.min')}
+                  </Label>
                   <Input
                     id="criterion-rating-min"
                     type="number"
@@ -236,7 +235,9 @@ export function CreateCriterionDialog({
                   />
                 </div>
                 <div className="flex flex-1 flex-col gap-2">
-                  <Label htmlFor="criterion-rating-max">Max</Label>
+                  <Label htmlFor="criterion-rating-max">
+                    {t('createCriterion.max')}
+                  </Label>
                   <Input
                     id="criterion-rating-max"
                     type="number"
@@ -255,7 +256,7 @@ export function CreateCriterionDialog({
 
             <Collapse open={state.isComparable && state.type === 'enum'}>
               <div className="flex flex-col gap-2">
-                <Label>Options</Label>
+                <Label>{t('createCriterion.options')}</Label>
                 <div className="flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
                   {state.enumOptions.map((option, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -264,7 +265,9 @@ export function CreateCriterionDialog({
                         onChange={(event) =>
                           updateEnumOption(index, event.target.value)
                         }
-                        placeholder={`Option ${index + 1}`}
+                        placeholder={t('createCriterion.optionPlaceholder', {
+                          n: index + 1,
+                        })}
                         required={state.isComparable && state.type === 'enum'}
                       />
                       <Button
@@ -275,7 +278,9 @@ export function CreateCriterionDialog({
                         onClick={() => removeEnumOption(index)}
                       >
                         <XIcon />
-                        <span className="sr-only">Remove option</span>
+                        <span className="sr-only">
+                          {t('createCriterion.removeOption')}
+                        </span>
                       </Button>
                     </div>
                   ))}
@@ -286,7 +291,7 @@ export function CreateCriterionDialog({
                   size="sm"
                   onClick={addEnumOption}
                 >
-                  Add option
+                  {t('createCriterion.addOption')}
                 </Button>
               </div>
             </Collapse>
@@ -295,7 +300,7 @@ export function CreateCriterionDialog({
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Creating…' : 'Create'}
+              {isPending ? t('common.creating') : t('common.create')}
             </Button>
           </DialogFooter>
         </form>

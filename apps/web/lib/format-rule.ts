@@ -95,11 +95,21 @@ function pickOne(values: string[]): string | undefined {
   return values[0];
 }
 
+export type RuleMessage =
+  | { id: 'rules.emDash' }
+  | { id: 'rules.higherIsBetter' }
+  | { id: 'rules.lowerIsBetter' }
+  | { id: 'rules.yesIsBetter' }
+  | { id: 'rules.noIsBetter' }
+  | { id: 'rules.enumSummary'; values: { best: string; worst: string } };
+
+const EM_DASH: RuleMessage = { id: 'rules.emDash' };
+
 /** Best = lowest-rank non-empty tier; worst = highest-rank non-empty. */
-export function formatEnumRuleSummary(ruleConfig: unknown): string {
+export function formatEnumRuleSummary(ruleConfig: unknown): RuleMessage {
   const parsed = parseEnumRuleConfig(ruleConfig);
   if (!parsed) {
-    return '—';
+    return EM_DASH;
   }
 
   const nonEmpty = [...parsed.tiers]
@@ -107,17 +117,17 @@ export function formatEnumRuleSummary(ruleConfig: unknown): string {
     .sort((a, b) => a.rank - b.rank);
 
   if (nonEmpty.length === 0) {
-    return '—';
+    return EM_DASH;
   }
 
   const best = pickOne(nonEmpty[0].values);
   const worst = pickOne(nonEmpty[nonEmpty.length - 1].values);
 
   if (!best || !worst) {
-    return '—';
+    return EM_DASH;
   }
 
-  return `Best: ${best} · Worst: ${worst}`;
+  return { id: 'rules.enumSummary', values: { best, worst } };
 }
 
 export function createEnumRuleDraft(
@@ -235,7 +245,7 @@ export function isEnumRuleDraftComplete(
 }
 
 /** Short human-readable rule for the Rules table. */
-export function formatRuleMessage(criterion: Criterion): string {
+export function formatRuleMessage(criterion: Criterion): RuleMessage {
   if (criterion.type === 'enum') {
     return formatEnumRuleSummary(criterion.ruleConfig);
   }
@@ -247,13 +257,15 @@ export function formatRuleMessage(criterion: Criterion): string {
     hasDirection(ruleConfig)
   ) {
     return ruleConfig.direction === 'higher'
-      ? 'Higher is better'
-      : 'Lower is better';
+      ? { id: 'rules.higherIsBetter' }
+      : { id: 'rules.lowerIsBetter' };
   }
 
   if (criterion.type === 'boolean' && hasPreferredValue(ruleConfig)) {
-    return ruleConfig.preferredValue ? 'yes is better' : 'no is better';
+    return ruleConfig.preferredValue
+      ? { id: 'rules.yesIsBetter' }
+      : { id: 'rules.noIsBetter' };
   }
 
-  return '—';
+  return EM_DASH;
 }

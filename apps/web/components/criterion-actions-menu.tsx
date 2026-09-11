@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-react';
 import { deleteCriterion, updateCriterionName } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ export function CriterionActionsMenu({
   canDelete,
 }: CriterionActionsMenuProps) {
   const router = useRouter();
+  const t = useTranslations();
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
   const [name, setName] = useState(criterionName);
   const [error, setError] = useState<string>();
@@ -94,7 +96,7 @@ export function CriterionActionsMenu({
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`${criterionName} actions`}
+            aria-label={t('criterionActions.menuLabel', { name: criterionName })}
           >
             <EllipsisIcon />
           </Button>
@@ -107,7 +109,7 @@ export function CriterionActionsMenu({
             }}
           >
             <PencilIcon />
-            Rename
+            {t('criterionActions.rename')}
           </DropdownMenuItem>
           {canDelete ? (
             <DropdownMenuItem
@@ -115,7 +117,7 @@ export function CriterionActionsMenu({
               onSelect={() => setActiveDialog('delete')}
             >
               <Trash2Icon />
-              Delete
+              {t('common.delete')}
             </DropdownMenuItem>
           ) : null}
         </DropdownMenuContent>
@@ -127,13 +129,15 @@ export function CriterionActionsMenu({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename criterion</DialogTitle>
+            <DialogTitle>{t('criterionActions.renameTitle')}</DialogTitle>
             <DialogDescription>
-              Type and config stay the same; only the display name changes.
+              {t('criterionActions.renameDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`rename-criterion-${criterionId}`}>Name</Label>
+            <Label htmlFor={`rename-criterion-${criterionId}`}>
+              {t('common.name')}
+            </Label>
             <Input
               id={`rename-criterion-${criterionId}`}
               value={name}
@@ -150,7 +154,7 @@ export function CriterionActionsMenu({
               disabled={isPending || name.trim().length === 0}
               onClick={handleRename}
             >
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -162,13 +166,16 @@ export function CriterionActionsMenu({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete criterion?</DialogTitle>
+            <DialogTitle>{t('criterionActions.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              This permanently deletes{' '}
-              <span className="font-semibold text-foreground">
-                {criterionName}
-              </span>{' '}
-              and all values stored for it on entries.
+              {t.rich('criterionActions.deleteDescription', {
+                criterionName,
+                name: (chunks) => (
+                  <span className="font-semibold text-foreground">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </DialogDescription>
           </DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -179,7 +186,7 @@ export function CriterionActionsMenu({
               disabled={isPending}
               onClick={handleDelete}
             >
-              {isPending ? 'Deleting…' : 'Delete'}
+              {isPending ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,12 +1,9 @@
 import '@testing-library/jest-dom/vitest';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
+import { render } from '@/test/render';
 import { describe, expect, it } from 'vitest';
-import {
-  buildResultsRows,
-  denseMedalPlaceIndex,
-  ResultsDataTable,
-  resultsInfoColumns,
-} from './results-data-table';
+import { denseMedalPlaceIndex, ResultsDataTable } from './results-data-table';
+import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
 
 describe('denseMedalPlaceIndex', () => {
   it('shares medals for tied scores using dense ranking', () => {
@@ -32,11 +29,7 @@ describe('denseMedalPlaceIndex', () => {
 describe('ResultsDataTable', () => {
   it('shows an empty state when there are no rows', () => {
     render(
-      <ResultsDataTable
-        keyCriterionName="Name"
-        infoColumns={[]}
-        rows={[]}
-      />,
+      <ResultsDataTable keyCriterionName="Name" infoColumns={[]} rows={[]} />,
     );
 
     expect(screen.getByText('No entries yet.')).toBeInTheDocument();
@@ -356,12 +349,7 @@ describe('buildResultsRows', () => {
         entryId: 10,
         keyLabel: 'Pixel 8',
         infoValues: ['Google'],
-        pros: [
-          'Low Price',
-          'Fuel is Hybrid',
-          'electric',
-          'High rate',
-        ],
+        pros: ['Low Price', 'Fuel is Hybrid', 'electric', 'High rate'],
         cons: [],
         rate: 100,
       },
@@ -370,12 +358,7 @@ describe('buildResultsRows', () => {
         keyLabel: 'iPhone 15',
         infoValues: ['Apple'],
         pros: [],
-        cons: [
-          'High Price',
-          'Fuel is Petrol',
-          'Not electric',
-          'Low rate',
-        ],
+        cons: ['High Price', 'Fuel is Petrol', 'Not electric', 'Low rate'],
         rate: 0,
       },
     ]);

@@ -39,7 +39,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { direction: 'lower' },
         }),
       ),
-    ).toBe('Lower is better');
+    ).toEqual({ id: 'rules.lowerIsBetter' });
 
     expect(
       formatRuleMessage(
@@ -50,7 +50,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { direction: 'higher' },
         }),
       ),
-    ).toBe('Higher is better');
+    ).toEqual({ id: 'rules.higherIsBetter' });
   });
 
   it('describes boolean preferred value', () => {
@@ -63,7 +63,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { preferredValue: true },
         }),
       ),
-    ).toBe('yes is better');
+    ).toEqual({ id: 'rules.yesIsBetter' });
 
     expect(
       formatRuleMessage(
@@ -74,7 +74,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: { preferredValue: false },
         }),
       ),
-    ).toBe('no is better');
+    ).toEqual({ id: 'rules.noIsBetter' });
   });
 
   it('summarizes enum best and worst values', () => {
@@ -94,11 +94,16 @@ describe('formatRuleMessage', () => {
           },
         }),
       ),
-    ).toBe('Best: Petrol · Worst: Diesel');
+    ).toEqual({
+      id: 'rules.enumSummary',
+      values: { best: 'Petrol', worst: 'Diesel' },
+    });
   });
 
   it('shows a dash for missing or empty enum assignment', () => {
-    expect(formatEnumRuleSummary({ tiers: [] })).toBe('—');
+    expect(formatEnumRuleSummary({ tiers: [] })).toEqual({
+      id: 'rules.emDash',
+    });
     expect(
       formatEnumRuleSummary({
         tiers: [
@@ -106,7 +111,7 @@ describe('formatRuleMessage', () => {
           { rank: 2, values: [] },
         ],
       }),
-    ).toBe('—');
+    ).toEqual({ id: 'rules.emDash' });
 
     expect(
       formatRuleMessage(
@@ -117,7 +122,7 @@ describe('formatRuleMessage', () => {
           ruleConfig: null,
         }),
       ),
-    ).toBe('—');
+    ).toEqual({ id: 'rules.emDash' });
   });
 
   it('builds a number direction payload without extra fields', () => {

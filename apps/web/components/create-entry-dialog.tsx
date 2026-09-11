@@ -2,10 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
 import { createEntry } from '@/lib/actions';
 import {
   buildCreateEntryValues,
+  entryValidationText,
   initialEntryFields,
   orderedCriteria,
   type Criterion,
@@ -30,6 +32,7 @@ export function CreateEntryDialog({
   criteria: Criterion[];
 }) {
   const router = useRouter();
+  const t = useTranslations();
   const fieldsCriteria = orderedCriteria(criteria);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
@@ -54,7 +57,7 @@ export function CreateEntryDialog({
     const payload = buildCreateEntryValues(fieldsCriteria, fields);
 
     if ('error' in payload) {
-      setError(payload.error);
+      setError(entryValidationText(t, payload.error));
       return;
     }
 
@@ -76,15 +79,13 @@ export function CreateEntryDialog({
       <DialogTrigger asChild>
         <Button size="sm">
           <PlusIcon />
-          Add entry
+          {t('createEntry.add')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New entry</DialogTitle>
-          <DialogDescription>
-            Name is required. Other criterion values can be filled in later.
-          </DialogDescription>
+          <DialogTitle>{t('createEntry.title')}</DialogTitle>
+          <DialogDescription>{t('createEntry.description')}</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="flex flex-col gap-4">
           {fieldsCriteria.map((criterion) => (
@@ -103,7 +104,7 @@ export function CreateEntryDialog({
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              {isPending ? 'Creating…' : 'Create'}
+              {isPending ? t('common.creating') : t('common.create')}
             </Button>
           </DialogFooter>
         </form>

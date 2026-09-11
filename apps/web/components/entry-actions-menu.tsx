@@ -2,11 +2,13 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-react';
 import { deleteEntry, updateEntry } from '@/lib/actions';
 import {
   buildCreateEntryValues,
   clearedCriterionIds,
+  entryValidationText,
   fieldsFromEntryValues,
   orderedCriteria,
   type Criterion,
@@ -52,6 +54,7 @@ export function EntryActionsMenu({
   entryValues,
 }: EntryActionsMenuProps) {
   const router = useRouter();
+  const t = useTranslations();
   const fieldsCriteria = orderedCriteria(criteria);
   const [activeDialog, setActiveDialog] = useState<ActiveDialog>(null);
   const [fields, setFields] = useState<Record<number, EntryFieldValue>>(() =>
@@ -82,7 +85,7 @@ export function EntryActionsMenu({
     const payload = buildCreateEntryValues(fieldsCriteria, fields);
 
     if ('error' in payload) {
-      setError(payload.error);
+      setError(entryValidationText(t, payload.error));
       return;
     }
 
@@ -124,7 +127,7 @@ export function EntryActionsMenu({
     });
   }
 
-  const label = entryLabel || 'Entry';
+  const label = entryLabel || t('common.entry');
 
   return (
     <>
@@ -133,7 +136,7 @@ export function EntryActionsMenu({
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`${label} actions`}
+            aria-label={t('entryActions.menuLabel', { name: label })}
           >
             <EllipsisIcon />
           </Button>
@@ -141,14 +144,14 @@ export function EntryActionsMenu({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={openEdit}>
             <PencilIcon />
-            Edit
+            {t('common.edit')}
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onSelect={() => setActiveDialog('delete')}
           >
             <Trash2Icon />
-            Delete
+            {t('common.delete')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -159,10 +162,9 @@ export function EntryActionsMenu({
       >
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit entry</DialogTitle>
+            <DialogTitle>{t('entryActions.editTitle')}</DialogTitle>
             <DialogDescription>
-              Update criterion values for this entry. Clearing an optional
-              value removes it.
+              {t('entryActions.editDescription')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4">
@@ -184,7 +186,7 @@ export function EntryActionsMenu({
           </div>
           <DialogFooter>
             <Button type="button" disabled={isPending} onClick={handleSave}>
-              {isPending ? 'Saving…' : 'Save'}
+              {isPending ? t('common.saving') : t('common.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -196,11 +198,14 @@ export function EntryActionsMenu({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete entry?</DialogTitle>
+            <DialogTitle>{t('entryActions.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              This permanently deletes{' '}
-              <span className="font-semibold text-foreground">{label}</span>{' '}
-              and all of its criterion values.
+              {t.rich('entryActions.deleteDescription', {
+                label,
+                name: (chunks) => (
+                  <span className="font-semibold text-foreground">{chunks}</span>
+                ),
+              })}
             </DialogDescription>
           </DialogHeader>
           {error && <p className="text-sm text-destructive">{error}</p>}
@@ -211,7 +216,7 @@ export function EntryActionsMenu({
               disabled={isPending}
               onClick={handleDelete}
             >
-              {isPending ? 'Deleting…' : 'Delete'}
+              {isPending ? t('common.deleting') : t('common.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
