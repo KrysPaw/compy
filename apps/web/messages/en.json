@@ -39,7 +39,10 @@
     "results": "Results"
   },
   "home": {
-    "comparisonTitle": "Comparison title"
+    "title": "Home",
+    "emptyTitle": "No comparisons yet",
+    "emptyDescription": "Create a comparison to add criteria, entries, and start ranking.",
+    "createCta": "Create comparison"
   },
   "pages": {
     "entriesBlurb": "Entries are the items you compare against your criteria.",

@@ -39,7 +39,10 @@
     "results": "Wyniki"
   },
   "home": {
-    "comparisonTitle": "Tytuł porównania"
+    "title": "Strona główna",
+    "emptyTitle": "Brak porównań",
+    "emptyDescription": "Utwórz porównanie, aby dodać kryteria, warianty i zacząć ranking.",
+    "createCta": "Utwórz porównanie"
   },
   "pages": {
     "entriesBlurb": "Warianty to pozycje, które porównujesz według kryteriów.",

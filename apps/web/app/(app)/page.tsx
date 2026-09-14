@@ -1,8 +1,19 @@
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { PlusIcon } from 'lucide-react';
+import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { getComparisons } from '@/lib/api';
 
 export default async function Home() {
+  const comparisons = await getComparisons();
+
+  if (comparisons.length > 0) {
+    redirect(`/comparisons/${comparisons[0].id}`);
+  }
+
   const t = await getTranslations('home');
 
   return (
@@ -13,15 +24,25 @@ export default async function Home() {
           orientation="vertical"
           className="mr-2 data-vertical:h-4 data-vertical:self-auto"
         />
-        <div>{t('comparisonTitle')}</div>
+        <div>{t('title')}</div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <div className="aspect-video rounded-xl bg-muted/50" />
-          <div className="aspect-video rounded-xl bg-muted/50" />
-          <div className="aspect-video rounded-xl bg-muted/50" />
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4 text-center">
+        <div className="flex max-w-md flex-col gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {t('emptyTitle')}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t('emptyDescription')}
+          </p>
         </div>
-        <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        <CreateComparisonDialog
+          trigger={
+            <Button>
+              <PlusIcon />
+              {t('createCta')}
+            </Button>
+          }
+        />
       </div>
     </>
   );

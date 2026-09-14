@@ -59,4 +59,19 @@ describe('CreateComparisonDialog', () => {
       expect(refresh).toHaveBeenCalled();
     });
   });
+
+  it('uses a custom trigger when provided', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <CreateComparisonDialog
+        trigger={<button type="button">Create comparison</button>}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Create comparison' }),
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
 });

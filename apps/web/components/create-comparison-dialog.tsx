@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
@@ -19,7 +19,11 @@ import {
 } from '@/components/ui/dialog';
 import { SidebarGroupAction } from '@/components/ui/sidebar';
 
-export function CreateComparisonDialog() {
+type CreateComparisonDialogProps = {
+  trigger?: ReactNode;
+};
+
+export function CreateComparisonDialog({ trigger }: CreateComparisonDialogProps) {
   const t = useTranslations();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -42,14 +46,16 @@ export function CreateComparisonDialog() {
     });
   }
 
+  const defaultTrigger = (
+    <SidebarGroupAction title={t('sidebar.newComparison')}>
+      <PlusIcon />
+      <span className="sr-only">{t('sidebar.newComparison')}</span>
+    </SidebarGroupAction>
+  );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <SidebarGroupAction title={t('sidebar.newComparison')}>
-          <PlusIcon />
-          <span className="sr-only">{t('sidebar.newComparison')}</span>
-        </SidebarGroupAction>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? defaultTrigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('createComparison.title')}</DialogTitle>
