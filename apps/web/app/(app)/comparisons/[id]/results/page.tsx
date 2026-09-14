@@ -36,6 +36,7 @@ export default async function ResultsPage({
       <ResultsConfigAlert
         comparisonId={comparisonId}
         criteria={comparison.criteria}
+        entries={comparison.entries}
       />
       <ResultsDataTable
         keyCriterionName={keyCriterion?.name ?? t('common.entry')}

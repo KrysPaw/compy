@@ -11,6 +11,7 @@ import {
 } from '@/lib/format-rule';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
+type Entry = ComparisonDetailsResponse['entries'][number];
 
 export type ResultsConfigWeightIssue = 'zero' | 'partial';
 
@@ -18,7 +19,46 @@ export type ResultsConfigAlertState = {
   weightIssue: ResultsConfigWeightIssue | null;
   remaining: number;
   rulesIncomplete: boolean;
+  valuesMissing: boolean;
 };
+
+function entryValueForCriterion(
+  entry: Entry,
+  criterionId: number,
+): unknown | undefined {
+  const found = entry.entryValues.find(
+    (item) => item.criterionId === criterionId,
+  );
+  return found?.value;
+}
+
+/**
+ * True when a weighted comparable criterion has at least one null/undefined
+ * entry value (including a missing entryValues row). Empty strings do not count.
+ */
+export function hasMissingWeightedValues(
+  criteria: ReadonlyArray<Criterion>,
+  entries: ReadonlyArray<Entry>,
+): boolean {
+  if (entries.length === 0) {
+    return false;
+  }
+
+  const weighted = criteria.filter(
+    (criterion) => criterion.is_comparable && criterion.weight > 0,
+  );
+
+  for (const criterion of weighted) {
+    for (const entry of entries) {
+      const value = entryValueForCriterion(entry, criterion.id);
+      if (value === null || value === undefined) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
 
 function enumOptions(config: unknown): string[] {
   if (
@@ -60,11 +100,12 @@ export function isCriterionRuleIncomplete(criterion: Criterion): boolean {
 }
 
 /**
- * Incomplete Rules-tab configuration that can make Results misleading.
+ * Incomplete Rules/Data configuration that can make Results misleading.
  * Returns null when there is nothing to warn about (or no comparable criteria).
  */
 export function getResultsConfigAlertState(
   criteria: ReadonlyArray<Criterion>,
+  entries: ReadonlyArray<Entry> = [],
 ): ResultsConfigAlertState | null {
   const comparable = criteria.filter((criterion) => criterion.is_comparable);
 
@@ -86,8 +127,9 @@ export function getResultsConfigAlertState(
   }
 
   const rulesIncomplete = comparable.some(isCriterionRuleIncomplete);
+  const valuesMissing = hasMissingWeightedValues(criteria, entries);
 
-  if (weightIssue === null && !rulesIncomplete) {
+  if (weightIssue === null && !rulesIncomplete && !valuesMissing) {
     return null;
   }
 
@@ -95,6 +137,7 @@ export function getResultsConfigAlertState(
     weightIssue,
     remaining: Math.max(0, remaining),
     rulesIncomplete,
+    valuesMissing,
   };
 }
 

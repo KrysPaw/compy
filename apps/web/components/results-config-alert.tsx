@@ -8,6 +8,7 @@ import {
 import type { ComparisonDetailsResponse } from '@compy/shared';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
+type Entry = ComparisonDetailsResponse['entries'][number];
 
 export function ResultsConfigAlertView({
   comparisonId,
@@ -20,9 +21,15 @@ export function ResultsConfigAlertView({
     weightsZero: string;
     weightsPartial: string;
     rulesUnset: string;
+    valuesMissing: string;
     setRules: string;
+    completeEntries: string;
   };
 }) {
+  const showRulesLink =
+    state.weightIssue !== null || state.rulesIncomplete;
+  const showEntriesLink = state.valuesMissing;
+
   return (
     <div
       role="alert"
@@ -36,13 +43,31 @@ export function ResultsConfigAlertView({
           <p>{labels.weightsPartial}</p>
         ) : null}
         {state.rulesIncomplete ? <p>{labels.rulesUnset}</p> : null}
+        {state.valuesMissing ? <p>{labels.valuesMissing}</p> : null}
       </div>
-      <Link
-        href={`/comparisons/${comparisonId}/rules`}
-        className="w-fit text-sm font-medium text-foreground underline underline-offset-4"
-      >
-        {labels.setRules}
-      </Link>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        {showRulesLink ? (
+          <Link
+            href={`/comparisons/${comparisonId}/rules`}
+            className="w-fit text-sm font-medium text-foreground underline underline-offset-4"
+          >
+            {labels.setRules}
+          </Link>
+        ) : null}
+        {showRulesLink && showEntriesLink ? (
+          <span className="select-none text-muted-foreground" aria-hidden>
+            ·
+          </span>
+        ) : null}
+        {showEntriesLink ? (
+          <Link
+            href={`/comparisons/${comparisonId}/entries`}
+            className="w-fit text-sm font-medium text-foreground underline underline-offset-4"
+          >
+            {labels.completeEntries}
+          </Link>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -50,11 +75,13 @@ export function ResultsConfigAlertView({
 export async function ResultsConfigAlert({
   comparisonId,
   criteria,
+  entries,
 }: {
   comparisonId: number;
   criteria: ReadonlyArray<Criterion>;
+  entries: ReadonlyArray<Entry>;
 }) {
-  const state = getResultsConfigAlertState(criteria);
+  const state = getResultsConfigAlertState(criteria, entries);
   if (state === null) {
     return null;
   }
@@ -72,7 +99,9 @@ export async function ResultsConfigAlert({
           total: WEIGHT_POOL_TOTAL,
         }),
         rulesUnset: t('configAlert.rulesUnset'),
+        valuesMissing: t('configAlert.valuesMissing'),
         setRules: t('configAlert.setRules'),
+        completeEntries: t('configAlert.completeEntries'),
       }}
     />
   );

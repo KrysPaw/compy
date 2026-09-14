@@ -8,7 +8,10 @@ const labels = {
   weightsZero: 'No weights assigned — all scores are equal.',
   weightsPartial: 'Weight pool isn’t fully distributed (remaining 40/100).',
   rulesUnset: 'Some ranking rules aren’t set yet.',
+  valuesMissing:
+    'Some entry values are missing — incomplete data may distort ranking.',
   setRules: 'Set rules',
+  completeEntries: 'Complete entries',
 };
 
 describe('ResultsConfigAlertView', () => {
@@ -20,6 +23,7 @@ describe('ResultsConfigAlertView', () => {
           weightIssue: 'zero',
           remaining: 100,
           rulesIncomplete: true,
+          valuesMissing: false,
         }}
         labels={labels}
       />,
@@ -29,9 +33,13 @@ describe('ResultsConfigAlertView', () => {
     expect(alert).toHaveTextContent(labels.weightsZero);
     expect(alert).toHaveTextContent(labels.rulesUnset);
     expect(alert).not.toHaveTextContent(labels.weightsPartial);
+    expect(alert).not.toHaveTextContent(labels.valuesMissing);
 
     const link = screen.getByRole('link', { name: labels.setRules });
     expect(link).toHaveAttribute('href', '/comparisons/42/rules');
+    expect(
+      screen.queryByRole('link', { name: labels.completeEntries }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders only the partial-weight line when rules are complete', () => {
@@ -42,6 +50,7 @@ describe('ResultsConfigAlertView', () => {
           weightIssue: 'partial',
           remaining: 40,
           rulesIncomplete: false,
+          valuesMissing: false,
         }}
         labels={labels}
       />,
@@ -51,5 +60,31 @@ describe('ResultsConfigAlertView', () => {
     expect(alert).toHaveTextContent(labels.weightsPartial);
     expect(alert).not.toHaveTextContent(labels.weightsZero);
     expect(alert).not.toHaveTextContent(labels.rulesUnset);
+    expect(alert).not.toHaveTextContent(labels.valuesMissing);
+  });
+
+  it('renders missing-values line with an entries link', () => {
+    render(
+      <ResultsConfigAlertView
+        comparisonId={9}
+        state={{
+          weightIssue: null,
+          remaining: 0,
+          rulesIncomplete: false,
+          valuesMissing: true,
+        }}
+        labels={labels}
+      />,
+    );
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent(labels.valuesMissing);
+    expect(alert).not.toHaveTextContent(labels.rulesUnset);
+
+    const link = screen.getByRole('link', { name: labels.completeEntries });
+    expect(link).toHaveAttribute('href', '/comparisons/9/entries');
+    expect(
+      screen.queryByRole('link', { name: labels.setRules }),
+    ).not.toBeInTheDocument();
   });
 });

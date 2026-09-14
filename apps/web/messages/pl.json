@@ -161,7 +161,9 @@
       "weightsZero": "Nie przypisano wag — wszystkie wyniki są równe.",
       "weightsPartial": "Pula wag nie jest w pełni rozdzielona (pozostało {remaining}/{total}).",
       "rulesUnset": "Niektóre reguły rankingu nie są jeszcze ustawione.",
-      "setRules": "Ustaw reguły"
+      "valuesMissing": "Brakuje niektórych wartości — niekompletne dane mogą zaburzyć ranking.",
+      "setRules": "Ustaw reguły",
+      "completeEntries": "Uzupełnij warianty"
     }
   },
   "criteriaTable": {
