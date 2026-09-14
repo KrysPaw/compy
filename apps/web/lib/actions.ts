@@ -6,6 +6,7 @@ import {
   ComparisonResponseSchema,
   CreateCriterionSchema,
   CreateEntrySchema,
+  UpdateComparisonSchema,
   UpdateCriterionSchema,
   UpdateEntrySchema,
   ReplaceCriterionWeightsSchema,
@@ -374,6 +375,40 @@ export async function deleteComparison(
 
   if (!res.ok) {
     return { error: await errorMessage('failedToDeleteComparison') };
+  }
+
+  return {};
+}
+
+export type UpdateComparisonNameState = {
+  error?: string;
+};
+
+export async function updateComparisonName(
+  comparisonId: number,
+  name: string,
+): Promise<UpdateComparisonNameState> {
+  const parsed = UpdateComparisonSchema.safeParse({ name });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidName')),
+    };
+  }
+
+  const res = await fetch(`${API_URL}/comparisons/${comparisonId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(parsed.data),
+  });
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToUpdateName'),
+      ),
+    };
   }
 
   return {};

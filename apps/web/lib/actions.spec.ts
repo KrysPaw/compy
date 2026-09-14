@@ -7,6 +7,7 @@ import {
   deleteCriterion,
   deleteEntry,
   replaceCriterionWeights,
+  updateComparisonName,
   updateCriterionName,
   updateCriterionRuleConfig,
   updateCriterionWeight,
@@ -419,6 +420,41 @@ describe('deleteComparison', () => {
 
     await expect(deleteComparison(5)).resolves.toEqual({
       error: 'Failed to delete comparison',
+    });
+  });
+});
+
+describe('updateComparisonName', () => {
+  it('returns a validation error for an empty name', async () => {
+    await expect(updateComparisonName(1, '   ')).resolves.toEqual({
+      error: expect.any(String),
+    });
+  });
+
+  it('patches a valid name', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 7 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(updateComparisonName(7, 'Laptops')).resolves.toEqual({});
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/7$/),
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({ name: 'Laptops' }),
+      }),
+    );
+  });
+
+  it('surfaces API error messages when present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse({ message: 'Name already exists' }, { status: 409 }),
+      ),
+    );
+
+    await expect(updateComparisonName(7, 'Laptops')).resolves.toEqual({
+      error: 'Name already exists',
     });
   });
 });

@@ -83,6 +83,9 @@
   },
   "comparisonActions": {
     "menuLabel": "Akcje porównania",
+    "rename": "Zmień nazwę",
+    "renameTitle": "Zmień nazwę porównania",
+    "renameDescription": "Zmienia się tylko wyświetlana nazwa; kryteria i warianty zostają bez zmian.",
     "deleteTitle": "Usunąć porównanie?",
     "deleteDescription": "To trwale usunie porównanie wraz ze wszystkimi kryteriami i wariantami. Wpisz <name>{comparisonName}</name>, aby potwierdzić.",
     "nameLabel": "Nazwa porównania"

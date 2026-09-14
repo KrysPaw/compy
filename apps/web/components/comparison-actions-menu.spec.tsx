@@ -7,6 +7,7 @@ import { ComparisonActionsMenu } from './comparison-actions-menu';
 const push = vi.fn();
 const refresh = vi.fn();
 const deleteComparison = vi.fn();
+const updateComparisonName = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push, refresh }),
@@ -14,6 +15,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/lib/actions', () => ({
   deleteComparison: (...args: unknown[]) => deleteComparison(...args),
+  updateComparisonName: (...args: unknown[]) => updateComparisonName(...args),
 }));
 
 describe('ComparisonActionsMenu', () => {
@@ -21,6 +23,62 @@ describe('ComparisonActionsMenu', () => {
     push.mockReset();
     refresh.mockReset();
     deleteComparison.mockReset();
+    updateComparisonName.mockReset();
+  });
+
+  it('renames a comparison and refreshes', async () => {
+    const user = userEvent.setup();
+    updateComparisonName.mockResolvedValue({});
+
+    render(
+      <ComparisonActionsMenu
+        comparisonId={7}
+        comparisonName="Phones 2026"
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Comparison actions' }),
+    );
+    await user.click(await screen.findByRole('menuitem', { name: /rename/i }));
+
+    const nameInput = screen.getByLabelText('Name');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Laptops 2026');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(updateComparisonName).toHaveBeenCalledWith(7, 'Laptops 2026');
+      expect(refresh).toHaveBeenCalled();
+    });
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('shows an error when rename fails', async () => {
+    const user = userEvent.setup();
+    updateComparisonName.mockResolvedValue({
+      error: 'Failed to update name',
+    });
+
+    render(
+      <ComparisonActionsMenu
+        comparisonId={7}
+        comparisonName="Phones 2026"
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Comparison actions' }),
+    );
+    await user.click(await screen.findByRole('menuitem', { name: /rename/i }));
+
+    const nameInput = screen.getByLabelText('Name');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Laptops 2026');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(await screen.findByText('Failed to update name')).toBeInTheDocument();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it('keeps delete disabled until the comparison name is confirmed', async () => {

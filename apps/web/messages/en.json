@@ -83,6 +83,9 @@
   },
   "comparisonActions": {
     "menuLabel": "Comparison actions",
+    "rename": "Rename",
+    "renameTitle": "Rename comparison",
+    "renameDescription": "Only the display name changes; criteria and entries stay the same.",
     "deleteTitle": "Delete comparison?",
     "deleteDescription": "This permanently deletes the comparison and all its criteria and entries. Type <name>{comparisonName}</name> to confirm.",
     "nameLabel": "Comparison name"
