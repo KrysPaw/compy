@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
-import { CreateComparisonSchema, IdSchema, UpdateComparisonSchema } from '@compy/shared';
+import { CreateComparisonSchema, PublicIdSchema, UpdateComparisonSchema } from '@compy/shared';
 import type { CreateComparisonInput, UpdateComparisonInput } from '@compy/shared';
 import { ComparisonsService } from './comparisons.service.js';
 
@@ -18,14 +18,14 @@ export class ComparisonsController {
     return this.comparisonsService.getAll();
   }
 
-  @Get(':id')
+  @Get(':publicId')
   @ApiOperation({ summary: 'Get a comparison with criteria and entries' })
   @ApiResponse({ status: 200, description: 'The requested comparison.' })
   @ApiResponse({ status: 404, description: 'Comparison not found.' })
-  public getComparisonById(
-    @Param('id', new ZodValidationPipe(IdSchema)) id: number
+  public getComparisonByPublicId(
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string
   ) {
-    return this.comparisonsService.getById(id);
+    return this.comparisonsService.getByPublicId(publicId);
   }
 
   @Post()
@@ -38,26 +38,26 @@ export class ComparisonsController {
     return this.comparisonsService.createComparison(body);
   }
 
-  @Patch(':id')
+  @Patch(':publicId')
   @ApiOperation({ summary: 'Rename a comparison' })
   @ApiBody({ schema: { type: 'object', required: ['name'], properties: { name: { type: 'string', minLength: 1, maxLength: 200, example: 'Phones 2026' } } } })
   @ApiResponse({ status: 200, description: 'The renamed comparison.' })
   @ApiResponse({ status: 404, description: 'Comparison not found.' })
   public updateComparison(
-    @Param('id', new ZodValidationPipe(IdSchema)) id: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Body(new ZodValidationPipe(UpdateComparisonSchema)) body: UpdateComparisonInput,
   ) {
-    return this.comparisonsService.update(id, body);
+    return this.comparisonsService.update(publicId, body);
   }
 
-  @Delete(':id')
+  @Delete(':publicId')
   @ApiOperation({ summary: 'Delete a comparison and its related data' })
   @ApiResponse({ status: 200, description: 'The deleted comparison.' })
   @ApiResponse({ status: 404, description: 'Comparison not found.' })
   public deleteComparison(
-    @Param('id', new ZodValidationPipe(IdSchema)) id: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
   ) {
-    return this.comparisonsService.remove(id);
+    return this.comparisonsService.remove(publicId);
   }
 
 }

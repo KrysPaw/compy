@@ -1,22 +1,24 @@
 import { notFound } from 'next/navigation';
+import { PublicIdSchema } from '@compy/shared';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ComparisonActionsMenu } from '@/components/comparison-actions-menu';
 import { ComparisonTabs } from '@/components/comparison-tabs';
-import { getComparisonById } from '@/lib/api';
+import { getComparisonByPublicId } from '@/lib/api';
 
 export default async function ComparisonLayout({
   children,
   params,
-}: LayoutProps<'/comparisons/[id]'>) {
-  const { id } = await params;
-  const comparisonId = Number(id);
+}: LayoutProps<'/comparisons/[publicId]'>) {
+  const { publicId: rawPublicId } = await params;
+  const parsed = PublicIdSchema.safeParse(rawPublicId);
 
-  if (!Number.isInteger(comparisonId) || comparisonId <= 0) {
+  if (!parsed.success) {
     notFound();
   }
 
-  const comparison = await getComparisonById(comparisonId);
+  const publicId = parsed.data;
+  const comparison = await getComparisonByPublicId(publicId);
 
   if (comparison === null) {
     notFound();
@@ -31,10 +33,10 @@ export default async function ComparisonLayout({
           className="mr-2 data-vertical:h-4 data-vertical:self-auto"
         />
         <div>{comparison.name}</div>
-        <ComparisonTabs comparisonId={comparison.id} />
+        <ComparisonTabs publicId={publicId} />
         <div className="ml-auto">
           <ComparisonActionsMenu
-            comparisonId={comparison.id}
+            publicId={publicId}
             comparisonName={comparison.name}
           />
         </div>

@@ -3,13 +3,27 @@ import { describe, expect, it, vi } from 'vitest';
 import { ComparisonsController } from './comparisons.controller.js';
 import { ComparisonsService } from './comparisons.service.js';
 
+const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+
 describe('ComparisonsController', () => {
   let controller: ComparisonsController;
-  const createComparison = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
-  const getAll = vi.fn().mockResolvedValue([{ id: 1, name: 'Phones' }]);
-  const getById = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
-  const update = vi.fn().mockResolvedValue({ id: 1, name: 'Mobile phones' });
-  const remove = vi.fn().mockResolvedValue({ id: 1, name: 'Phones' });
+  const createComparison = vi.fn().mockResolvedValue({
+    id: 1,
+    publicId: PUBLIC_ID,
+    name: 'Phones',
+  });
+  const getAll = vi
+    .fn()
+    .mockResolvedValue([{ id: 1, publicId: PUBLIC_ID, name: 'Phones' }]);
+  const getByPublicId = vi
+    .fn()
+    .mockResolvedValue({ id: 1, publicId: PUBLIC_ID, name: 'Phones' });
+  const update = vi
+    .fn()
+    .mockResolvedValue({ id: 1, publicId: PUBLIC_ID, name: 'Mobile phones' });
+  const remove = vi
+    .fn()
+    .mockResolvedValue({ id: 1, publicId: PUBLIC_ID, name: 'Phones' });
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -19,7 +33,7 @@ describe('ComparisonsController', () => {
       providers: [
         {
           provide: ComparisonsService,
-          useValue: { createComparison, getAll, getById, update, remove },
+          useValue: { createComparison, getAll, getByPublicId, update, remove },
         },
       ],
     }).compile();
@@ -36,6 +50,7 @@ describe('ComparisonsController', () => {
 
     await expect(controller.createComparison(body)).resolves.toEqual({
       id: 1,
+      publicId: PUBLIC_ID,
       name: 'Phones',
     });
     expect(createComparison).toHaveBeenCalledWith(body);
@@ -43,35 +58,37 @@ describe('ComparisonsController', () => {
 
   it('delegates fetching comparisons to the service', async () => {
     await expect(controller.getComparisons()).resolves.toEqual([
-      { id: 1, name: 'Phones' },
+      { id: 1, publicId: PUBLIC_ID, name: 'Phones' },
     ]);
     expect(getAll).toHaveBeenCalledOnce();
   });
 
   it('delegates fetching one comparison to the service', async () => {
-    await expect(controller.getComparisonById(1)).resolves.toEqual({
+    await expect(controller.getComparisonByPublicId(PUBLIC_ID)).resolves.toEqual({
       id: 1,
+      publicId: PUBLIC_ID,
       name: 'Phones',
     });
-    expect(getById).toHaveBeenCalledWith(1);
+    expect(getByPublicId).toHaveBeenCalledWith(PUBLIC_ID);
   });
 
   it('delegates comparison rename to the service', async () => {
     const body = { name: 'Mobile phones' };
 
-    await expect(controller.updateComparison(1, body)).resolves.toEqual({
+    await expect(controller.updateComparison(PUBLIC_ID, body)).resolves.toEqual({
       id: 1,
+      publicId: PUBLIC_ID,
       name: 'Mobile phones',
     });
-    expect(update).toHaveBeenCalledWith(1, body);
+    expect(update).toHaveBeenCalledWith(PUBLIC_ID, body);
   });
 
   it('delegates comparison deletion to the service', async () => {
-    await expect(controller.deleteComparison(1)).resolves.toEqual({
+    await expect(controller.deleteComparison(PUBLIC_ID)).resolves.toEqual({
       id: 1,
+      publicId: PUBLIC_ID,
       name: 'Phones',
     });
-    expect(remove).toHaveBeenCalledWith(1);
+    expect(remove).toHaveBeenCalledWith(PUBLIC_ID);
   });
-
 });

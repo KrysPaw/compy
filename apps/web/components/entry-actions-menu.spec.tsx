@@ -55,7 +55,7 @@ describe('EntryActionsMenu', () => {
 
     render(
       <EntryActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         entryId={9}
         entryLabel="Pixel 8"
         criteria={criteria}
@@ -76,7 +76,7 @@ describe('EntryActionsMenu', () => {
 
     await waitFor(() => {
       expect(updateEntry).toHaveBeenCalledWith(
-        7,
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
         9,
         {
           values: [
@@ -96,7 +96,7 @@ describe('EntryActionsMenu', () => {
 
     render(
       <EntryActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         entryId={9}
         entryLabel="Pixel 8"
         criteria={criteria}
@@ -116,7 +116,7 @@ describe('EntryActionsMenu', () => {
 
     await waitFor(() => {
       expect(updateEntry).toHaveBeenCalledWith(
-        7,
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
         9,
         {
           values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
@@ -132,7 +132,7 @@ describe('EntryActionsMenu', () => {
 
     render(
       <EntryActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         entryId={9}
         entryLabel="Pixel 8"
         criteria={criteria}
@@ -145,7 +145,10 @@ describe('EntryActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
-      expect(deleteEntry).toHaveBeenCalledWith(7, 9);
+      expect(deleteEntry).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        9,
+      );
       expect(refresh).toHaveBeenCalled();
     });
   });
@@ -156,7 +159,7 @@ describe('EntryActionsMenu', () => {
 
     render(
       <EntryActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         entryId={9}
         entryLabel="Pixel 8"
         criteria={criteria}

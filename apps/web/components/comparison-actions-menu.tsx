@@ -24,14 +24,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type ComparisonActionsMenuProps = {
-  comparisonId: number;
+  publicId: string;
   comparisonName: string;
 };
 
 type ActiveDialog = 'rename' | 'delete' | null;
 
 export function ComparisonActionsMenu({
-  comparisonId,
+  publicId,
   comparisonName,
 }: ComparisonActionsMenuProps) {
   const router = useRouter();
@@ -58,7 +58,7 @@ export function ComparisonActionsMenu({
 
   function handleRename() {
     startTransition(async () => {
-      const result = await updateComparisonName(comparisonId, name);
+      const result = await updateComparisonName(publicId, name);
 
       if (result.error) {
         setError(result.error);
@@ -72,7 +72,7 @@ export function ComparisonActionsMenu({
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteComparison(comparisonId);
+      const result = await deleteComparison(publicId);
 
       if (result.error) {
         setError(result.error);
@@ -124,11 +124,11 @@ export function ComparisonActionsMenu({
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor={`rename-comparison-${comparisonId}`}>
+            <Label htmlFor={`rename-comparison-${publicId}`}>
               {t('common.name')}
             </Label>
             <Input
-              id={`rename-comparison-${comparisonId}`}
+              id={`rename-comparison-${publicId}`}
               value={name}
               onChange={(event) => setName(event.target.value)}
               maxLength={200}

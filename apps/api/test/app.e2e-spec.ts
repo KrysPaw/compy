@@ -14,10 +14,16 @@ import { configureApp } from '../src/app.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
 import { AppModule } from '../src/app.module.js';
 
+vi.mock('ulid', () => ({
+  ulid: () => '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+}));
+
 describe('API (e2e)', () => {
   let app: INestApplication;
+  const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
   const comparison = {
     id: 1,
+    publicId: PUBLIC_ID,
     name: 'Phones',
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
     updatedAt: new Date('2026-01-01T00:00:00.000Z'),
@@ -89,7 +95,7 @@ describe('API (e2e)', () => {
       .expect(200);
 
     expect(response.body).toEqual([
-      expect.objectContaining({ id: 1, name: 'Phones' }),
+      expect.objectContaining({ id: 1, publicId: PUBLIC_ID, name: 'Phones' }),
     ]);
   });
 
@@ -102,11 +108,14 @@ describe('API (e2e)', () => {
     expect(response.body).toEqual(
       expect.objectContaining({
         id: 1,
+        publicId: PUBLIC_ID,
         name: 'Phones',
         criteria: [expect.objectContaining({ is_key: true, type: 'text' })],
       }),
     );
-    expect(comparisonCreate).toHaveBeenCalledWith({ data: { name: 'Phones' } });
+    expect(comparisonCreate).toHaveBeenCalledWith({
+      data: { name: 'Phones', publicId: PUBLIC_ID },
+    });
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
         comparisonId: 1,
@@ -135,10 +144,12 @@ describe('API (e2e)', () => {
   it('returns 404 for a missing comparison', async () => {
     comparisonFindUnique.mockResolvedValueOnce(null);
 
-    await request(app.getHttpServer()).get('/comparisons/999').expect(404);
+    await request(app.getHttpServer())
+      .get('/comparisons/01ZZZZZZZZZZZZZZZZZZZZZZZZ')
+      .expect(404);
   });
 
-  it('rejects an invalid comparison id', async () => {
+  it('rejects an invalid comparison public id', async () => {
     await request(app.getHttpServer())
       .get('/comparisons/not-an-id')
       .expect(400);

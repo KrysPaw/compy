@@ -11,7 +11,7 @@ test.describe('A. Home & shell — navigation smoke', () => {
     context,
   }) => {
     const comparison = await createComparison('Shell smoke');
-    const entriesPath = `/comparisons/${comparison.id}/entries`;
+    const entriesPath = `/comparisons/${comparison.publicId}/entries`;
 
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(entriesPath);

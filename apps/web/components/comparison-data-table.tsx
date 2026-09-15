@@ -84,11 +84,11 @@ function entryLabel(entry: Entry, criteria: Criterion[]) {
 }
 
 export function ComparisonDataTable({
-  comparisonId,
+  publicId,
   criteria,
   entries,
 }: Pick<ComparisonDetailsResponse, 'criteria' | 'entries'> & {
-  comparisonId: number;
+  publicId: string;
 }) {
   const t = useTranslations('comparisonTable');
   const [sort, setSort] = useState<{
@@ -186,7 +186,7 @@ export function ComparisonDataTable({
                   ))}
                   <TableCell className="text-right">
                     <EntryActionsMenu
-                      comparisonId={comparisonId}
+                      publicId={publicId}
                       entryId={entry.id}
                       entryLabel={entryLabel(entry, criteria)}
                       criteria={criteria}

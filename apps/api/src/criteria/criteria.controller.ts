@@ -4,6 +4,7 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import {
   CreateCriterionSchema,
   IdSchema,
+  PublicIdSchema,
   ReplaceCriterionWeightsSchema,
   UpdateCriterionSchema,
 } from '@compy/shared';
@@ -19,37 +20,37 @@ import { CriteriaService } from './criteria.service.js';
 export class CriteriaController {
   constructor(private readonly criteriaService: CriteriaService) { }
 
-  @Get(':comparisonId/criteria')
+  @Get(':publicId/criteria')
   @ApiOperation({ summary: 'List criteria for a comparison' })
   @ApiResponse({ status: 200, description: 'Criteria ordered by creation time.' })
   public findAll(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
   ) {
-    return this.criteriaService.findAll(comparisonId);
+    return this.criteriaService.findAll(publicId);
   }
 
-  @Get(':comparisonId/criteria/:criterionId')
+  @Get(':publicId/criteria/:criterionId')
   @ApiOperation({ summary: 'Get one criterion' })
   @ApiResponse({ status: 200, description: 'The requested criterion.' })
   @ApiResponse({ status: 404, description: 'Criterion not found.' })
   public findOne(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Param('criterionId', new ZodValidationPipe(IdSchema)) criterionId: number,
   ) {
-    return this.criteriaService.findOne(comparisonId, criterionId);
+    return this.criteriaService.findOne(publicId, criterionId);
   }
 
-  @Post(':comparisonId/criteria')
+  @Post(':publicId/criteria')
   @ApiOperation({ summary: 'Create a criterion' })
   @ApiResponse({ status: 201, description: 'The created criterion.' })
   public create(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Body(new ZodValidationPipe(CreateCriterionSchema)) body: CreateCriterionInput,
   ) {
-    return this.criteriaService.create(comparisonId, body);
+    return this.criteriaService.create(publicId, body);
   }
 
-  @Patch(':comparisonId/criteria/weights')
+  @Patch(':publicId/criteria/weights')
   @ApiOperation({ summary: 'Replace all comparable criterion weights' })
   @ApiResponse({ status: 200, description: 'Criteria with the new weights.' })
   @ApiResponse({
@@ -58,34 +59,34 @@ export class CriteriaController {
   })
   @ApiResponse({ status: 404, description: 'Comparison not found.' })
   public replaceWeights(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Body(new ZodValidationPipe(ReplaceCriterionWeightsSchema))
     body: ReplaceCriterionWeightsInput,
   ) {
-    return this.criteriaService.replaceWeights(comparisonId, body);
+    return this.criteriaService.replaceWeights(publicId, body);
   }
 
-  @Patch(':comparisonId/criteria/:criterionId')
+  @Patch(':publicId/criteria/:criterionId')
   @ApiOperation({ summary: 'Update a criterion name, weight, or rule config' })
   @ApiResponse({ status: 200, description: 'The updated criterion.' })
   @ApiResponse({ status: 400, description: 'Invalid weight, rule config, or empty update body.' })
   @ApiResponse({ status: 404, description: 'Criterion not found.' })
   public update(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Param('criterionId', new ZodValidationPipe(IdSchema)) criterionId: number,
     @Body(new ZodValidationPipe(UpdateCriterionSchema)) body: UpdateCriterionInput,
   ) {
-    return this.criteriaService.update(comparisonId, criterionId, body);
+    return this.criteriaService.update(publicId, criterionId, body);
   }
 
-  @Delete(':comparisonId/criteria/:criterionId')
+  @Delete(':publicId/criteria/:criterionId')
   @ApiOperation({ summary: 'Delete a custom criterion and its values' })
   @ApiResponse({ status: 200, description: 'The deleted criterion.' })
   @ApiResponse({ status: 400, description: 'The built-in name criterion cannot be deleted.' })
   public remove(
-    @Param('comparisonId', new ZodValidationPipe(IdSchema)) comparisonId: number,
+    @Param('publicId', new ZodValidationPipe(PublicIdSchema)) publicId: string,
     @Param('criterionId', new ZodValidationPipe(IdSchema)) criterionId: number,
   ) {
-    return this.criteriaService.remove(comparisonId, criterionId);
+    return this.criteriaService.remove(publicId, criterionId);
   }
 }

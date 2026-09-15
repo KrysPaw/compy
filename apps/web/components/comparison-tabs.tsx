@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export function ComparisonTabs({ comparisonId }: { comparisonId: number }) {
+export function ComparisonTabs({ publicId }: { publicId: string }) {
   const t = useTranslations('tabs');
   const pathname = usePathname();
-  const entriesPath = `/comparisons/${comparisonId}/entries`;
-  const criteriaPath = `/comparisons/${comparisonId}/criteria`;
-  const rulesPath = `/comparisons/${comparisonId}/rules`;
-  const resultsPath = `/comparisons/${comparisonId}/results`;
+  const entriesPath = `/comparisons/${publicId}/entries`;
+  const criteriaPath = `/comparisons/${publicId}/criteria`;
+  const rulesPath = `/comparisons/${publicId}/rules`;
+  const resultsPath = `/comparisons/${publicId}/results`;
 
   let activeTab: 'rules' | 'criteria' | 'entries' | 'results';
 

@@ -15,6 +15,7 @@ import {
   type ReplaceCriterionWeightsInput,
   type UpdateCriterionInput,
 } from '@compy/shared';
+import { resolveComparisonId } from '../comparisons/resolve-comparison-id.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 const RULE_TYPE_BY_CRITERION_TYPE = {
@@ -35,17 +36,6 @@ const RULE_SCHEMA_BY_CRITERION_TYPE = {
 @Injectable()
 export class CriteriaService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private async ensureComparisonExists(comparisonId: number) {
-    const comparison = await this.prisma.comparison.findUnique({
-      where: { id: comparisonId },
-      select: { id: true },
-    });
-
-    if (comparison === null) {
-      throw new NotFoundException();
-    }
-  }
 
   private async findCriterion(comparisonId: number, criterionId: number) {
     const criterion = await this.prisma.criterion.findFirst({
@@ -122,8 +112,8 @@ export class CriteriaService {
     }
   }
 
-  public async create(comparisonId: number, data: CreateCriterionInput) {
-    await this.ensureComparisonExists(comparisonId);
+  public async create(publicId: string, data: CreateCriterionInput) {
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
 
     const type = {
       number: 'number',
@@ -145,8 +135,8 @@ export class CriteriaService {
     });
   }
 
-  public async findAll(comparisonId: number) {
-    await this.ensureComparisonExists(comparisonId);
+  public async findAll(publicId: string) {
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
 
     return this.prisma.criterion.findMany({
       where: { comparisonId },
@@ -154,15 +144,17 @@ export class CriteriaService {
     });
   }
 
-  public async findOne(comparisonId: number, criterionId: number) {
+  public async findOne(publicId: string, criterionId: number) {
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
     return this.findCriterion(comparisonId, criterionId);
   }
 
   public async update(
-    comparisonId: number,
+    publicId: string,
     criterionId: number,
     data: UpdateCriterionInput,
   ) {
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (data.weight !== undefined) {
@@ -212,10 +204,10 @@ export class CriteriaService {
   }
 
   public async replaceWeights(
-    comparisonId: number,
+    publicId: string,
     data: ReplaceCriterionWeightsInput,
   ) {
-    await this.ensureComparisonExists(comparisonId);
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
 
     const total = data.weights.reduce((sum, item) => sum + item.weight, 0);
     if (total !== WEIGHT_POOL_TOTAL) {
@@ -255,10 +247,11 @@ export class CriteriaService {
       }
     });
 
-    return this.findAll(comparisonId);
+    return this.findAll(publicId);
   }
 
-  public async remove(comparisonId: number, criterionId: number) {
+  public async remove(publicId: string, criterionId: number) {
+    const comparisonId = await resolveComparisonId(this.prisma, publicId);
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (criterion.is_key) {

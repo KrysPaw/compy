@@ -38,8 +38,8 @@ export async function getComparisons(): Promise<ComparisonResponse[]> {
   return comparisons ?? [];
 }
 
-export async function getComparisonById(
-  id: number,
+export async function getComparisonByPublicId(
+  publicId: string,
 ): Promise<ComparisonDetailsResponse | null> {
-  return fetchJson(`/comparisons/${id}`, ComparisonDetailsResponseSchema);
+  return fetchJson(`/comparisons/${publicId}`, ComparisonDetailsResponseSchema);
 }

@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const SAMPLE_PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
 import {
   createComparison,
   createCriterion,
@@ -41,6 +43,7 @@ describe('createComparison', () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse({
         id: 12,
+        publicId: SAMPLE_PUBLIC_ID,
         name: 'Phones',
         createdAt: '2026-01-01T00:00:00.000Z',
         updatedAt: '2026-01-01T00:00:00.000Z',
@@ -52,7 +55,7 @@ describe('createComparison', () => {
     formData.set('name', 'Phones');
 
     await expect(createComparison(formData)).resolves.toEqual({
-      comparisonId: 12,
+      publicId: SAMPLE_PUBLIC_ID,
     });
     expect(fetchMock).toHaveBeenCalledWith(
       expect.stringMatching(/\/comparisons$/),
@@ -80,7 +83,7 @@ describe('createComparison', () => {
 
 describe('createCriterion', () => {
   it('returns a validation error for invalid input', async () => {
-    await expect(createCriterion(1, { name: '' })).resolves.toEqual({
+    await expect(createCriterion(SAMPLE_PUBLIC_ID, { name: '' })).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -92,7 +95,7 @@ describe('createCriterion', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(
-      createCriterion(7, {
+      createCriterion(SAMPLE_PUBLIC_ID, {
         name: 'Price',
         is_comparable: true,
         type: 'number',
@@ -100,7 +103,7 @@ describe('createCriterion', () => {
     ).resolves.toEqual({ criterionId: 3 });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7\/criteria$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria$/),
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
@@ -119,7 +122,7 @@ describe('createCriterion', () => {
     );
 
     await expect(
-      createCriterion(7, {
+      createCriterion(SAMPLE_PUBLIC_ID, {
         name: 'Price',
         is_comparable: false,
         type: 'text',
@@ -130,7 +133,7 @@ describe('createCriterion', () => {
 
 describe('createEntry', () => {
   it('returns a validation error for empty values', async () => {
-    await expect(createEntry(1, { values: [] })).resolves.toEqual({
+    await expect(createEntry(SAMPLE_PUBLIC_ID, { values: [] })).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -145,9 +148,11 @@ describe('createEntry', () => {
       values: [{ criterionId: 1, type: 'text' as const, value: 'Pixel 8' }],
     };
 
-    await expect(createEntry(4, input)).resolves.toEqual({ entryId: 9 });
+    await expect(createEntry(SAMPLE_PUBLIC_ID, input)).resolves.toEqual({ entryId: 9 });
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(fetchMock.mock.calls[0]?.[0]).toMatch(/\/comparisons\/4\/entries$/);
+    expect(fetchMock.mock.calls[0]?.[0]).toMatch(
+      /\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/entries$/,
+    );
     expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'POST' });
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual(
       input,
@@ -163,7 +168,7 @@ describe('createEntry', () => {
     );
 
     await expect(
-      createEntry(4, {
+      createEntry(SAMPLE_PUBLIC_ID, {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
       }),
     ).resolves.toEqual({ error: 'Duplicate key value' });
@@ -176,7 +181,7 @@ describe('createEntry', () => {
     );
 
     await expect(
-      createEntry(4, {
+      createEntry(SAMPLE_PUBLIC_ID, {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
       }),
     ).resolves.toEqual({ error: 'Failed to create entry' });
@@ -185,7 +190,7 @@ describe('createEntry', () => {
 
 describe('updateEntry', () => {
   it('returns a validation error for empty values', async () => {
-    await expect(updateEntry(1, 2, { values: [] })).resolves.toEqual({
+    await expect(updateEntry(SAMPLE_PUBLIC_ID, 2, { values: [] })).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -201,17 +206,17 @@ describe('updateEntry', () => {
       values: [{ criterionId: 1, type: 'text' as const, value: 'Pixel 8a' }],
     };
 
-    await expect(updateEntry(4, 9, input, [3])).resolves.toEqual({});
+    await expect(updateEntry(SAMPLE_PUBLIC_ID, 9, input, [3])).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[0]?.[0]).toMatch(
-      /\/comparisons\/4\/entries\/9$/,
+      /\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/entries\/9$/,
     );
     expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: 'PATCH' });
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual(
       input,
     );
     expect(fetchMock.mock.calls[1]?.[0]).toMatch(
-      /\/comparisons\/4\/entries\/9\/values\/3$/,
+      /\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/entries\/9\/values\/3$/,
     );
     expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({ method: 'DELETE' });
   });
@@ -225,7 +230,7 @@ describe('updateEntry', () => {
     );
 
     await expect(
-      updateEntry(4, 9, {
+      updateEntry(SAMPLE_PUBLIC_ID, 9, {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
       }),
     ).resolves.toEqual({ error: 'Duplicate key value' });
@@ -239,7 +244,7 @@ describe('deleteEntry', () => {
       vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
     );
 
-    await expect(deleteEntry(4, 9)).resolves.toEqual({});
+    await expect(deleteEntry(SAMPLE_PUBLIC_ID, 9)).resolves.toEqual({});
   });
 
   it('surfaces API error messages when present', async () => {
@@ -250,7 +255,7 @@ describe('deleteEntry', () => {
       ),
     );
 
-    await expect(deleteEntry(4, 9)).resolves.toEqual({
+    await expect(deleteEntry(SAMPLE_PUBLIC_ID, 9)).resolves.toEqual({
       error: 'Entry not found',
     });
   });
@@ -258,7 +263,7 @@ describe('deleteEntry', () => {
 
 describe('updateCriterionWeight', () => {
   it('returns a validation error for a negative weight', async () => {
-    await expect(updateCriterionWeight(1, 2, -1)).resolves.toEqual({
+    await expect(updateCriterionWeight(SAMPLE_PUBLIC_ID, 2, -1)).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -267,9 +272,9 @@ describe('updateCriterionWeight', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 2 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({});
+    await expect(updateCriterionWeight(SAMPLE_PUBLIC_ID, 3, 25)).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria\/3$/),
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ weight: 25 }),
@@ -288,7 +293,7 @@ describe('updateCriterionWeight', () => {
       ),
     );
 
-    await expect(updateCriterionWeight(7, 3, 25)).resolves.toEqual({
+    await expect(updateCriterionWeight(SAMPLE_PUBLIC_ID, 3, 25)).resolves.toEqual({
       error: 'Comparable criteria weights cannot exceed 100.',
     });
   });
@@ -297,7 +302,7 @@ describe('updateCriterionWeight', () => {
 describe('replaceCriterionWeights', () => {
   it('returns a validation error when weights do not sum to 100', async () => {
     await expect(
-      replaceCriterionWeights(7, {
+      replaceCriterionWeights(SAMPLE_PUBLIC_ID, {
         weights: [
           { criterionId: 2, weight: 40 },
           { criterionId: 3, weight: 40 },
@@ -313,7 +318,7 @@ describe('replaceCriterionWeights', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(
-      replaceCriterionWeights(7, {
+      replaceCriterionWeights(SAMPLE_PUBLIC_ID, {
         weights: [
           { criterionId: 2, weight: 100 },
           { criterionId: 3, weight: 0 },
@@ -321,7 +326,7 @@ describe('replaceCriterionWeights', () => {
       }),
     ).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7\/criteria\/weights$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria\/weights$/),
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({
@@ -346,7 +351,7 @@ describe('replaceCriterionWeights', () => {
     );
 
     await expect(
-      replaceCriterionWeights(7, {
+      replaceCriterionWeights(SAMPLE_PUBLIC_ID, {
         weights: [
           { criterionId: 2, weight: 100 },
           { criterionId: 3, weight: 0 },
@@ -361,7 +366,7 @@ describe('replaceCriterionWeights', () => {
 describe('updateCriterionRuleConfig', () => {
   it('returns a validation error for an invalid rule config', async () => {
     await expect(
-      updateCriterionRuleConfig(1, 2, { direction: 'sideways' }),
+      updateCriterionRuleConfig(SAMPLE_PUBLIC_ID, 2, { direction: 'sideways' }),
     ).resolves.toEqual({
       error: expect.any(String),
     });
@@ -372,10 +377,10 @@ describe('updateCriterionRuleConfig', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(
-      updateCriterionRuleConfig(7, 3, { direction: 'higher' }),
+      updateCriterionRuleConfig(SAMPLE_PUBLIC_ID, 3, { direction: 'higher' }),
     ).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria\/3$/),
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ ruleConfig: { direction: 'higher' } }),
@@ -395,7 +400,7 @@ describe('updateCriterionRuleConfig', () => {
     );
 
     await expect(
-      updateCriterionRuleConfig(7, 3, { preferredValue: true }),
+      updateCriterionRuleConfig(SAMPLE_PUBLIC_ID, 3, { preferredValue: true }),
     ).resolves.toEqual({
       error: 'Rule config does not match criterion type.',
     });
@@ -409,7 +414,7 @@ describe('deleteComparison', () => {
       vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
     );
 
-    await expect(deleteComparison(5)).resolves.toEqual({});
+    await expect(deleteComparison(SAMPLE_PUBLIC_ID)).resolves.toEqual({});
   });
 
   it('returns a failure message when delete fails', async () => {
@@ -418,7 +423,7 @@ describe('deleteComparison', () => {
       vi.fn().mockResolvedValue(new Response(null, { status: 404 })),
     );
 
-    await expect(deleteComparison(5)).resolves.toEqual({
+    await expect(deleteComparison(SAMPLE_PUBLIC_ID)).resolves.toEqual({
       error: 'Failed to delete comparison',
     });
   });
@@ -426,7 +431,7 @@ describe('deleteComparison', () => {
 
 describe('updateComparisonName', () => {
   it('returns a validation error for an empty name', async () => {
-    await expect(updateComparisonName(1, '   ')).resolves.toEqual({
+    await expect(updateComparisonName(SAMPLE_PUBLIC_ID, '   ')).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -435,9 +440,9 @@ describe('updateComparisonName', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 7 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(updateComparisonName(7, 'Laptops')).resolves.toEqual({});
+    await expect(updateComparisonName(SAMPLE_PUBLIC_ID, 'Laptops')).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV$/),
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ name: 'Laptops' }),
@@ -453,7 +458,7 @@ describe('updateComparisonName', () => {
       ),
     );
 
-    await expect(updateComparisonName(7, 'Laptops')).resolves.toEqual({
+    await expect(updateComparisonName(SAMPLE_PUBLIC_ID, 'Laptops')).resolves.toEqual({
       error: 'Name already exists',
     });
   });
@@ -461,7 +466,7 @@ describe('updateComparisonName', () => {
 
 describe('updateCriterionName', () => {
   it('returns a validation error for an empty name', async () => {
-    await expect(updateCriterionName(1, 2, '   ')).resolves.toEqual({
+    await expect(updateCriterionName(SAMPLE_PUBLIC_ID, 2, '   ')).resolves.toEqual({
       error: expect.any(String),
     });
   });
@@ -470,9 +475,9 @@ describe('updateCriterionName', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 2 }));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(updateCriterionName(7, 3, 'Price')).resolves.toEqual({});
+    await expect(updateCriterionName(SAMPLE_PUBLIC_ID, 3, 'Price')).resolves.toEqual({});
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringMatching(/\/comparisons\/7\/criteria\/3$/),
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria\/3$/),
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ name: 'Price' }),
@@ -501,7 +506,7 @@ describe('deleteCriterion', () => {
       vi.fn().mockResolvedValue(new Response(null, { status: 204 })),
     );
 
-    await expect(deleteCriterion(7, 3)).resolves.toEqual({});
+    await expect(deleteCriterion(SAMPLE_PUBLIC_ID, 3)).resolves.toEqual({});
   });
 
   it('surfaces API error messages when present', async () => {
@@ -515,7 +520,7 @@ describe('deleteCriterion', () => {
       ),
     );
 
-    await expect(deleteCriterion(7, 1)).resolves.toEqual({
+    await expect(deleteCriterion(SAMPLE_PUBLIC_ID, 1)).resolves.toEqual({
       error: 'Key criterion cannot be deleted.',
     });
   });

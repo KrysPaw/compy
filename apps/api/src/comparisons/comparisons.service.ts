@@ -3,16 +3,18 @@ import type {
   CreateComparisonInput,
   UpdateComparisonInput,
 } from '@compy/shared';
+import { ulid } from 'ulid';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { resolveComparisonId } from './resolve-comparison-id.js';
 
 @Injectable()
 export class ComparisonsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async getById(id: number) {
+  public async getByPublicId(publicId: string) {
     const comparison = await this.prisma.comparison.findUnique({
       where: {
-        id,
+        publicId,
       },
       include: {
         criteria: {
@@ -41,15 +43,8 @@ export class ComparisonsService {
     });
   }
 
-  public async update(id: number, data: UpdateComparisonInput) {
-    const comparison = await this.prisma.comparison.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (comparison === null) {
-      throw new NotFoundException();
-    }
+  public async update(publicId: string, data: UpdateComparisonInput) {
+    const id = await resolveComparisonId(this.prisma, publicId);
 
     return this.prisma.comparison.update({
       where: { id },
@@ -57,15 +52,8 @@ export class ComparisonsService {
     });
   }
 
-  public async remove(id: number) {
-    const comparison = await this.prisma.comparison.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (comparison === null) {
-      throw new NotFoundException();
-    }
+  public async remove(publicId: string) {
+    const id = await resolveComparisonId(this.prisma, publicId);
 
     return this.prisma.comparison.delete({ where: { id } });
   }
@@ -75,6 +63,7 @@ export class ComparisonsService {
       const comparison = await transaction.comparison.create({
         data: {
           name: data.name,
+          publicId: ulid(),
         },
       });
 

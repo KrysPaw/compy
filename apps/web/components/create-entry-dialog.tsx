@@ -25,10 +25,10 @@ import {
 } from '@/components/ui/dialog';
 
 export function CreateEntryDialog({
-  comparisonId,
+  publicId,
   criteria,
 }: {
-  comparisonId: number;
+  publicId: string;
   criteria: Criterion[];
 }) {
   const router = useRouter();
@@ -62,7 +62,7 @@ export function CreateEntryDialog({
     }
 
     startTransition(async () => {
-      const result = await createEntry(comparisonId, payload);
+      const result = await createEntry(publicId, payload);
 
       if (result.entryId === undefined) {
         setError(result.error);

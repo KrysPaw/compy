@@ -1,22 +1,24 @@
 import { notFound } from 'next/navigation';
+import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { rankEntries } from '@compy/shared';
 import { ResultsConfigAlert } from '@/components/results-config-alert';
 import { ResultsDataTable } from '@/components/results-data-table';
-import { getComparisonById } from '@/lib/api';
+import { getComparisonByPublicId } from '@/lib/api';
 import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
 
 export default async function ResultsPage({
   params,
-}: PageProps<'/comparisons/[id]/results'>) {
-  const { id } = await params;
-  const comparisonId = Number(id);
+}: PageProps<'/comparisons/[publicId]/results'>) {
+  const { publicId: rawPublicId } = await params;
+  const parsed = PublicIdSchema.safeParse(rawPublicId);
 
-  if (!Number.isInteger(comparisonId) || comparisonId <= 0) {
+  if (!parsed.success) {
     notFound();
   }
 
-  const comparison = await getComparisonById(comparisonId);
+  const publicId = parsed.data;
+  const comparison = await getComparisonByPublicId(publicId);
 
   if (comparison === null) {
     notFound();
@@ -34,7 +36,7 @@ export default async function ResultsPage({
     <div className="flex flex-1 flex-col gap-4 p-4">
       <p className="text-sm text-muted-foreground">{t('pages.resultsBlurb')}</p>
       <ResultsConfigAlert
-        comparisonId={comparisonId}
+        publicId={publicId}
         criteria={comparison.criteria}
         entries={comparison.entries}
       />

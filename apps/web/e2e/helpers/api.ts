@@ -2,6 +2,7 @@ import { E2E_API_URL } from '../env';
 
 export type ComparisonSummary = {
   id: number;
+  publicId: string;
   name: string;
 };
 
@@ -48,18 +49,20 @@ export async function createComparison(
   return body;
 }
 
-export async function deleteComparison(id: number): Promise<void> {
-  const { status } = await api<unknown>(`/comparisons/${id}`, {
+export async function deleteComparison(publicId: string): Promise<void> {
+  const { status } = await api<unknown>(`/comparisons/${publicId}`, {
     method: 'DELETE',
   });
 
   if (status !== 200 && status !== 204) {
-    throw new Error(`deleteComparison(${id}) failed with status ${status}`);
+    throw new Error(`deleteComparison(${publicId}) failed with status ${status}`);
   }
 }
 
 /** Clears all comparisons so each test can seed a known DB state. */
 export async function resetComparisons(): Promise<void> {
   const comparisons = await listComparisons();
-  await Promise.all(comparisons.map((comparison) => deleteComparison(comparison.id)));
+  await Promise.all(
+    comparisons.map((comparison) => deleteComparison(comparison.publicId)),
+  );
 }

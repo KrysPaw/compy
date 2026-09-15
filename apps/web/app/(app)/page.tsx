@@ -11,7 +11,7 @@ export default async function Home() {
   const comparisons = await getComparisons();
 
   if (comparisons.length > 0) {
-    redirect(`/comparisons/${comparisons[0].id}`);
+    redirect(`/comparisons/${comparisons[0].publicId}`);
   }
 
   const t = await getTranslations('home');

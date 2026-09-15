@@ -46,10 +46,10 @@ function criterionName(criteria: Criterion[], id: number) {
 }
 
 export function WeightQuestionnaireDialog({
-  comparisonId,
+  publicId,
   criteria,
 }: {
-  comparisonId: number;
+  publicId: string;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const router = useRouter();
   const t = useTranslations();
@@ -116,7 +116,7 @@ export function WeightQuestionnaireDialog({
     }
 
     startTransition(async () => {
-      const result = await replaceCriterionWeights(comparisonId, {
+      const result = await replaceCriterionWeights(publicId, {
         weights: weightsFromPairwiseAnswers(pairs, nextAnswers),
       });
 

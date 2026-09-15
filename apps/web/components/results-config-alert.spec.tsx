@@ -18,7 +18,7 @@ describe('ResultsConfigAlertView', () => {
   it('renders zero-weight and rules lines with a rules link', () => {
     render(
       <ResultsConfigAlertView
-        comparisonId={42}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         state={{
           weightIssue: 'zero',
           remaining: 100,
@@ -36,7 +36,10 @@ describe('ResultsConfigAlertView', () => {
     expect(alert).not.toHaveTextContent(labels.valuesMissing);
 
     const link = screen.getByRole('link', { name: labels.setRules });
-    expect(link).toHaveAttribute('href', '/comparisons/42/rules');
+    expect(link).toHaveAttribute(
+      'href',
+      '/comparisons/01ARZ3NDEKTSV4RRFFQ69G5FAV/rules',
+    );
     expect(
       screen.queryByRole('link', { name: labels.completeEntries }),
     ).not.toBeInTheDocument();
@@ -45,7 +48,7 @@ describe('ResultsConfigAlertView', () => {
   it('renders only the partial-weight line when rules are complete', () => {
     render(
       <ResultsConfigAlertView
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         state={{
           weightIssue: 'partial',
           remaining: 40,
@@ -66,7 +69,7 @@ describe('ResultsConfigAlertView', () => {
   it('renders missing-values line with an entries link', () => {
     render(
       <ResultsConfigAlertView
-        comparisonId={9}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         state={{
           weightIssue: null,
           remaining: 0,
@@ -82,7 +85,10 @@ describe('ResultsConfigAlertView', () => {
     expect(alert).not.toHaveTextContent(labels.rulesUnset);
 
     const link = screen.getByRole('link', { name: labels.completeEntries });
-    expect(link).toHaveAttribute('href', '/comparisons/9/entries');
+    expect(link).toHaveAttribute(
+      'href',
+      '/comparisons/01ARZ3NDEKTSV4RRFFQ69G5FAV/entries',
+    );
     expect(
       screen.queryByRole('link', { name: labels.setRules }),
     ).not.toBeInTheDocument();

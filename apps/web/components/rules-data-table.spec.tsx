@@ -88,7 +88,7 @@ describe('RulesDataTable', () => {
   });
 
   it('renders only comparable criteria with rule and weight columns', () => {
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const rows = screen.getAllByRole('row');
     const bodyRows = rows.slice(1);
@@ -146,7 +146,7 @@ describe('RulesDataTable', () => {
   });
 
   it('shows an empty state when there are no comparable criteria', () => {
-    render(<RulesDataTable comparisonId={7} criteria={[criteria[0]]} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={[criteria[0]]} />);
 
     expect(screen.getByText('No comparable criteria yet.')).toBeInTheDocument();
 
@@ -156,7 +156,7 @@ describe('RulesDataTable', () => {
 
   it('reduces the remaining pool when weight increases by 1', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
@@ -171,7 +171,7 @@ describe('RulesDataTable', () => {
   it('disables decrease when weight is 0', () => {
     render(
       <RulesDataTable
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[
           criteria[0],
           { ...criteria[1], weight: 0 },
@@ -191,7 +191,7 @@ describe('RulesDataTable', () => {
   it('disables increase when the remaining pool is 0', () => {
     render(
       <RulesDataTable
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[
           criteria[0],
           { ...criteria[1], weight: 40 },
@@ -216,21 +216,25 @@ describe('RulesDataTable', () => {
 
   it('saves the updated weight after debounce', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
     );
 
     await waitFor(() => {
-      expect(updateCriterionWeight).toHaveBeenCalledWith(7, 2, 41);
+      expect(updateCriterionWeight).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        2,
+        41,
+      );
     });
   });
 
   it('rolls the weight back when saving fails', async () => {
     const user = userEvent.setup();
     updateCriterionWeight.mockResolvedValue({ error: 'Pool exceeded' });
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
@@ -251,7 +255,7 @@ describe('RulesDataTable', () => {
 
   it('saves a number direction change and keeps only one option active', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const priceRow = screen.getByText('Price').closest('tr');
     await user.click(
@@ -266,7 +270,10 @@ describe('RulesDataTable', () => {
     ).toHaveAttribute('aria-checked', 'false');
 
     await waitFor(() => {
-      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 2, {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        2,
+        {
         direction: 'higher',
       });
     });
@@ -274,7 +281,7 @@ describe('RulesDataTable', () => {
 
   it('saves a rating direction change without dropping min and max', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const scoreRow = screen.getByText('Score').closest('tr');
     await user.click(
@@ -282,7 +289,10 @@ describe('RulesDataTable', () => {
     );
 
     await waitFor(() => {
-      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 5, {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        5,
+        {
         direction: 'lower',
         min: 1,
         max: 5,
@@ -292,7 +302,7 @@ describe('RulesDataTable', () => {
 
   it('saves a boolean preferred-value change', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const electricRow = screen.getByText('Electric').closest('tr');
     await user.click(
@@ -300,7 +310,10 @@ describe('RulesDataTable', () => {
     );
 
     await waitFor(() => {
-      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 3, {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        3,
+        {
         preferredValue: false,
       });
     });
@@ -309,7 +322,7 @@ describe('RulesDataTable', () => {
   it('rolls the rule back when saving fails', async () => {
     const user = userEvent.setup();
     updateCriterionRuleConfig.mockResolvedValue({ error: 'Invalid rule' });
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const priceRow = screen.getByText('Price').closest('tr');
     await user.click(
@@ -329,7 +342,7 @@ describe('RulesDataTable', () => {
 
   it('saves a valid enum rule payload when every option is assigned', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable comparisonId={7} criteria={criteria} />);
+    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const fuelRow = screen.getByText('Fuel').closest('tr');
     await user.click(within(fuelRow!).getByRole('button', { name: 'Edit' }));
@@ -341,7 +354,10 @@ describe('RulesDataTable', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(7, 4, {
+      expect(updateCriterionRuleConfig).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        4,
+        {
         tiers: [
           { rank: 1, values: ['Petrol'] },
           { rank: 2, values: ['Diesel'] },

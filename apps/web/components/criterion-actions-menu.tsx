@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type CriterionActionsMenuProps = {
-  comparisonId: number;
+  publicId: string;
   criterionId: number;
   criterionName: string;
   canDelete: boolean;
@@ -33,7 +33,7 @@ type CriterionActionsMenuProps = {
 type ActiveDialog = 'rename' | 'delete' | null;
 
 export function CriterionActionsMenu({
-  comparisonId,
+  publicId,
   criterionId,
   criterionName,
   canDelete,
@@ -60,7 +60,7 @@ export function CriterionActionsMenu({
   function handleRename() {
     startTransition(async () => {
       const result = await updateCriterionName(
-        comparisonId,
+        publicId,
         criterionId,
         name,
       );
@@ -77,7 +77,7 @@ export function CriterionActionsMenu({
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteCriterion(comparisonId, criterionId);
+      const result = await deleteCriterion(publicId, criterionId);
 
       if (result.error) {
         setError(result.error);

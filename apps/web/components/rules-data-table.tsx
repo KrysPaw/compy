@@ -218,10 +218,10 @@ function WeightStepper({
 }
 
 export function RulesDataTable({
-  comparisonId,
+  publicId,
   criteria,
 }: {
-  comparisonId: number;
+  publicId: string;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const t = useTranslations();
   const router = useRouter();
@@ -287,7 +287,7 @@ export function RulesDataTable({
       timersRef.current.delete(criterionId);
       startTransition(async () => {
         const result = await updateCriterionWeight(
-          comparisonId,
+          publicId,
           criterionId,
           nextWeight,
         );
@@ -345,7 +345,7 @@ export function RulesDataTable({
 
     startTransition(async () => {
       const result = await updateCriterionRuleConfig(
-        comparisonId,
+        publicId,
         criterion.id,
         nextRuleConfig,
       );

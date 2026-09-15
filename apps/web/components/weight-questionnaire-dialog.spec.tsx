@@ -83,7 +83,7 @@ describe('WeightQuestionnaireDialog', () => {
 
   it('disables the start button when there are fewer than 2 comparable criteria', () => {
     const { rerender } = render(
-      <WeightQuestionnaireDialog comparisonId={7} criteria={[nameCriterion]} />,
+      <WeightQuestionnaireDialog publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={[nameCriterion]} />,
     );
 
     expect(
@@ -92,7 +92,7 @@ describe('WeightQuestionnaireDialog', () => {
 
     rerender(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price]}
       />,
     );
@@ -106,7 +106,7 @@ describe('WeightQuestionnaireDialog', () => {
     const user = userEvent.setup();
     render(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price, electric, fuel]}
       />,
     );
@@ -136,7 +136,7 @@ describe('WeightQuestionnaireDialog', () => {
     const user = userEvent.setup();
     render(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price, electric, fuel]}
       />,
     );
@@ -160,7 +160,9 @@ describe('WeightQuestionnaireDialog', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Fuel' }));
 
     await waitFor(() => {
-      expect(replaceCriterionWeights).toHaveBeenCalledWith(7, {
+      expect(replaceCriterionWeights).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        {
         weights: [
           { criterionId: 2, weight: 33 },
           { criterionId: 3, weight: 0 },
@@ -178,7 +180,7 @@ describe('WeightQuestionnaireDialog', () => {
     const user = userEvent.setup();
     render(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price, electric]}
       />,
     );
@@ -187,7 +189,9 @@ describe('WeightQuestionnaireDialog', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Price' }));
 
     await waitFor(() => {
-      expect(replaceCriterionWeights).toHaveBeenCalledWith(7, {
+      expect(replaceCriterionWeights).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        {
         weights: [
           { criterionId: 2, weight: 100 },
           { criterionId: 3, weight: 0 },
@@ -203,7 +207,7 @@ describe('WeightQuestionnaireDialog', () => {
     const user = userEvent.setup();
     render(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price, electric, fuel]}
       />,
     );
@@ -221,7 +225,7 @@ describe('WeightQuestionnaireDialog', () => {
     replaceCriterionWeights.mockResolvedValue({ error: 'Could not save' });
     render(
       <WeightQuestionnaireDialog
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[nameCriterion, price, electric, fuel]}
       />,
     );

@@ -10,6 +10,7 @@
  */
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { ulid } from 'ulid';
 import { PrismaClient } from '../src/generated/prisma/client.js';
 
 const COMPARISON_NAME = 'Cars';
@@ -105,7 +106,7 @@ async function seed() {
     }
 
     const comparison = await prisma.comparison.create({
-      data: { name: COMPARISON_NAME },
+      data: { name: COMPARISON_NAME, publicId: ulid() },
     });
 
     const nameCriterion = await prisma.criterion.create({
@@ -234,7 +235,7 @@ async function seed() {
     }
 
     console.log(
-      `Seeded comparison "${COMPARISON_NAME}" (id=${comparison.id}) with ${CARS.length} cars.`,
+      `Seeded comparison "${COMPARISON_NAME}" (id=${comparison.id}, publicId=${comparison.publicId}) with ${CARS.length} cars.`,
     );
   } finally {
     await prisma.$disconnect();

@@ -11,11 +11,11 @@ type Criterion = ComparisonDetailsResponse['criteria'][number];
 type Entry = ComparisonDetailsResponse['entries'][number];
 
 export function ResultsConfigAlertView({
-  comparisonId,
+  publicId,
   state,
   labels,
 }: {
-  comparisonId: number;
+  publicId: string;
   state: ResultsConfigAlertState;
   labels: {
     weightsZero: string;
@@ -48,7 +48,7 @@ export function ResultsConfigAlertView({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {showRulesLink ? (
           <Link
-            href={`/comparisons/${comparisonId}/rules`}
+            href={`/comparisons/${publicId}/rules`}
             className="w-fit text-sm font-medium text-foreground underline underline-offset-4"
           >
             {labels.setRules}
@@ -61,7 +61,7 @@ export function ResultsConfigAlertView({
         ) : null}
         {showEntriesLink ? (
           <Link
-            href={`/comparisons/${comparisonId}/entries`}
+            href={`/comparisons/${publicId}/entries`}
             className="w-fit text-sm font-medium text-foreground underline underline-offset-4"
           >
             {labels.completeEntries}
@@ -73,11 +73,11 @@ export function ResultsConfigAlertView({
 }
 
 export async function ResultsConfigAlert({
-  comparisonId,
+  publicId,
   criteria,
   entries,
 }: {
-  comparisonId: number;
+  publicId: string;
   criteria: ReadonlyArray<Criterion>;
   entries: ReadonlyArray<Entry>;
 }) {
@@ -90,7 +90,7 @@ export async function ResultsConfigAlert({
 
   return (
     <ResultsConfigAlertView
-      comparisonId={comparisonId}
+      publicId={publicId}
       state={state}
       labels={{
         weightsZero: t('configAlert.weightsZero'),

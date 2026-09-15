@@ -33,14 +33,14 @@ test.describe('A. Home & shell', () => {
     await page.goto('/');
 
     await expect(page).toHaveURL(
-      new RegExp(`/comparisons/${comparison.id}/entries$`),
+      new RegExp(`/comparisons/${comparison.publicId}/entries$`),
     );
     await expect(page.getByText('Laptops 2026').first()).toBeVisible();
     await expect(page.getByRole('tab', { name: 'Entries' })).toBeVisible();
   });
 
   test('A3: invalid comparison id shows not-found page', async ({ page }) => {
-    await page.goto('/comparisons/999999');
+    await page.goto('/comparisons/01ZZZZZZZZZZZZZZZZZZZZZZZZ');
 
     await expect(page.getByText('404')).toBeVisible();
     await expect(page.getByText('This page could not be found.')).toBeVisible();

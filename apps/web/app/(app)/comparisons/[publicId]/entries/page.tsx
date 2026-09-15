@@ -1,20 +1,22 @@
 import { notFound } from 'next/navigation';
+import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { ComparisonDataTable } from '@/components/comparison-data-table';
 import { CreateEntryDialog } from '@/components/create-entry-dialog';
-import { getComparisonById } from '@/lib/api';
+import { getComparisonByPublicId } from '@/lib/api';
 
 export default async function EntriesPage({
   params,
-}: PageProps<'/comparisons/[id]/entries'>) {
-  const { id } = await params;
-  const comparisonId = Number(id);
+}: PageProps<'/comparisons/[publicId]/entries'>) {
+  const { publicId: rawPublicId } = await params;
+  const parsed = PublicIdSchema.safeParse(rawPublicId);
 
-  if (!Number.isInteger(comparisonId) || comparisonId <= 0) {
+  if (!parsed.success) {
     notFound();
   }
 
-  const comparison = await getComparisonById(comparisonId);
+  const publicId = parsed.data;
+  const comparison = await getComparisonByPublicId(publicId);
 
   if (comparison === null) {
     notFound();
@@ -27,12 +29,12 @@ export default async function EntriesPage({
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">{t('entriesBlurb')}</p>
         <CreateEntryDialog
-          comparisonId={comparisonId}
+          publicId={publicId}
           criteria={comparison.criteria}
         />
       </div>
       <ComparisonDataTable
-        comparisonId={comparisonId}
+        publicId={publicId}
         criteria={comparison.criteria}
         entries={comparison.entries}
       />

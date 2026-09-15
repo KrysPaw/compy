@@ -44,7 +44,7 @@ async function errorMessage(
 
 export type CreateComparisonState = {
   error?: string;
-  comparisonId?: number;
+  publicId?: string;
 };
 
 export type DeleteComparisonState = {
@@ -75,7 +75,7 @@ export async function createComparison(
   }
 
   const comparison = ComparisonResponseSchema.parse(await res.json());
-  return { comparisonId: comparison.id };
+  return { publicId: comparison.publicId };
 }
 
 export type CreateCriterionState = {
@@ -84,7 +84,7 @@ export type CreateCriterionState = {
 };
 
 export async function createCriterion(
-  comparisonId: number,
+  publicId: string,
   input: unknown,
 ): Promise<CreateCriterionState> {
   const parsed = CreateCriterionSchema.safeParse(input);
@@ -95,7 +95,7 @@ export async function createCriterion(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${comparisonId}/criteria`, {
+  const res = await fetch(`${API_URL}/comparisons/${publicId}/criteria`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
@@ -138,7 +138,7 @@ async function readApiErrorMessage(res: Response, fallback: string) {
 }
 
 export async function createEntry(
-  comparisonId: number,
+  publicId: string,
   input: unknown,
 ): Promise<CreateEntryState> {
   const parsed = CreateEntrySchema.safeParse(input);
@@ -149,7 +149,7 @@ export async function createEntry(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${comparisonId}/entries`, {
+  const res = await fetch(`${API_URL}/comparisons/${publicId}/entries`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
@@ -173,7 +173,7 @@ export type UpdateEntryState = {
 };
 
 export async function updateEntry(
-  comparisonId: number,
+  publicId: string,
   entryId: number,
   input: unknown,
   clearCriterionIds: number[] = [],
@@ -187,7 +187,7 @@ export async function updateEntry(
   }
 
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/entries/${entryId}`,
+    `${API_URL}/comparisons/${publicId}/entries/${entryId}`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -206,7 +206,7 @@ export async function updateEntry(
 
   for (const criterionId of clearCriterionIds) {
     const clearRes = await fetch(
-      `${API_URL}/comparisons/${comparisonId}/entries/${entryId}/values/${criterionId}`,
+      `${API_URL}/comparisons/${publicId}/entries/${entryId}/values/${criterionId}`,
       { method: 'DELETE' },
     );
 
@@ -228,11 +228,11 @@ export type DeleteEntryState = {
 };
 
 export async function deleteEntry(
-  comparisonId: number,
+  publicId: string,
   entryId: number,
 ): Promise<DeleteEntryState> {
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/entries/${entryId}`,
+    `${API_URL}/comparisons/${publicId}/entries/${entryId}`,
     {
       method: 'DELETE',
     },
@@ -255,7 +255,7 @@ export type UpdateCriterionWeightState = {
 };
 
 export async function updateCriterionWeight(
-  comparisonId: number,
+  publicId: string,
   criterionId: number,
   weight: number,
 ): Promise<UpdateCriterionWeightState> {
@@ -269,7 +269,7 @@ export async function updateCriterionWeight(
   }
 
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -294,7 +294,7 @@ export type ReplaceCriterionWeightsState = {
 };
 
 export async function replaceCriterionWeights(
-  comparisonId: number,
+  publicId: string,
   input: unknown,
 ): Promise<ReplaceCriterionWeightsState> {
   const parsed = ReplaceCriterionWeightsSchema.safeParse(input);
@@ -308,7 +308,7 @@ export async function replaceCriterionWeights(
   }
 
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/criteria/weights`,
+    `${API_URL}/comparisons/${publicId}/criteria/weights`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -333,7 +333,7 @@ export type UpdateCriterionRuleConfigState = {
 };
 
 export async function updateCriterionRuleConfig(
-  comparisonId: number,
+  publicId: string,
   criterionId: number,
   ruleConfig: unknown,
 ): Promise<UpdateCriterionRuleConfigState> {
@@ -346,7 +346,7 @@ export async function updateCriterionRuleConfig(
   }
 
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -367,9 +367,9 @@ export async function updateCriterionRuleConfig(
 }
 
 export async function deleteComparison(
-  comparisonId: number,
+  publicId: string,
 ): Promise<DeleteComparisonState> {
-  const res = await fetch(`${API_URL}/comparisons/${comparisonId}`, {
+  const res = await fetch(`${API_URL}/comparisons/${publicId}`, {
     method: 'DELETE',
   });
 
@@ -385,7 +385,7 @@ export type UpdateComparisonNameState = {
 };
 
 export async function updateComparisonName(
-  comparisonId: number,
+  publicId: string,
   name: string,
 ): Promise<UpdateComparisonNameState> {
   const parsed = UpdateComparisonSchema.safeParse({ name });
@@ -396,7 +396,7 @@ export async function updateComparisonName(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${comparisonId}`, {
+  const res = await fetch(`${API_URL}/comparisons/${publicId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
@@ -419,7 +419,7 @@ export type UpdateCriterionNameState = {
 };
 
 export async function updateCriterionName(
-  comparisonId: number,
+  publicId: string,
   criterionId: number,
   name: string,
 ): Promise<UpdateCriterionNameState> {
@@ -432,7 +432,7 @@ export async function updateCriterionName(
   }
 
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -457,11 +457,11 @@ export type DeleteCriterionState = {
 };
 
 export async function deleteCriterion(
-  comparisonId: number,
+  publicId: string,
   criterionId: number,
 ): Promise<DeleteCriterionState> {
   const res = await fetch(
-    `${API_URL}/comparisons/${comparisonId}/criteria/${criterionId}`,
+    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'DELETE',
     },

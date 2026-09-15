@@ -1,6 +1,11 @@
 import { z } from "zod";
-import { NameSchema, OptionalNameSchema } from "./common/primitives.js";
+import {
+  NameSchema,
+  OptionalNameSchema,
+  PublicIdSchema,
+} from "./common/primitives.js";
 import { CriterionWeightSchema } from "./criterion.js";
+
 
 export const CreateComparisonSchema = z.object({
   name: NameSchema,
@@ -18,6 +23,7 @@ export type UpdateComparisonInput = z.infer<typeof UpdateComparisonSchema>;
 
 export const ComparisonResponseSchema = z.object({
   id: z.coerce.number().int().positive(),
+  publicId: PublicIdSchema,
   name: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

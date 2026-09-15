@@ -32,7 +32,7 @@ describe('ComparisonActionsMenu', () => {
 
     render(
       <ComparisonActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         comparisonName="Phones 2026"
       />,
     );
@@ -48,7 +48,10 @@ describe('ComparisonActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(updateComparisonName).toHaveBeenCalledWith(7, 'Laptops 2026');
+      expect(updateComparisonName).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        'Laptops 2026',
+      );
       expect(refresh).toHaveBeenCalled();
     });
     expect(push).not.toHaveBeenCalled();
@@ -62,7 +65,7 @@ describe('ComparisonActionsMenu', () => {
 
     render(
       <ComparisonActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         comparisonName="Phones 2026"
       />,
     );
@@ -86,7 +89,7 @@ describe('ComparisonActionsMenu', () => {
 
     render(
       <ComparisonActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         comparisonName="Phones 2026"
       />,
     );
@@ -113,7 +116,7 @@ describe('ComparisonActionsMenu', () => {
 
     render(
       <ComparisonActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         comparisonName="Phones 2026"
       />,
     );
@@ -129,7 +132,9 @@ describe('ComparisonActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
-      expect(deleteComparison).toHaveBeenCalledWith(7);
+      expect(deleteComparison).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+      );
       expect(push).toHaveBeenCalledWith('/');
       expect(refresh).toHaveBeenCalled();
     });
@@ -143,7 +148,7 @@ describe('ComparisonActionsMenu', () => {
 
     render(
       <ComparisonActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         comparisonName="Phones 2026"
       />,
     );

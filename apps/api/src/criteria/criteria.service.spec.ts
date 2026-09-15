@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CriteriaService } from './criteria.service.js';
 
+const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+
 describe('CriteriaService', () => {
   let service: CriteriaService;
   const comparisonFindUnique = vi.fn().mockResolvedValue({ id: 1 });
@@ -70,10 +72,10 @@ describe('CriteriaService', () => {
       is_comparable: true,
     };
 
-    await service.create(1, criterion);
+    await service.create(PUBLIC_ID, criterion);
 
     expect(comparisonFindUnique).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { publicId: PUBLIC_ID },
       select: { id: true },
     });
     expect(criterionCreate).toHaveBeenCalledWith({
@@ -92,7 +94,7 @@ describe('CriteriaService', () => {
     comparisonFindUnique.mockResolvedValueOnce(null);
 
     await expect(
-      service.create(999, {
+      service.create('01ZZZZZZZZZZZZZZZZZZZZZZZZ', {
         name: 'Price',
         type: 'number',
         is_comparable: true,
@@ -102,7 +104,7 @@ describe('CriteriaService', () => {
   });
 
   it('allows a custom criterion to use the same display name as the built-in criterion', async () => {
-    await service.create(1, {
+    await service.create(PUBLIC_ID, {
       name: 'name',
       type: 'text',
       is_comparable: false,
@@ -121,10 +123,10 @@ describe('CriteriaService', () => {
   });
 
   it('returns all criteria for a comparison', async () => {
-    const result = await service.findAll(1);
+    const result = await service.findAll(PUBLIC_ID);
 
     expect(comparisonFindUnique).toHaveBeenCalledWith({
-      where: { id: 1 },
+      where: { publicId: PUBLIC_ID },
       select: { id: true },
     });
     expect(criterionFindMany).toHaveBeenCalledWith({
@@ -138,7 +140,7 @@ describe('CriteriaService', () => {
   });
 
   it('updates a custom criterion name', async () => {
-    const result = await service.update(1, 2, { name: 'Updated price' });
+    const result = await service.update(PUBLIC_ID, 2, { name: 'Updated price' });
 
     expect(criterionUpdate).toHaveBeenCalledWith({
       where: { id: 2, comparisonId: 1 },
@@ -159,7 +161,7 @@ describe('CriteriaService', () => {
       { id: 2, weight: 10, is_comparable: true },
     ]);
 
-    const result = await service.update(1, 2, {
+    const result = await service.update(PUBLIC_ID, 2, {
       weight: 25,
       ruleConfig: { direction: 'lower' },
     });
@@ -185,7 +187,7 @@ describe('CriteriaService', () => {
       { id: 3, weight: 60, is_comparable: true },
     ]);
 
-    await expect(service.update(1, 2, { weight: 41 })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, 2, { weight: 41 })).rejects.toThrow(
       BadRequestException,
     );
     expect(criterionUpdate).not.toHaveBeenCalled();
@@ -203,7 +205,7 @@ describe('CriteriaService', () => {
       weight: 0,
     });
 
-    await expect(service.update(1, 1, { weight: 10 })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, 1, { weight: 10 })).rejects.toThrow(
       BadRequestException,
     );
     expect(criterionFindMany).not.toHaveBeenCalled();
@@ -212,7 +214,7 @@ describe('CriteriaService', () => {
 
   it('rejects rule config that does not match the criterion type', async () => {
     await expect(
-      service.update(1, 2, {
+      service.update(PUBLIC_ID, 2, {
         ruleConfig: { preferredValue: true },
       }),
     ).rejects.toThrow(BadRequestException);
@@ -230,7 +232,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(1, 1, {
+      service.update(PUBLIC_ID, 1, {
         ruleConfig: { direction: 'higher' },
       }),
     ).rejects.toThrow(BadRequestException);
@@ -248,7 +250,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(1, 3, {
+      service.update(PUBLIC_ID, 3, {
         ruleConfig: {
           tiers: [
             { rank: 1, values: ['Petrol'] },
@@ -271,7 +273,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(1, 3, {
+      service.update(PUBLIC_ID, 3, {
         ruleConfig: {
           tiers: [
             { rank: 1, values: ['Petrol'] },
@@ -303,7 +305,7 @@ describe('CriteriaService', () => {
   it('throws NotFoundException when updating a missing criterion', async () => {
     criterionFindFirst.mockResolvedValueOnce(null);
 
-    await expect(service.update(1, 999, { name: 'Missing' })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, 999, { name: 'Missing' })).rejects.toThrow(
       NotFoundException,
     );
     expect(criterionUpdate).not.toHaveBeenCalled();
@@ -328,7 +330,7 @@ describe('CriteriaService', () => {
         is_key: true,
       });
 
-    const result = await service.update(1, 1, { name: 'Entry name' });
+    const result = await service.update(PUBLIC_ID, 1, { name: 'Entry name' });
 
     expect(result).toEqual({
       id: 2,
@@ -338,7 +340,7 @@ describe('CriteriaService', () => {
       ruleConfig: { direction: 'lower' },
       is_key: false,
     });
-    await expect(service.remove(1, 1)).rejects.toThrow(BadRequestException);
+    await expect(service.remove(PUBLIC_ID, 1)).rejects.toThrow(BadRequestException);
     expect(criterionUpdate).toHaveBeenCalledWith({
       where: { id: 1, comparisonId: 1 },
       data: { name: 'Entry name' },
@@ -355,7 +357,7 @@ describe('CriteriaService', () => {
         { id: 4, weight: 0 },
       ]);
 
-    const result = await service.replaceWeights(1, {
+    const result = await service.replaceWeights(PUBLIC_ID, {
       weights: [
         { criterionId: 2, weight: 100 },
         { criterionId: 3, weight: 0 },
@@ -394,7 +396,7 @@ describe('CriteriaService', () => {
     criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
 
     await expect(
-      service.replaceWeights(1, {
+      service.replaceWeights(PUBLIC_ID, {
         weights: [{ criterionId: 2, weight: 100 }],
       }),
     ).rejects.toThrow(BadRequestException);
@@ -404,7 +406,7 @@ describe('CriteriaService', () => {
 
   it('rejects weights that do not sum to 100', async () => {
     await expect(
-      service.replaceWeights(1, {
+      service.replaceWeights(PUBLIC_ID, {
         weights: [
           { criterionId: 2, weight: 40 },
           { criterionId: 3, weight: 40 },
@@ -419,7 +421,7 @@ describe('CriteriaService', () => {
     criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
 
     await expect(
-      service.replaceWeights(1, {
+      service.replaceWeights(PUBLIC_ID, {
         weights: [
           { criterionId: 2, weight: 50 },
           { criterionId: 1, weight: 50 },

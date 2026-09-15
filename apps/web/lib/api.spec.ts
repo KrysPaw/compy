@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getComparisonById, getComparisons } from './api';
+import { getComparisonByPublicId, getComparisons } from './api';
+
+const SAMPLE_PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -22,6 +24,7 @@ describe('getComparisons', () => {
         jsonResponse([
           {
             id: 1,
+            publicId: SAMPLE_PUBLIC_ID,
             name: 'Phones',
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-02T00:00:00.000Z',
@@ -33,6 +36,7 @@ describe('getComparisons', () => {
     await expect(getComparisons()).resolves.toEqual([
       {
         id: 1,
+        publicId: SAMPLE_PUBLIC_ID,
         name: 'Phones',
         createdAt: new Date('2026-01-01T00:00:00.000Z'),
         updatedAt: new Date('2026-01-02T00:00:00.000Z'),
@@ -61,14 +65,14 @@ describe('getComparisons', () => {
   });
 });
 
-describe('getComparisonById', () => {
+describe('getComparisonByPublicId', () => {
   it('returns null for missing comparisons', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue(new Response(null, { status: 404 })),
     );
 
-    await expect(getComparisonById(99)).resolves.toBeNull();
+    await expect(getComparisonByPublicId(SAMPLE_PUBLIC_ID)).resolves.toBeNull();
   });
 
   it('returns parsed comparison details', async () => {
@@ -77,6 +81,7 @@ describe('getComparisonById', () => {
       vi.fn().mockResolvedValue(
         jsonResponse({
           id: 2,
+          publicId: SAMPLE_PUBLIC_ID,
           name: 'Laptops',
           createdAt: '2026-01-01T00:00:00.000Z',
           updatedAt: '2026-01-01T00:00:00.000Z',
@@ -97,8 +102,9 @@ describe('getComparisonById', () => {
       ),
     );
 
-    await expect(getComparisonById(2)).resolves.toMatchObject({
+    await expect(getComparisonByPublicId(SAMPLE_PUBLIC_ID)).resolves.toMatchObject({
       id: 2,
+      publicId: SAMPLE_PUBLIC_ID,
       name: 'Laptops',
       criteria: [{ id: 1, name: 'Name', type: 'text', is_key: true }],
       entries: [],

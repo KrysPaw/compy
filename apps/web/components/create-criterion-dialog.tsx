@@ -64,9 +64,9 @@ function Collapse({ open, children }: { open: boolean; children: ReactNode }) {
 }
 
 export function CreateCriterionDialog({
-  comparisonId,
+  publicId,
 }: {
-  comparisonId: number;
+  publicId: string;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -134,7 +134,7 @@ export function CreateCriterionDialog({
       : { name: state.name, is_comparable: false, type: 'text' };
 
     startTransition(async () => {
-      const result = await createCriterion(comparisonId, payload);
+      const result = await createCriterion(publicId, payload);
 
       if (result.criterionId === undefined) {
         setError(result.error);

@@ -44,7 +44,9 @@ describe('CreateComparisonDialog', () => {
 
   it('navigates to the created comparison on success', async () => {
     const user = userEvent.setup();
-    createComparison.mockResolvedValue({ comparisonId: 42 });
+    createComparison.mockResolvedValue({
+      publicId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    });
 
     render(<CreateComparisonDialog />);
 
@@ -55,7 +57,9 @@ describe('CreateComparisonDialog', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
-      expect(push).toHaveBeenCalledWith('/comparisons/42');
+      expect(push).toHaveBeenCalledWith(
+        '/comparisons/01ARZ3NDEKTSV4RRFFQ69G5FAV',
+      );
       expect(refresh).toHaveBeenCalled();
     });
   });

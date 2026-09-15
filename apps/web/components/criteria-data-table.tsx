@@ -86,10 +86,10 @@ function formatConfig(
 }
 
 export function CriteriaDataTable({
-  comparisonId,
+  publicId,
   criteria,
 }: {
-  comparisonId: number;
+  publicId: string;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const t = useTranslations();
   const sortedCriteria = [...criteria].sort(
@@ -141,7 +141,7 @@ export function CriteriaDataTable({
                   </TableCell>
                   <TableCell className="text-right">
                     <CriterionActionsMenu
-                      comparisonId={comparisonId}
+                      publicId={publicId}
                       criterionId={criterion.id}
                       criterionName={criterion.name}
                       canDelete={!criterion.is_key}

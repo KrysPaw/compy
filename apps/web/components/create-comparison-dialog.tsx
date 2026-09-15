@@ -34,14 +34,14 @@ export function CreateComparisonDialog({ trigger }: CreateComparisonDialogProps)
     startTransition(async () => {
       const result = await createComparison(formData);
 
-      if (result.comparisonId === undefined) {
+      if (result.publicId === undefined) {
         setError(result.error);
         return;
       }
 
       setError(undefined);
       setOpen(false);
-      router.push(`/comparisons/${result.comparisonId}`);
+      router.push(`/comparisons/${result.publicId}`);
       router.refresh();
     });
   }

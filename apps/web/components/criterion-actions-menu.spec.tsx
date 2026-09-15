@@ -30,7 +30,7 @@ describe('CriterionActionsMenu', () => {
 
     render(
       <CriterionActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criterionId={3}
         criterionName="Price"
         canDelete
@@ -46,7 +46,11 @@ describe('CriterionActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(updateCriterionName).toHaveBeenCalledWith(7, 3, 'Cost');
+      expect(updateCriterionName).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        3,
+        'Cost',
+      );
       expect(refresh).toHaveBeenCalled();
     });
   });
@@ -56,7 +60,7 @@ describe('CriterionActionsMenu', () => {
 
     render(
       <CriterionActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criterionId={1}
         criterionName="name"
         canDelete={false}
@@ -74,7 +78,7 @@ describe('CriterionActionsMenu', () => {
 
     render(
       <CriterionActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criterionId={3}
         criterionName="Price"
         canDelete
@@ -86,7 +90,10 @@ describe('CriterionActionsMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
-      expect(deleteCriterion).toHaveBeenCalledWith(7, 3);
+      expect(deleteCriterion).toHaveBeenCalledWith(
+        '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        3,
+      );
       expect(refresh).toHaveBeenCalled();
     });
   });
@@ -99,7 +106,7 @@ describe('CriterionActionsMenu', () => {
 
     render(
       <CriterionActionsMenu
-        comparisonId={7}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criterionId={3}
         criterionName="Price"
         canDelete

@@ -37,7 +37,7 @@ type EntryValue = {
 };
 
 type EntryActionsMenuProps = {
-  comparisonId: number;
+  publicId: string;
   entryId: number;
   entryLabel: string;
   criteria: Criterion[];
@@ -47,7 +47,7 @@ type EntryActionsMenuProps = {
 type ActiveDialog = 'edit' | 'delete' | null;
 
 export function EntryActionsMenu({
-  comparisonId,
+  publicId,
   entryId,
   entryLabel,
   criteria,
@@ -97,7 +97,7 @@ export function EntryActionsMenu({
 
     startTransition(async () => {
       const result = await updateEntry(
-        comparisonId,
+        publicId,
         entryId,
         payload,
         clearIds,
@@ -115,7 +115,7 @@ export function EntryActionsMenu({
 
   function handleDelete() {
     startTransition(async () => {
-      const result = await deleteEntry(comparisonId, entryId);
+      const result = await deleteEntry(publicId, entryId);
 
       if (result.error) {
         setError(result.error);

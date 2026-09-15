@@ -58,7 +58,7 @@ describe('ComparisonDataTable', () => {
   it('shows an empty state when there are no entries', () => {
     render(
       <ComparisonDataTable
-        comparisonId={1}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={criteria}
         entries={[]}
       />,
@@ -71,7 +71,7 @@ describe('ComparisonDataTable', () => {
     const user = userEvent.setup();
     render(
       <ComparisonDataTable
-        comparisonId={1}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={criteria}
         entries={entries}
       />,
@@ -111,7 +111,7 @@ describe('ComparisonDataTable', () => {
   it('renders a dash for missing values', () => {
     render(
       <ComparisonDataTable
-        comparisonId={1}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={criteria}
         entries={[
           { id: 12, entryValues: [{ criterionId: 1, value: 'Only name' }] },
@@ -126,7 +126,7 @@ describe('ComparisonDataTable', () => {
   it('exposes edit and delete actions for each entry', () => {
     render(
       <ComparisonDataTable
-        comparisonId={1}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={criteria}
         entries={entries}
       />,
@@ -143,7 +143,7 @@ describe('ComparisonDataTable', () => {
   it('formats rating values as value/max with a star', () => {
     render(
       <ComparisonDataTable
-        comparisonId={1}
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[
           ...criteria,
           {

@@ -22,9 +22,9 @@ export function SidebarComparisonsMenu({
         <SidebarMenuItem key={comparison.id}>
           <SidebarMenuButton
             asChild
-            isActive={pathname === `/comparisons/${comparison.id}`}
+            isActive={pathname.startsWith(`/comparisons/${comparison.publicId}`)}
           >
-            <Link href={`/comparisons/${comparison.id}`}>
+            <Link href={`/comparisons/${comparison.publicId}`}>
               {comparison.name}
             </Link>
           </SidebarMenuButton>
