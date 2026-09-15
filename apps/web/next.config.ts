@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  distDir: process.env.NEXT_DIST_DIR || '.next',
 };
 
 const withNextIntl = createNextIntlPlugin();

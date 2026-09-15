@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - compy-postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
 
 volumes:
   compy-postgres-data:
