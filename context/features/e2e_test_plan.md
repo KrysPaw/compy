@@ -14,7 +14,7 @@ When you implement a scenario group from this plan, **mark that group done in th
 
 - **Stack:** Next.js (`apps/web`) + NestJS (`apps/api`) + Postgres
 - **Harness:** Playwright in [`apps/web/playwright.config.ts`](../../apps/web/playwright.config.ts) — `compy_test` DB, API `3100`, web `3101`
-- **Current coverage:** Scenario **A** — [`apps/web/e2e/home.spec.ts`](../../apps/web/e2e/home.spec.ts) (A1–A3), [`apps/web/e2e/navigation.spec.ts`](../../apps/web/e2e/navigation.spec.ts) (A4); API seed/reset in [`apps/web/e2e/helpers/api.ts`](../../apps/web/e2e/helpers/api.ts)
+- **Current coverage:** Scenario **A** — [`apps/web/e2e/home.spec.ts`](../../apps/web/e2e/home.spec.ts) (A1–A3), [`apps/web/e2e/navigation.spec.ts`](../../apps/web/e2e/navigation.spec.ts) (A4); Scenario **B** — [`apps/web/e2e/comparisons.spec.ts`](../../apps/web/e2e/comparisons.spec.ts) (B1–B7); API seed/reset in [`apps/web/e2e/helpers/api.ts`](../../apps/web/e2e/helpers/api.ts)
 - **No auth / roles / payments** in v1 — omit those scenarios
 
 ```mermaid
@@ -46,17 +46,17 @@ flowchart LR
 | A3 | Invalid comparison id | Not-found page | ✅ |
 | A4 | Sidebar collapse / mobile shell | App usable; comparisons reachable (smoke) | ✅ |
 
-### B. Comparisons CRUD
+### B. Comparisons CRUD ✅ done
 
-| ID | Scenario | Expected |
-| ---- | -------- | -------- |
-| B1 | Create from empty home CTA | New comparison; land on Entries; built-in **name** column present; appears in sidebar |
-| B2 | Create from sidebar “+” | Same as B1 when comparisons already exist |
-| B3 | Reject blank / whitespace name | Client validation; dialog stays open |
-| B4 | Rename comparison | Header + sidebar update |
-| B5 | Delete — name mismatch | Confirm disabled until exact name typed |
-| B6 | Delete — exact name | Comparison removed; navigate `/`; remaining or empty state correct |
-| B7 | Switch comparisons in sidebar | Correct comparison name + tabs data load |
+| ID | Scenario | Expected | Status |
+| ---- | -------- | -------- | ------ |
+| B1 | Create from empty home CTA | New comparison; land on Entries; built-in **name** column present; appears in sidebar | ✅ |
+| B2 | Create from sidebar “+” | Same as B1 when comparisons already exist | ✅ |
+| B3 | Reject blank / whitespace name | Client validation; dialog stays open | ✅ |
+| B4 | Rename comparison | Header + sidebar update | ✅ |
+| B5 | Delete — name mismatch | Confirm disabled until exact name typed | ✅ |
+| B6 | Delete — exact name | Comparison removed; navigate `/`; remaining or empty state correct | ✅ |
+| B7 | Switch comparisons in sidebar | Correct comparison name + tabs data load | ✅ |
 
 ### C. Navigation / tabs
 
