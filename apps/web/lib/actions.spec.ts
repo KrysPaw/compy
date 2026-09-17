@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(async () => ({
+    get: () => undefined,
+  })),
+}));
+
 const SAMPLE_PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
 import {
   createComparison,

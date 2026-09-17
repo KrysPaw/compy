@@ -112,8 +112,16 @@ export class CriteriaService {
     }
   }
 
-  public async create(publicId: string, data: CreateCriterionInput) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async create(
+    publicId: string,
+    userId: number,
+    data: CreateCriterionInput,
+  ) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
 
     const type = {
       number: 'number',
@@ -135,8 +143,12 @@ export class CriteriaService {
     });
   }
 
-  public async findAll(publicId: string) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async findAll(publicId: string, userId: number) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
 
     return this.prisma.criterion.findMany({
       where: { comparisonId },
@@ -144,17 +156,30 @@ export class CriteriaService {
     });
   }
 
-  public async findOne(publicId: string, criterionId: number) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async findOne(
+    publicId: string,
+    userId: number,
+    criterionId: number,
+  ) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     return this.findCriterion(comparisonId, criterionId);
   }
 
   public async update(
     publicId: string,
+    userId: number,
     criterionId: number,
     data: UpdateCriterionInput,
   ) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (data.weight !== undefined) {
@@ -205,9 +230,14 @@ export class CriteriaService {
 
   public async replaceWeights(
     publicId: string,
+    userId: number,
     data: ReplaceCriterionWeightsInput,
   ) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
 
     const total = data.weights.reduce((sum, item) => sum + item.weight, 0);
     if (total !== WEIGHT_POOL_TOTAL) {
@@ -247,11 +277,15 @@ export class CriteriaService {
       }
     });
 
-    return this.findAll(publicId);
+    return this.findAll(publicId, userId);
   }
 
-  public async remove(publicId: string, criterionId: number) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async remove(publicId: string, userId: number, criterionId: number) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     const criterion = await this.findCriterion(comparisonId, criterionId);
 
     if (criterion.is_key) {

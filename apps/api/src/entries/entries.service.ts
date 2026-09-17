@@ -200,8 +200,16 @@ export class EntriesService {
     });
   }
 
-  public async create(publicId: string, data: CreateEntryInput) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async create(
+    publicId: string,
+    userId: number,
+    data: CreateEntryInput,
+  ) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.validateValuesForComparison(comparisonId, data.values, true);
 
     return this.prisma.$transaction(async (transaction) => {
@@ -235,8 +243,12 @@ export class EntriesService {
     });
   }
 
-  public async findAll(publicId: string) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async findAll(publicId: string, userId: number) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
 
     return this.prisma.entry.findMany({
       where: { comparisonId },
@@ -245,8 +257,12 @@ export class EntriesService {
     });
   }
 
-  public async findOne(publicId: string, entryId: number) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async findOne(publicId: string, userId: number, entryId: number) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     const entry = await this.prisma.entry.findUnique({
       where: { id: entryId },
       include: { entryValues: true },
@@ -261,10 +277,15 @@ export class EntriesService {
 
   public async update(
     publicId: string,
+    userId: number,
     entryId: number,
     data: UpdateEntryInput,
   ) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
     await this.validateValuesForComparison(comparisonId, data.values);
 
@@ -293,8 +314,12 @@ export class EntriesService {
     });
   }
 
-  public async remove(publicId: string, entryId: number) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async remove(publicId: string, userId: number, entryId: number) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
 
     return this.prisma.entry.delete({
@@ -302,8 +327,16 @@ export class EntriesService {
     });
   }
 
-  public async findAllValues(publicId: string, entryId: number) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+  public async findAllValues(
+    publicId: string,
+    userId: number,
+    entryId: number,
+  ) {
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
 
     return this.prisma.entryValue.findMany({
@@ -321,11 +354,16 @@ export class EntriesService {
 
   public async upsertValue(
     publicId: string,
+    userId: number,
     entryId: number,
     criterionId: number,
     data: Pick<ValueInput, 'type' | 'value'>,
   ) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
 
     const criteria = await this.getComparisonCriteria(comparisonId);
@@ -404,11 +442,17 @@ export class EntriesService {
 
   public async removeValue(
     publicId: string,
+    userId: number,
     entryId: number,
     criterionId: number,
   ) {
-    const comparisonId = await resolveComparisonId(this.prisma, publicId);
+    const comparisonId = await resolveComparisonId(
+      this.prisma,
+      publicId,
+      userId,
+    );
     await this.ensureEntryBelongsToComparison(comparisonId, entryId);
+
 
     const criteria = await this.getComparisonCriteria(comparisonId);
     const criterion = criteria.find((item) => item.id === criterionId);

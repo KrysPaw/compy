@@ -12,14 +12,43 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserKind {
+  guest
+  registered
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  kind         UserKind
+  email        String?      @unique
+  displayName  String?
+  googleSub    String?      @unique
+  createdAt    DateTime     @default(now())
+  lastSeenAt   DateTime     @default(now())
+  sessions     Session[]
+  comparisons  Comparison[]
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
 model Comparison {
-  id        Int         @id @default(autoincrement())
-  publicId  String      @unique
-  name      String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  criteria  Criterion[]
-  entries   Entry[]
+  id           Int         @id @default(autoincrement())
+  publicId     String      @unique
+  name         String
+  ownerId      Int
+  owner        User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  lastActiveAt DateTime    @default(now())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  criteria     Criterion[]
+  entries      Entry[]
 }
 
 enum CriterionType {

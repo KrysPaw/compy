@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module.js';
 import { ComparisonsController } from './comparisons.controller.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ComparisonsService } from './comparisons.service.js';
@@ -8,7 +9,14 @@ import { EntriesController } from '../entries/entries.controller.js';
 import { EntriesService } from '../entries/entries.service.js';
 
 @Module({
+  imports: [AuthModule],
   controllers: [ComparisonsController, CriteriaController, EntriesController],
-  providers: [ComparisonsService, CriteriaService, EntriesService, PrismaService],
+  providers: [
+    ComparisonsService,
+    CriteriaService,
+    EntriesService,
+    PrismaService,
+  ],
 })
-export class ComparisonsModule { }
+export class ComparisonsModule {}
+

@@ -9,6 +9,7 @@ vi.mock('ulid', () => ({
 }));
 
 const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+const USER_ID = 42;
 
 describe('ComparisonsService', () => {
   let service: ComparisonsService;
@@ -16,6 +17,8 @@ describe('ComparisonsService', () => {
     id: 1,
     publicId: PUBLIC_ID,
     name: 'Phones',
+    ownerId: USER_ID,
+    lastActiveAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -65,13 +68,11 @@ describe('ComparisonsService', () => {
       },
     ],
   };
-  const comparisonDetailFindUnique = vi
-    .fn()
-    .mockResolvedValue(comparisonDetail);
+  const comparisonFindFirst = vi.fn().mockResolvedValue(comparisonDetail);
   const comparisonFindMany = vi.fn().mockResolvedValue([createdComparison]);
   const prisma = {
     comparison: {
-      findUnique: comparisonDetailFindUnique,
+      findFirst: comparisonFindFirst,
       findMany: comparisonFindMany,
       update: comparisonUpdate,
       delete: comparisonDelete,
@@ -105,11 +106,16 @@ describe('ComparisonsService', () => {
     expect(service).toBeDefined();
   });
 
-  it('creates a comparison with the built-in name criterion', async () => {
-    const result = await service.createComparison({ name: 'Phones' });
+  it('creates a comparison owned by the caller', async () => {
+    const result = await service.createComparison({ name: 'Phones' }, USER_ID);
 
     expect(comparisonCreate).toHaveBeenCalledWith({
-      data: { name: 'Phones', publicId: PUBLIC_ID },
+      data: {
+        name: 'Phones',
+        publicId: PUBLIC_ID,
+        ownerId: USER_ID,
+        lastActiveAt: expect.any(Date),
+      },
     });
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
@@ -131,20 +137,21 @@ describe('ComparisonsService', () => {
     expect(result).toEqual(createdComparison);
   });
 
-  it('returns all comparisons ordered by last update', async () => {
-    const result = await service.getAll();
+  it('returns only comparisons owned by the caller', async () => {
+    const result = await service.getAll(USER_ID);
 
     expect(comparisonFindMany).toHaveBeenCalledWith({
+      where: { ownerId: USER_ID },
       orderBy: { updatedAt: 'desc' },
     });
     expect(result).toEqual([createdComparison]);
   });
 
   it('returns a comparison with criteria, entries, and entry values', async () => {
-    const result = await service.getByPublicId(PUBLIC_ID);
+    const result = await service.getByPublicId(PUBLIC_ID, USER_ID);
 
-    expect(comparisonDetailFindUnique).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID },
+    expect(comparisonFindFirst).toHaveBeenCalledWith({
+      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
       include: {
         criteria: {
           orderBy: { createdAt: 'asc' },
@@ -156,22 +163,32 @@ describe('ComparisonsService', () => {
         },
       },
     });
+    expect(comparisonUpdate).toHaveBeenCalledWith({
+      where: { id: comparison.id },
+      data: { lastActiveAt: expect.any(Date) },
+    });
     expect(result).toEqual(comparisonDetail);
   });
 
   it('throws NotFoundException when the comparison does not exist', async () => {
-    comparisonDetailFindUnique.mockResolvedValueOnce(null);
+    comparisonFindFirst.mockResolvedValueOnce(null);
 
-    await expect(service.getByPublicId('01ZZZZZZZZZZZZZZZZZZZZZZZZ')).rejects.toThrowError(
-      NotFoundException,
-    );
+    await expect(
+      service.getByPublicId('01ZZZZZZZZZZZZZZZZZZZZZZZZ', USER_ID),
+    ).rejects.toThrowError(NotFoundException);
   });
 
   it('renames an existing comparison', async () => {
-    comparisonDetailFindUnique.mockResolvedValueOnce({ id: 1 });
+    comparisonFindFirst.mockResolvedValueOnce({ id: 1 });
 
-    const result = await service.update(PUBLIC_ID, { name: 'Mobile phones' });
+    const result = await service.update(PUBLIC_ID, USER_ID, {
+      name: 'Mobile phones',
+    });
 
+    expect(comparisonUpdate).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { lastActiveAt: expect.any(Date) },
+    });
     expect(comparisonUpdate).toHaveBeenCalledWith({
       where: { id: 1 },
       data: { name: 'Mobile phones' },
@@ -180,19 +197,21 @@ describe('ComparisonsService', () => {
   });
 
   it('deletes an existing comparison', async () => {
-    comparisonDetailFindUnique.mockResolvedValueOnce({ id: 1 });
+    comparisonFindFirst.mockResolvedValueOnce({ id: 1 });
 
-    const result = await service.remove(PUBLIC_ID);
+    const result = await service.remove(PUBLIC_ID, USER_ID);
 
     expect(comparisonDelete).toHaveBeenCalledWith({ where: { id: 1 } });
     expect(result).toEqual(comparison);
   });
 
   it('rejects renaming a missing comparison', async () => {
-    comparisonDetailFindUnique.mockResolvedValueOnce(null);
+    comparisonFindFirst.mockResolvedValueOnce(null);
 
     await expect(
-      service.update('01ZZZZZZZZZZZZZZZZZZZZZZZZ', { name: 'Missing' }),
+      service.update('01ZZZZZZZZZZZZZZZZZZZZZZZZ', USER_ID, {
+        name: 'Missing',
+      }),
     ).rejects.toThrowError(NotFoundException);
     expect(comparisonUpdate).not.toHaveBeenCalled();
   });

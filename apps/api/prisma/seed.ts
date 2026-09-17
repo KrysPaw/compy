@@ -105,8 +105,17 @@ async function seed() {
       );
     }
 
+    const owner = await prisma.user.create({
+      data: { kind: 'guest', displayName: 'seed-owner' },
+    });
+
     const comparison = await prisma.comparison.create({
-      data: { name: COMPARISON_NAME, publicId: ulid() },
+      data: {
+        name: COMPARISON_NAME,
+        publicId: ulid(),
+        ownerId: owner.id,
+        lastActiveAt: new Date(),
+      },
     });
 
     const nameCriterion = await prisma.criterion.create({

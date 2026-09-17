@@ -5,6 +5,7 @@ import {
   type ComparisonResponse,
 } from '@compy/shared';
 import type { ComparisonDetailsResponse } from '@compy/shared';
+import { apiFetch } from './api-fetch';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3000';
 
@@ -14,9 +15,7 @@ async function fetchJson<Schema extends z.ZodType>(
   path: string,
   schema: Schema,
 ): Promise<z.infer<Schema> | null> {
-  const res = await fetch(`${API_URL}${path}`, {
-    cache: 'no-store',
-  });
+  const res = await apiFetch(path);
 
   if (res.status === 404) {
     return null;

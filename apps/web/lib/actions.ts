@@ -12,7 +12,7 @@ import {
   ReplaceCriterionWeightsSchema,
 } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
-import { API_URL } from './api';
+import { apiFetch } from './api-fetch';
 
 const CriterionResponseSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -64,9 +64,8 @@ export async function createComparison(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons`, {
+  const res = await apiFetch('/comparisons', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
   });
 
@@ -95,9 +94,8 @@ export async function createCriterion(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${publicId}/criteria`, {
+  const res = await apiFetch(`/comparisons/${publicId}/criteria`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
   });
 
@@ -149,9 +147,8 @@ export async function createEntry(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${publicId}/entries`, {
+  const res = await apiFetch(`/comparisons/${publicId}/entries`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
   });
 
@@ -186,14 +183,10 @@ export async function updateEntry(
     };
   }
 
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/entries/${entryId}`,
-    {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsed.data),
-    },
-  );
+  const res = await apiFetch(`/comparisons/${publicId}/entries/${entryId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(parsed.data),
+  });
 
   if (!res.ok) {
     return {
@@ -205,8 +198,8 @@ export async function updateEntry(
   }
 
   for (const criterionId of clearCriterionIds) {
-    const clearRes = await fetch(
-      `${API_URL}/comparisons/${publicId}/entries/${entryId}/values/${criterionId}`,
+    const clearRes = await apiFetch(
+      `/comparisons/${publicId}/entries/${entryId}/values/${criterionId}`,
       { method: 'DELETE' },
     );
 
@@ -231,12 +224,9 @@ export async function deleteEntry(
   publicId: string,
   entryId: number,
 ): Promise<DeleteEntryState> {
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/entries/${entryId}`,
-    {
-      method: 'DELETE',
-    },
-  );
+  const res = await apiFetch(`/comparisons/${publicId}/entries/${entryId}`, {
+    method: 'DELETE',
+  });
 
   if (!res.ok) {
     return {
@@ -268,11 +258,10 @@ export async function updateCriterionWeight(
     };
   }
 
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
+  const res = await apiFetch(
+    `/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(parsed.data),
     },
   );
@@ -307,14 +296,10 @@ export async function replaceCriterionWeights(
     };
   }
 
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/criteria/weights`,
-    {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(parsed.data),
-    },
-  );
+  const res = await apiFetch(`/comparisons/${publicId}/criteria/weights`, {
+    method: 'PATCH',
+    body: JSON.stringify(parsed.data),
+  });
 
   if (!res.ok) {
     return {
@@ -345,11 +330,10 @@ export async function updateCriterionRuleConfig(
     };
   }
 
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
+  const res = await apiFetch(
+    `/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(parsed.data),
     },
   );
@@ -369,7 +353,7 @@ export async function updateCriterionRuleConfig(
 export async function deleteComparison(
   publicId: string,
 ): Promise<DeleteComparisonState> {
-  const res = await fetch(`${API_URL}/comparisons/${publicId}`, {
+  const res = await apiFetch(`/comparisons/${publicId}`, {
     method: 'DELETE',
   });
 
@@ -396,9 +380,8 @@ export async function updateComparisonName(
     };
   }
 
-  const res = await fetch(`${API_URL}/comparisons/${publicId}`, {
+  const res = await apiFetch(`/comparisons/${publicId}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed.data),
   });
 
@@ -431,11 +414,10 @@ export async function updateCriterionName(
     };
   }
 
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
+  const res = await apiFetch(
+    `/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(parsed.data),
     },
   );
@@ -460,8 +442,8 @@ export async function deleteCriterion(
   publicId: string,
   criterionId: number,
 ): Promise<DeleteCriterionState> {
-  const res = await fetch(
-    `${API_URL}/comparisons/${publicId}/criteria/${criterionId}`,
+  const res = await apiFetch(
+    `/comparisons/${publicId}/criteria/${criterionId}`,
     {
       method: 'DELETE',
     },

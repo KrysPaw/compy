@@ -5,11 +5,13 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { EntriesService } from './entries.service.js';
 
 const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+const USER_ID = 42;
 
 describe('EntriesService', () => {
   let service: EntriesService;
 
-  const comparisonFindUnique = vi.fn().mockResolvedValue({ id: 1 });
+  const comparisonFindFirst = vi.fn().mockResolvedValue({ id: 1 });
+  const comparisonUpdate = vi.fn().mockResolvedValue({ id: 1 });
   const criterionFindMany = vi.fn().mockResolvedValue([
     {
       id: 1,
@@ -70,7 +72,8 @@ describe('EntriesService', () => {
   const entryValueDelete = vi.fn().mockResolvedValue({ id: 1 });
   const prisma = {
     comparison: {
-      findUnique: comparisonFindUnique,
+      findFirst: comparisonFindFirst,
+      update: comparisonUpdate,
     },
     criterion: {
       findMany: criterionFindMany,
@@ -128,15 +131,15 @@ describe('EntriesService', () => {
   });
 
   it('creates an entry with values from the comparison criteria', async () => {
-    const result = await service.create(PUBLIC_ID, {
+    const result = await service.create(PUBLIC_ID, USER_ID, {
       values: [
         { criterionId: 1, type: 'text', value: 'Pixel' },
         { criterionId: 2, type: 'number', value: 999 },
       ],
     });
 
-    expect(comparisonFindUnique).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID },
+    expect(comparisonFindFirst).toHaveBeenCalledWith({
+      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
       select: { id: true },
     });
     expect(criterionFindMany).toHaveBeenCalledWith({
@@ -157,10 +160,10 @@ describe('EntriesService', () => {
   });
 
   it('throws NotFoundException when the comparison does not exist', async () => {
-    comparisonFindUnique.mockResolvedValueOnce(null);
+    comparisonFindFirst.mockResolvedValueOnce(null);
 
     await expect(
-      service.create('01ZZZZZZZZZZZZZZZZZZZZZZZZ', {
+      service.create('01ZZZZZZZZZZZZZZZZZZZZZZZZ', USER_ID, {
         values: [{ criterionId: 1, type: 'text', value: 'Pixel' }],
       }),
     ).rejects.toThrow(NotFoundException);
@@ -168,7 +171,7 @@ describe('EntriesService', () => {
 
   it('rejects empty built-in name values', async () => {
     await expect(
-      service.create(PUBLIC_ID, {
+      service.create(PUBLIC_ID, USER_ID, {
         values: [{ criterionId: 1, type: 'text', value: '   ' }],
       }),
     ).rejects.toThrow(BadRequestException);
@@ -176,7 +179,7 @@ describe('EntriesService', () => {
 
   it('requires the built-in name value when creating an entry', async () => {
     await expect(
-      service.create(PUBLIC_ID, {
+      service.create(PUBLIC_ID, USER_ID, {
         values: [{ criterionId: 2, type: 'number', value: 999 }],
       }),
     ).rejects.toThrow(BadRequestException);
@@ -193,7 +196,7 @@ describe('EntriesService', () => {
       ],
     });
 
-    const result = await service.update(PUBLIC_ID, 10, {
+    const result = await service.update(PUBLIC_ID, USER_ID, 10, {
       values: [{ criterionId: 1, type: 'text', value: 'Pixel 8' }],
     });
 
@@ -213,7 +216,7 @@ describe('EntriesService', () => {
   });
 
   it('returns all entry values for an entry', async () => {
-    const result = await service.findAllValues(PUBLIC_ID, 10);
+    const result = await service.findAllValues(PUBLIC_ID, USER_ID, 10);
 
     expect(entryValueFindMany).toHaveBeenCalledWith({
       where: {
@@ -231,7 +234,7 @@ describe('EntriesService', () => {
   });
 
   it('upserts a single entry value for a criterion', async () => {
-    const result = await service.upsertValue(PUBLIC_ID, 10, 1, {
+    const result = await service.upsertValue(PUBLIC_ID, USER_ID, 10, 1, {
       type: 'text',
       value: 'Pixel 8',
     });
@@ -257,7 +260,7 @@ describe('EntriesService', () => {
       },
     ]);
 
-    await service.upsertValue(PUBLIC_ID, 10, 2, {
+    await service.upsertValue(PUBLIC_ID, USER_ID, 10, 2, {
       type: 'number',
       value: 999,
     });
@@ -283,7 +286,7 @@ describe('EntriesService', () => {
     ]);
 
     await expect(
-      service.upsertValue(PUBLIC_ID, 10, 2, {
+      service.upsertValue(PUBLIC_ID, USER_ID, 10, 2, {
         type: 'text',
         value: '999',
       }),
@@ -304,7 +307,7 @@ describe('EntriesService', () => {
       },
     ]);
 
-    await service.upsertValue(PUBLIC_ID, 10, 3, {
+    await service.upsertValue(PUBLIC_ID, USER_ID, 10, 3, {
       type: 'rating',
       value: 4,
     });
@@ -330,7 +333,7 @@ describe('EntriesService', () => {
     ]);
 
     await expect(
-      service.upsertValue(PUBLIC_ID, 10, 3, {
+      service.upsertValue(PUBLIC_ID, USER_ID, 10, 3, {
         type: 'rating',
         value: 6,
       }),
@@ -351,7 +354,7 @@ describe('EntriesService', () => {
       },
     ]);
 
-    await service.upsertValue(PUBLIC_ID, 10, 4, {
+    await service.upsertValue(PUBLIC_ID, USER_ID, 10, 4, {
       type: 'enum',
       value: 'Black',
     });
@@ -377,7 +380,7 @@ describe('EntriesService', () => {
     ]);
 
     await expect(
-      service.upsertValue(PUBLIC_ID, 10, 4, {
+      service.upsertValue(PUBLIC_ID, USER_ID, 10, 4, {
         type: 'enum',
         value: 'Red',
       }),
@@ -388,7 +391,7 @@ describe('EntriesService', () => {
   it('returns NotFoundException when deleting a missing entry value', async () => {
     entryValueFindFirst.mockResolvedValueOnce(null);
 
-    await expect(service.removeValue(PUBLIC_ID, 10, 2)).rejects.toThrow(
+    await expect(service.removeValue(PUBLIC_ID, USER_ID, 10, 2)).rejects.toThrow(
       NotFoundException,
     );
     expect(entryValueDelete).not.toHaveBeenCalled();

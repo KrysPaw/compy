@@ -11,10 +11,11 @@ import { resolveComparisonId } from './resolve-comparison-id.js';
 export class ComparisonsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  public async getByPublicId(publicId: string) {
-    const comparison = await this.prisma.comparison.findUnique({
+  public async getByPublicId(publicId: string, userId: number) {
+    const comparison = await this.prisma.comparison.findFirst({
       where: {
         publicId,
+        ownerId: userId,
       },
       include: {
         criteria: {
@@ -32,19 +33,31 @@ export class ComparisonsService {
       throw new NotFoundException();
     }
 
+    await this.prisma.comparison.update({
+      where: { id: comparison.id },
+      data: { lastActiveAt: new Date() },
+    });
+
     return comparison;
   }
 
-  public getAll() {
+  public getAll(userId: number) {
     return this.prisma.comparison.findMany({
+      where: {
+        ownerId: userId,
+      },
       orderBy: {
         updatedAt: 'desc',
       },
     });
   }
 
-  public async update(publicId: string, data: UpdateComparisonInput) {
-    const id = await resolveComparisonId(this.prisma, publicId);
+  public async update(
+    publicId: string,
+    userId: number,
+    data: UpdateComparisonInput,
+  ) {
+    const id = await resolveComparisonId(this.prisma, publicId, userId);
 
     return this.prisma.comparison.update({
       where: { id },
@@ -52,18 +65,21 @@ export class ComparisonsService {
     });
   }
 
-  public async remove(publicId: string) {
-    const id = await resolveComparisonId(this.prisma, publicId);
+  public async remove(publicId: string, userId: number) {
+    const id = await resolveComparisonId(this.prisma, publicId, userId);
 
     return this.prisma.comparison.delete({ where: { id } });
   }
 
-  public createComparison(data: CreateComparisonInput) {
+  public createComparison(data: CreateComparisonInput, userId: number) {
     return this.prisma.$transaction(async (transaction) => {
+      const now = new Date();
       const comparison = await transaction.comparison.create({
         data: {
           name: data.name,
           publicId: ulid(),
+          ownerId: userId,
+          lastActiveAt: now,
         },
       });
 

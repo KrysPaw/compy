@@ -6,6 +6,7 @@ import { setupSwagger } from './docs/swagger.js';
 export function configureApp(app: INestApplication) {
   app.enableCors({
     origin: process.env.WEB_ORIGIN ?? 'http://localhost:3001',
+    credentials: true,
   });
   setupSwagger(app);
 }

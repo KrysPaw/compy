@@ -6,14 +6,42 @@ export type ComparisonSummary = {
   name: string;
 };
 
+let sessionCookie: string | undefined;
+
+async function ensureGuestSession(): Promise<string> {
+  if (sessionCookie !== undefined) {
+    return sessionCookie;
+  }
+
+  const response = await fetch(`${E2E_API_URL}/auth/guest`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error(`ensureGuestSession failed with status ${response.status}`);
+  }
+
+  const setCookie = response.headers.get('set-cookie');
+  if (setCookie === null) {
+    const body = (await response.json()) as { token: string };
+    sessionCookie = `compy_session=${encodeURIComponent(body.token)}`;
+  } else {
+    sessionCookie = setCookie.split(';')[0] ?? setCookie;
+  }
+
+  return sessionCookie;
+}
+
 async function api<T>(
   path: string,
   init?: RequestInit,
 ): Promise<{ status: number; body: T }> {
+  const cookie = await ensureGuestSession();
   const response = await fetch(`${E2E_API_URL}${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      Cookie: cookie,
       ...(init?.headers ?? {}),
     },
   });
@@ -59,7 +87,7 @@ export async function deleteComparison(publicId: string): Promise<void> {
   }
 }
 
-/** Clears all comparisons so each test can seed a known DB state. */
+/** Clears comparisons owned by the current e2e guest session. */
 export async function resetComparisons(): Promise<void> {
   const comparisons = await listComparisons();
   await Promise.all(

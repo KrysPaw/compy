@@ -6,10 +6,12 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CriteriaService } from './criteria.service.js';
 
 const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+const USER_ID = 42;
 
 describe('CriteriaService', () => {
   let service: CriteriaService;
-  const comparisonFindUnique = vi.fn().mockResolvedValue({ id: 1 });
+  const comparisonFindFirst = vi.fn().mockResolvedValue({ id: 1 });
+  const comparisonUpdate = vi.fn().mockResolvedValue({ id: 1 });
   const criterionCreate = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
   const criterionFindMany = vi.fn().mockResolvedValue([
     { id: 1, comparisonId: 1, name: 'name', is_key: true },
@@ -36,7 +38,7 @@ describe('CriteriaService', () => {
   const criterionDelete = vi.fn().mockResolvedValue({ id: 2, name: 'Price' });
   const transactionCriterionUpdate = vi.fn();
   const prisma = {
-    comparison: { findUnique: comparisonFindUnique },
+    comparison: { findFirst: comparisonFindFirst, update: comparisonUpdate },
     criterion: {
       create: criterionCreate,
       findMany: criterionFindMany,
@@ -72,10 +74,10 @@ describe('CriteriaService', () => {
       is_comparable: true,
     };
 
-    await service.create(PUBLIC_ID, criterion);
+    await service.create(PUBLIC_ID, USER_ID, criterion);
 
-    expect(comparisonFindUnique).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID },
+    expect(comparisonFindFirst).toHaveBeenCalledWith({
+      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
       select: { id: true },
     });
     expect(criterionCreate).toHaveBeenCalledWith({
@@ -91,10 +93,10 @@ describe('CriteriaService', () => {
   });
 
   it('throws NotFoundException when the comparison does not exist', async () => {
-    comparisonFindUnique.mockResolvedValueOnce(null);
+    comparisonFindFirst.mockResolvedValueOnce(null);
 
     await expect(
-      service.create('01ZZZZZZZZZZZZZZZZZZZZZZZZ', {
+      service.create('01ZZZZZZZZZZZZZZZZZZZZZZZZ', USER_ID, {
         name: 'Price',
         type: 'number',
         is_comparable: true,
@@ -104,7 +106,7 @@ describe('CriteriaService', () => {
   });
 
   it('allows a custom criterion to use the same display name as the built-in criterion', async () => {
-    await service.create(PUBLIC_ID, {
+    await service.create(PUBLIC_ID, USER_ID, {
       name: 'name',
       type: 'text',
       is_comparable: false,
@@ -123,10 +125,10 @@ describe('CriteriaService', () => {
   });
 
   it('returns all criteria for a comparison', async () => {
-    const result = await service.findAll(PUBLIC_ID);
+    const result = await service.findAll(PUBLIC_ID, USER_ID);
 
-    expect(comparisonFindUnique).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID },
+    expect(comparisonFindFirst).toHaveBeenCalledWith({
+      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
       select: { id: true },
     });
     expect(criterionFindMany).toHaveBeenCalledWith({
@@ -140,7 +142,7 @@ describe('CriteriaService', () => {
   });
 
   it('updates a custom criterion name', async () => {
-    const result = await service.update(PUBLIC_ID, 2, { name: 'Updated price' });
+    const result = await service.update(PUBLIC_ID, USER_ID, 2, { name: 'Updated price' });
 
     expect(criterionUpdate).toHaveBeenCalledWith({
       where: { id: 2, comparisonId: 1 },
@@ -161,7 +163,7 @@ describe('CriteriaService', () => {
       { id: 2, weight: 10, is_comparable: true },
     ]);
 
-    const result = await service.update(PUBLIC_ID, 2, {
+    const result = await service.update(PUBLIC_ID, USER_ID, 2, {
       weight: 25,
       ruleConfig: { direction: 'lower' },
     });
@@ -187,7 +189,7 @@ describe('CriteriaService', () => {
       { id: 3, weight: 60, is_comparable: true },
     ]);
 
-    await expect(service.update(PUBLIC_ID, 2, { weight: 41 })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, USER_ID, 2, { weight: 41 })).rejects.toThrow(
       BadRequestException,
     );
     expect(criterionUpdate).not.toHaveBeenCalled();
@@ -205,7 +207,7 @@ describe('CriteriaService', () => {
       weight: 0,
     });
 
-    await expect(service.update(PUBLIC_ID, 1, { weight: 10 })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, USER_ID, 1, { weight: 10 })).rejects.toThrow(
       BadRequestException,
     );
     expect(criterionFindMany).not.toHaveBeenCalled();
@@ -214,7 +216,7 @@ describe('CriteriaService', () => {
 
   it('rejects rule config that does not match the criterion type', async () => {
     await expect(
-      service.update(PUBLIC_ID, 2, {
+      service.update(PUBLIC_ID, USER_ID, 2, {
         ruleConfig: { preferredValue: true },
       }),
     ).rejects.toThrow(BadRequestException);
@@ -232,7 +234,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(PUBLIC_ID, 1, {
+      service.update(PUBLIC_ID, USER_ID, 1, {
         ruleConfig: { direction: 'higher' },
       }),
     ).rejects.toThrow(BadRequestException);
@@ -250,7 +252,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(PUBLIC_ID, 3, {
+      service.update(PUBLIC_ID, USER_ID, 3, {
         ruleConfig: {
           tiers: [
             { rank: 1, values: ['Petrol'] },
@@ -273,7 +275,7 @@ describe('CriteriaService', () => {
     });
 
     await expect(
-      service.update(PUBLIC_ID, 3, {
+      service.update(PUBLIC_ID, USER_ID, 3, {
         ruleConfig: {
           tiers: [
             { rank: 1, values: ['Petrol'] },
@@ -305,7 +307,7 @@ describe('CriteriaService', () => {
   it('throws NotFoundException when updating a missing criterion', async () => {
     criterionFindFirst.mockResolvedValueOnce(null);
 
-    await expect(service.update(PUBLIC_ID, 999, { name: 'Missing' })).rejects.toThrow(
+    await expect(service.update(PUBLIC_ID, USER_ID, 999, { name: 'Missing' })).rejects.toThrow(
       NotFoundException,
     );
     expect(criterionUpdate).not.toHaveBeenCalled();
@@ -330,7 +332,7 @@ describe('CriteriaService', () => {
         is_key: true,
       });
 
-    const result = await service.update(PUBLIC_ID, 1, { name: 'Entry name' });
+    const result = await service.update(PUBLIC_ID, USER_ID, 1, { name: 'Entry name' });
 
     expect(result).toEqual({
       id: 2,
@@ -340,7 +342,7 @@ describe('CriteriaService', () => {
       ruleConfig: { direction: 'lower' },
       is_key: false,
     });
-    await expect(service.remove(PUBLIC_ID, 1)).rejects.toThrow(BadRequestException);
+    await expect(service.remove(PUBLIC_ID, USER_ID, 1)).rejects.toThrow(BadRequestException);
     expect(criterionUpdate).toHaveBeenCalledWith({
       where: { id: 1, comparisonId: 1 },
       data: { name: 'Entry name' },
@@ -357,7 +359,7 @@ describe('CriteriaService', () => {
         { id: 4, weight: 0 },
       ]);
 
-    const result = await service.replaceWeights(PUBLIC_ID, {
+    const result = await service.replaceWeights(PUBLIC_ID, USER_ID, {
       weights: [
         { criterionId: 2, weight: 100 },
         { criterionId: 3, weight: 0 },
@@ -396,7 +398,7 @@ describe('CriteriaService', () => {
     criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
 
     await expect(
-      service.replaceWeights(PUBLIC_ID, {
+      service.replaceWeights(PUBLIC_ID, USER_ID, {
         weights: [{ criterionId: 2, weight: 100 }],
       }),
     ).rejects.toThrow(BadRequestException);
@@ -406,7 +408,7 @@ describe('CriteriaService', () => {
 
   it('rejects weights that do not sum to 100', async () => {
     await expect(
-      service.replaceWeights(PUBLIC_ID, {
+      service.replaceWeights(PUBLIC_ID, USER_ID, {
         weights: [
           { criterionId: 2, weight: 40 },
           { criterionId: 3, weight: 40 },
@@ -421,7 +423,7 @@ describe('CriteriaService', () => {
     criterionFindMany.mockResolvedValueOnce([{ id: 2 }, { id: 3 }]);
 
     await expect(
-      service.replaceWeights(PUBLIC_ID, {
+      service.replaceWeights(PUBLIC_ID, USER_ID, {
         weights: [
           { criterionId: 2, weight: 50 },
           { criterionId: 1, weight: 50 },
