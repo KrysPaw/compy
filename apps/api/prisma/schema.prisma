@@ -38,6 +38,22 @@ model Session {
   expiresAt DateTime
 }
 
+model MagicLinkToken {
+  id         Int       @id @default(autoincrement())
+  token      String    @unique
+  email      String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  consumedAt DateTime?
+}
+
+model OAuthState {
+  id        String   @id
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
 model Comparison {
   id           Int         @id @default(autoincrement())
   publicId     String      @unique

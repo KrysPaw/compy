@@ -2,7 +2,9 @@ import { z } from 'zod';
 import {
   ComparisonDetailsResponseSchema,
   ComparisonResponseSchema,
+  PrincipalResponseSchema,
   type ComparisonResponse,
+  type PrincipalResponse,
 } from '@compy/shared';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import { apiFetch } from './api-fetch';
@@ -41,4 +43,12 @@ export async function getComparisonByPublicId(
   publicId: string,
 ): Promise<ComparisonDetailsResponse | null> {
   return fetchJson(`/comparisons/${publicId}`, ComparisonDetailsResponseSchema);
+}
+
+export async function getCurrentPrincipal(): Promise<PrincipalResponse | null> {
+  try {
+    return await fetchJson('/auth/me', PrincipalResponseSchema);
+  } catch {
+    return null;
+  }
 }

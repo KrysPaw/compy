@@ -1,8 +1,25 @@
-import { Controller, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  RequestMagicLinkSchema,
+  VerifyMagicLinkSchema,
+  type RequestMagicLinkInput,
+  type VerifyMagicLinkInput,
+} from '@compy/shared';
 import type { Response } from 'express';
+import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import { AuthService } from './auth.service.js';
-import { buildSessionCookie } from './session-auth.guard.js';
+import { CurrentPrincipal } from './current-principal.decorator.js';
+import { buildSessionCookie, SessionAuthGuard } from './session-auth.guard.js';
+import type { Principal } from './session.constants.js';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -28,5 +45,89 @@ export class AuthController {
       expiresAt: created.expiresAt.toISOString(),
       principal: created.principal,
     };
+  }
+
+  @Get('me')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: 'Return the current session principal' })
+  public async me(@CurrentPrincipal() principal: Principal) {
+    return this.authService.getPrincipalProfile(principal);
+  }
+
+  @Post('magic-link')
+  @ApiOperation({ summary: 'Email a passwordless sign-in link' })
+  public async requestMagicLink(
+    @Body(new ZodValidationPipe(RequestMagicLinkSchema))
+    body: RequestMagicLinkInput,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    response.status(200);
+    return this.authService.requestMagicLink(body.email);
+  }
+
+  @Post('magic-link/verify')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: 'Verify a magic link and claim guest data' })
+  public async verifyMagicLink(
+    @Body(new ZodValidationPipe(VerifyMagicLinkSchema))
+    body: VerifyMagicLinkInput,
+    @CurrentPrincipal() principal: Principal,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const guestUserId = principal.kind === 'guest' ? principal.id : null;
+    const session = await this.authService.verifyMagicLink(
+      body.token,
+      guestUserId,
+    );
+
+    response.setHeader(
+      'Set-Cookie',
+      buildSessionCookie(session.token, session.expiresAt),
+    );
+    response.status(200);
+
+    return {
+      token: session.token,
+      expiresAt: session.expiresAt.toISOString(),
+      principal: session.principal,
+    };
+  }
+
+  @Get('google/start')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: 'Build a Google OAuth redirect URL for this session' })
+  public async startGoogle(@CurrentPrincipal() principal: Principal) {
+    return this.authService.startGoogleOAuth(principal.id);
+  }
+
+  @Get('google/callback')
+  @ApiOperation({ summary: 'Google OAuth callback; redirects to the web app' })
+  public async googleCallback(
+    @Query('code') code: string | undefined,
+    @Query('state') state: string | undefined,
+    @Res() response: Response,
+  ) {
+    const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:3001';
+
+    if (
+      code === undefined ||
+      code.length === 0 ||
+      state === undefined ||
+      state.length === 0
+    ) {
+      response.redirect(`${webOrigin}/auth/error?reason=missing_params`);
+      return;
+    }
+
+    try {
+      const session = await this.authService.completeGoogleOAuth(code, state);
+      const params = new URLSearchParams({
+        token: session.token,
+        expiresAt: session.expiresAt.toISOString(),
+      });
+      response.redirect(`${webOrigin}/auth/session?${params.toString()}`);
+    } catch {
+      response.redirect(`${webOrigin}/auth/error?reason=oauth_failed`);
+    }
   }
 }

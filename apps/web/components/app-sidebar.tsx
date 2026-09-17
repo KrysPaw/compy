@@ -4,7 +4,7 @@ import { SidebarLogo } from '@/components/sidebar-logo';
 import { SidebarComparisonsMenu } from '@/components/sidebar-comparisons-menu';
 import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { getComparisons } from '@/lib/api';
+import { getComparisons, getCurrentPrincipal } from '@/lib/api';
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ export async function AppSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const t = await getTranslations('sidebar');
   const comparisons = await getComparisons();
+  const principal = await getCurrentPrincipal();
 
   return (
     <Sidebar {...props}>
@@ -37,6 +38,11 @@ export async function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        {principal?.kind === 'registered' && principal.displayName ? (
+          <p className="px-2 text-xs text-muted-foreground">
+            {principal.displayName}
+          </p>
+        ) : null}
         <LanguageSwitcher />
       </SidebarFooter>
       <SidebarRail />

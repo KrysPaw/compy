@@ -75,9 +75,32 @@ describe('API (e2e)', () => {
     createGuestSession: vi.fn().mockResolvedValue({
       token: 'guest-token',
       expiresAt: new Date('2027-01-01T00:00:00.000Z'),
-      principal: { id: USER_ID, kind: 'guest' },
+      principal: { id: USER_ID, kind: 'guest', email: null, displayName: null },
     }),
     resolvePrincipal: vi.fn().mockResolvedValue(null),
+    getPrincipalProfile: vi.fn().mockResolvedValue({
+      id: USER_ID,
+      kind: 'guest',
+      email: null,
+      displayName: null,
+    }),
+    requestMagicLink: vi.fn().mockResolvedValue({
+      ok: true,
+      devMagicLinkUrl: 'http://localhost:3001/auth/verify?token=magic',
+    }),
+    verifyMagicLink: vi.fn().mockResolvedValue({
+      token: 'registered-token',
+      expiresAt: new Date('2027-01-01T00:00:00.000Z'),
+      principal: {
+        id: USER_ID,
+        kind: 'registered',
+        email: 'ada@example.com',
+        displayName: 'ada',
+      },
+    }),
+    startGoogleOAuth: vi.fn().mockResolvedValue({
+      url: 'https://accounts.google.com/o/oauth2/v2/auth?state=abc',
+    }),
   };
 
   beforeAll(async () => {
@@ -101,7 +124,13 @@ describe('API (e2e)', () => {
     authService.createGuestSession.mockResolvedValue({
       token: 'guest-token',
       expiresAt: new Date('2027-01-01T00:00:00.000Z'),
-      principal: { id: USER_ID, kind: 'guest' },
+      principal: { id: USER_ID, kind: 'guest', email: null, displayName: null },
+    });
+    authService.getPrincipalProfile.mockResolvedValue({
+      id: USER_ID,
+      kind: 'guest',
+      email: null,
+      displayName: null,
     });
   });
 
@@ -120,7 +149,7 @@ describe('API (e2e)', () => {
     expect(response.body).toEqual(
       expect.objectContaining({
         token: 'guest-token',
-        principal: { id: USER_ID, kind: 'guest' },
+        principal: expect.objectContaining({ id: USER_ID, kind: 'guest' }),
       }),
     );
     expect(response.headers['set-cookie'][0]).toContain('compy_session=');
@@ -209,6 +238,44 @@ describe('API (e2e)', () => {
     expect(response.body.openapi).toBe('3.0.0');
     expect(response.body.paths['/comparisons']).toBeDefined();
     expect(response.body.paths['/auth/guest']).toBeDefined();
+    expect(response.body.paths['/auth/magic-link']).toBeDefined();
+    expect(response.body.paths['/auth/google/start']).toBeDefined();
+  });
+
+  it('requests a magic link', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/magic-link')
+      .send({ email: 'ada@example.com' })
+      .expect(200);
+
+    expect(authService.requestMagicLink).toHaveBeenCalledWith('ada@example.com');
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        ok: true,
+        devMagicLinkUrl: expect.stringContaining('/auth/verify?token='),
+      }),
+    );
+  });
+
+  it('verifies a magic link for the current guest session', async () => {
+    authService.resolvePrincipal.mockResolvedValueOnce({
+      id: USER_ID,
+      kind: 'guest',
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/magic-link/verify')
+      .send({ token: 'magic' })
+      .expect(200);
+
+    expect(authService.verifyMagicLink).toHaveBeenCalledWith('magic', USER_ID);
+    expect(response.body.principal).toEqual(
+      expect.objectContaining({
+        kind: 'registered',
+        email: 'ada@example.com',
+      }),
+    );
+    expect(response.headers['set-cookie'][0]).toContain('compy_session=');
   });
 
   it('allows the configured web origin through CORS with credentials', async () => {

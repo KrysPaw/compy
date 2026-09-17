@@ -32,6 +32,26 @@
     "myComparisons": "My Comparisons",
     "newComparison": "New comparison"
   },
+  "auth": {
+    "signIn": "Sign in",
+    "title": "Keep your comparisons",
+    "description": "Sign in to keep data across devices and beyond the guest retention window.",
+    "guestBanner": "You’re browsing as a guest. Sign in to keep comparisons across devices and longer than two weeks.",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "emailMeALink": "Email me a link",
+    "sending": "Sending…",
+    "magicLinkSent": "Check your email for a sign-in link.",
+    "devLink": "Dev link",
+    "verifyFailedTitle": "Sign-in link invalid",
+    "verifyFailedBody": "This link is invalid or has expired. Request a new one from the app.",
+    "errorTitle": "Sign-in failed",
+    "errorBody": "Something went wrong while signing in. Try again from the app.",
+    "oauthUnavailable": "Google sign-in is not configured on this server.",
+    "backHome": "Back home"
+  },
   "tabs": {
     "criteria": "Criteria",
     "entries": "Entries",
@@ -208,6 +228,9 @@
     "failedToUpdateRule": "Failed to update rule",
     "failedToDeleteComparison": "Failed to delete comparison",
     "failedToUpdateName": "Failed to update name",
-    "failedToDeleteCriterion": "Failed to delete criterion"
+    "failedToDeleteCriterion": "Failed to delete criterion",
+    "failedToSendMagicLink": "Failed to send sign-in link",
+    "failedToVerifyMagicLink": "Failed to verify sign-in link",
+    "invalidEmail": "Invalid email"
   }
 }

@@ -6,13 +6,18 @@ import {
   ComparisonResponseSchema,
   CreateCriterionSchema,
   CreateEntrySchema,
+  RequestMagicLinkSchema,
+  SessionResponseSchema,
   UpdateComparisonSchema,
   UpdateCriterionSchema,
   UpdateEntrySchema,
   ReplaceCriterionWeightsSchema,
+  VerifyMagicLinkSchema,
 } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
+import { cookies } from 'next/headers';
 import { apiFetch } from './api-fetch';
+import { SESSION_COOKIE_NAME } from './session';
 
 const CriterionResponseSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -36,10 +41,24 @@ async function errorMessage(
     | 'failedToUpdateRule'
     | 'failedToDeleteComparison'
     | 'failedToUpdateName'
-    | 'failedToDeleteCriterion',
+    | 'failedToDeleteCriterion'
+    | 'failedToSendMagicLink'
+    | 'failedToVerifyMagicLink'
+    | 'invalidEmail',
 ) {
   const t = await getTranslations('errors');
   return t(key);
+}
+
+async function setSessionCookie(token: string, expiresAt: string) {
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    expires: new Date(expiresAt),
+  });
 }
 
 export type CreateComparisonState = {
@@ -459,4 +478,73 @@ export async function deleteCriterion(
   }
 
   return {};
+}
+
+export type RequestMagicLinkState = {
+  error?: string;
+  sent?: boolean;
+  devMagicLinkUrl?: string;
+};
+
+export async function requestMagicLink(
+  formData: FormData,
+): Promise<RequestMagicLinkState> {
+  const parsed = RequestMagicLinkSchema.safeParse({
+    email: formData.get('email'),
+  });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidEmail')),
+    };
+  }
+
+  const res = await apiFetch('/auth/magic-link', {
+    method: 'POST',
+    body: JSON.stringify(parsed.data),
+  });
+
+  if (!res.ok) {
+    return { error: await errorMessage('failedToSendMagicLink') };
+  }
+
+  const body = (await res.json()) as {
+    ok?: boolean;
+    devMagicLinkUrl?: string;
+  };
+
+  return {
+    sent: true,
+    ...(body.devMagicLinkUrl !== undefined
+      ? { devMagicLinkUrl: body.devMagicLinkUrl }
+      : {}),
+  };
+}
+
+export type VerifyMagicLinkState = {
+  error?: string;
+  ok?: boolean;
+};
+
+export async function verifyMagicLink(
+  token: string,
+): Promise<VerifyMagicLinkState> {
+  const parsed = VerifyMagicLinkSchema.safeParse({ token });
+
+  if (!parsed.success) {
+    return { error: await errorMessage('failedToVerifyMagicLink') };
+  }
+
+  const res = await apiFetch('/auth/magic-link/verify', {
+    method: 'POST',
+    body: JSON.stringify(parsed.data),
+  });
+
+  if (!res.ok) {
+    return { error: await errorMessage('failedToVerifyMagicLink') };
+  }
+
+  const session = SessionResponseSchema.parse(await res.json());
+  await setSessionCookie(session.token, session.expiresAt);
+  return { ok: true };
 }

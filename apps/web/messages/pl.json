@@ -32,6 +32,26 @@
     "myComparisons": "Moje porównania",
     "newComparison": "Nowe porównanie"
   },
+  "auth": {
+    "signIn": "Zaloguj się",
+    "title": "Zachowaj swoje porównania",
+    "description": "Zaloguj się, aby zachować dane między urządzeniami i dłużej niż przez okno gościa.",
+    "guestBanner": "Przeglądasz jako gość. Zaloguj się, aby zachować porównania między urządzeniami i dłużej niż dwa tygodnie.",
+    "continueWithGoogle": "Kontynuuj z Google",
+    "or": "lub",
+    "email": "E-mail",
+    "emailPlaceholder": "ty@przyklad.pl",
+    "emailMeALink": "Wyślij mi link",
+    "sending": "Wysyłanie…",
+    "magicLinkSent": "Sprawdź e-mail z linkiem do logowania.",
+    "devLink": "Link deweloperski",
+    "verifyFailedTitle": "Link logowania jest nieprawidłowy",
+    "verifyFailedBody": "Ten link jest nieprawidłowy lub wygasł. Poproś o nowy w aplikacji.",
+    "errorTitle": "Logowanie nie powiodło się",
+    "errorBody": "Coś poszło nie tak podczas logowania. Spróbuj ponownie z aplikacji.",
+    "oauthUnavailable": "Logowanie przez Google nie jest skonfigurowane na tym serwerze.",
+    "backHome": "Wróć do strony głównej"
+  },
   "tabs": {
     "criteria": "Kryteria",
     "entries": "Warianty",
@@ -208,6 +228,9 @@
     "failedToUpdateRule": "Nie udało się zaktualizować reguły",
     "failedToDeleteComparison": "Nie udało się usunąć porównania",
     "failedToUpdateName": "Nie udało się zaktualizować nazwy",
-    "failedToDeleteCriterion": "Nie udało się usunąć kryterium"
+    "failedToDeleteCriterion": "Nie udało się usunąć kryterium",
+    "failedToSendMagicLink": "Nie udało się wysłać linku logowania",
+    "failedToVerifyMagicLink": "Nie udało się zweryfikować linku logowania",
+    "invalidEmail": "Nieprawidłowy e-mail"
   }
 }
