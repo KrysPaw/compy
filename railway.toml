@@ -1,0 +1,6 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+# Intentionally omit deploy.startCommand and deploy.releaseCommand so Railway
+# uses the Dockerfile CMD (`npm run start:migrate`: prisma migrate deploy then listen).
