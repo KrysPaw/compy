@@ -67,7 +67,7 @@ describe('createComparison', () => {
       expect.stringMatching(/\/comparisons$/),
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ name: 'Phones' }),
+        body: JSON.stringify({ name: 'Phones', keyCriterionName: 'name' }),
       }),
     );
   });

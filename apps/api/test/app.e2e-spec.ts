@@ -202,6 +202,23 @@ describe('API (e2e)', () => {
     });
   });
 
+  it('creates a comparison with a custom key criterion name', async () => {
+    await request(app.getHttpServer())
+      .post('/comparisons')
+      .send({ name: 'Phones', keyCriterionName: 'nazwa' })
+      .expect(201);
+
+    expect(criterionCreate).toHaveBeenCalledWith({
+      data: {
+        comparisonId: 1,
+        name: 'nazwa',
+        type: 'text',
+        is_comparable: false,
+        is_key: true,
+      },
+    });
+  });
+
   it('rejects an invalid comparison body', async () => {
     const response = await request(app.getHttpServer())
       .post('/comparisons')

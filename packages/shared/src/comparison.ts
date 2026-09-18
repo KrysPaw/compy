@@ -9,6 +9,7 @@ import { CriterionWeightSchema } from "./criterion.js";
 
 export const CreateComparisonSchema = z.object({
   name: NameSchema,
+  keyCriterionName: OptionalNameSchema,
 });
 export type CreateComparisonInput = z.infer<typeof CreateComparisonSchema>;
 

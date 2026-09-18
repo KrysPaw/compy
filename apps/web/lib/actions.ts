@@ -16,11 +16,12 @@ import {
   ReplaceCriterionWeightsSchema,
   VerifyMagicLinkSchema,
 } from '@compy/shared';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { apiFetch } from './api-fetch';
+import { defaultKeyCriterionName } from './default-key-criterion-name';
 import { SESSION_COOKIE_NAME } from './session';
 
 const CriterionResponseSchema = z.object({
@@ -83,6 +84,7 @@ export async function createComparison(
 ): Promise<CreateComparisonState> {
   const parsed = CreateComparisonSchema.safeParse({
     name: formData.get('name'),
+    keyCriterionName: defaultKeyCriterionName(await getLocale()),
   });
 
   if (!parsed.success) {

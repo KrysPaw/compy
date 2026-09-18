@@ -137,6 +137,23 @@ describe('ComparisonsService', () => {
     expect(result).toEqual(createdComparison);
   });
 
+  it('creates the key criterion with a provided keyCriterionName', async () => {
+    await service.createComparison(
+      { name: 'Phones', keyCriterionName: 'nazwa' },
+      USER_ID,
+    );
+
+    expect(criterionCreate).toHaveBeenCalledWith({
+      data: {
+        comparisonId: comparison.id,
+        name: 'nazwa',
+        type: 'text',
+        is_comparable: false,
+        is_key: true,
+      },
+    });
+  });
+
   it('returns only comparisons owned by or granted to the caller', async () => {
     const result = await service.getAll(USER_ID);
 
