@@ -6,6 +6,7 @@ import {
   HttpCode,
   Post,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -16,12 +17,16 @@ import {
   type RequestMagicLinkInput,
   type VerifyMagicLinkInput,
 } from '@compy/shared';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe.js';
 import { AuthService } from './auth.service.js';
 import { CurrentPrincipal } from './current-principal.decorator.js';
-import { buildSessionCookie, SessionAuthGuard } from './session-auth.guard.js';
-import type { Principal } from './session.constants.js';
+import {
+  buildSessionCookie,
+  readCookie,
+  SessionAuthGuard,
+} from './session-auth.guard.js';
+import { SESSION_COOKIE_NAME, type Principal } from './session.constants.js';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -72,6 +77,40 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     await this.authService.deleteAccount(principal.id);
+    const created = await this.authService.createGuestSession();
+
+    response.setHeader(
+      'Set-Cookie',
+      buildSessionCookie(created.token, created.expiresAt),
+    );
+
+    return {
+      token: created.token,
+      expiresAt: created.expiresAt.toISOString(),
+      principal: created.principal,
+    };
+  }
+
+  @Post('logout')
+  @UseGuards(SessionAuthGuard)
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'End the current session and return a fresh guest session cookie',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Current session ended; new guest session issued.',
+  })
+  public async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const token = readCookie(request.headers.cookie, SESSION_COOKIE_NAME);
+    if (token !== undefined) {
+      await this.authService.logoutCurrentSession(token);
+    }
+
     const created = await this.authService.createGuestSession();
 
     response.setHeader(

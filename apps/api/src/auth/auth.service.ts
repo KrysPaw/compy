@@ -139,6 +139,15 @@ export class AuthService {
     await this.prisma.user.delete({ where: { id: userId } });
   }
 
+  /** Ends only the given session token; other sessions for the user stay valid. */
+  public async logoutCurrentSession(token: string): Promise<void> {
+    if (token.length === 0) {
+      return;
+    }
+
+    await this.prisma.session.deleteMany({ where: { token } });
+  }
+
   public async requestMagicLink(
     email: string,
     locale: MagicLinkMailLocale = 'en',

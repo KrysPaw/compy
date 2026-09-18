@@ -53,7 +53,8 @@ async function errorMessage(
     | 'failedToInvite'
     | 'failedToApplyForAccess'
     | 'failedToReviewAccessRequest'
-    | 'failedToDeleteAccount',
+    | 'failedToDeleteAccount'
+    | 'failedToLogout',
 ) {
   const t = await getTranslations('errors');
   return t(key);
@@ -686,6 +687,25 @@ export async function deleteAccount(): Promise<DeleteAccountState> {
 
   if (!res.ok) {
     return { error: await errorMessage('failedToDeleteAccount') };
+  }
+
+  const session = SessionResponseSchema.parse(await res.json());
+  await setSessionCookie(session.token, session.expiresAt);
+  revalidatePath('/');
+  redirect('/');
+}
+
+export type LogoutState = {
+  error?: string;
+};
+
+export async function logout(): Promise<LogoutState> {
+  const res = await apiFetch('/auth/logout', {
+    method: 'POST',
+  });
+
+  if (!res.ok) {
+    return { error: await errorMessage('failedToLogout') };
   }
 
   const session = SessionResponseSchema.parse(await res.json());

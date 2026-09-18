@@ -1,11 +1,11 @@
 ---
 name: plan-and-clarify
-description: "Use when the user wants a plan before implementation, or attaches /plan-and-clarify. Clarify open points with questions first, check answers against the current codebase for contradictions, then produce an implementation plan—split into phases when the work is large. Do not implement until the user accepts the plan."
+description: "Use when the user wants a plan before implementation, or attaches /plan-and-clarify. Clarify open points with questions first, check answers against the current codebase for contradictions, then produce an implementation plan—split into phases when the work is large. Do not implement until the user accepts the plan; then hand off to implement-and-explain."
 ---
 
 # Plan and Clarify
 
-Turn a user request into a concrete implementation plan. **Do not implement** while this skill is active unless the user explicitly accepts the plan and asks to execute it.
+Turn a user request into a concrete implementation plan. **Do not implement** while this skill is active. When the user accepts the plan and asks to execute it, **stop following this skill** and follow `.agents/skills/implement-and-explain/SKILL.md` for the implementation.
 
 ## Workflow
 
@@ -61,7 +61,7 @@ For phased plans:
 
 - Present the plan and wait for the user to accept, revise, or reject.
 - On revision requests, update the plan (and re-clarify if new contradictions appear). Do not implement yet.
-- Implement only when the user clearly asks to execute the accepted plan (or hands off to another skill such as `implement-and-explain`).
+- When the user clearly asks to execute the accepted plan: read and follow `implement-and-explain` (`.agents/skills/implement-and-explain/SKILL.md`). Do not implement under this skill alone.
 
 ## Question quality
 
@@ -94,7 +94,7 @@ For phased work, nest **Approach** as `Phase 1`, `Phase 2`, … each with goal, 
 
 ## Boundaries
 
-- Clarifying questions first; plan second; implementation only after acceptance.
+- Clarifying questions first; plan second; implementation only after acceptance via `implement-and-explain`.
 - Never ignore contradictions between answers and the codebase.
 - Never expand scope beyond the request and confirmed answers.
 - Do not edit the plan file the user attached unless they ask; produce or update the plan they will review.

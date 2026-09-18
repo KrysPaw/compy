@@ -4,7 +4,7 @@ import { AuthService } from './auth.service.js';
 import type { RequestWithPrincipal } from './current-principal.decorator.js';
 import { SESSION_COOKIE_NAME } from './session.constants.js';
 
-function readCookie(header: string | undefined, name: string): string | undefined {
+export function readCookie(header: string | undefined, name: string): string | undefined {
   if (header === undefined || header.length === 0) {
     return undefined;
   }

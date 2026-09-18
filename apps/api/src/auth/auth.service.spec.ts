@@ -331,6 +331,23 @@ describe('AuthService', () => {
     expect(userDelete).not.toHaveBeenCalled();
   });
 
+  it('deletes only the current session token', async () => {
+    sessionDeleteMany.mockResolvedValueOnce({ count: 1 });
+
+    await service.logoutCurrentSession('current-token');
+
+    expect(sessionDeleteMany).toHaveBeenCalledWith({
+      where: { token: 'current-token' },
+    });
+    expect(sessionDeleteMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('is a no-op when logout is called with an empty token', async () => {
+    await service.logoutCurrentSession('');
+
+    expect(sessionDeleteMany).not.toHaveBeenCalled();
+  });
+
   it('derives display names from the email local-part', () => {
     expect(displayNameFromEmail('ada.lovelace@example.com')).toBe('ada.lovelace');
   });

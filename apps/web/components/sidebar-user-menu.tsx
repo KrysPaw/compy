@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { CheckIcon, ChevronUpIcon, LanguagesIcon, LogInIcon, Trash2Icon } from 'lucide-react';
+import { CheckIcon, ChevronUpIcon, LanguagesIcon, LogInIcon, LogOutIcon, Trash2Icon } from 'lucide-react';
 import {
   localeCookieSetter,
   locales,
@@ -11,6 +11,7 @@ import {
 } from '@/i18n/config';
 import { DeleteAccountDialog } from '@/components/delete-account-dialog';
 import { SignInDialog } from '@/components/sign-in-dialog';
+import { logout } from '@/lib/actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,13 +109,23 @@ export function SidebarUserMenu({ kind, displayName }: SidebarUserMenuProps) {
                   {tAuth('signIn')}
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => setActiveDialog('deleteAccount')}
-                >
-                  <Trash2Icon />
-                  {tAuth('deleteAccount')}
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      void logout();
+                    }}
+                  >
+                    <LogOutIcon />
+                    {tAuth('logout')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => setActiveDialog('deleteAccount')}
+                  >
+                    <Trash2Icon />
+                    {tAuth('deleteAccount')}
+                  </DropdownMenuItem>
+                </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>

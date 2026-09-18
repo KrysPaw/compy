@@ -101,6 +101,8 @@ describe('API (e2e)', () => {
     startGoogleOAuth: vi.fn().mockResolvedValue({
       url: 'https://accounts.google.com/o/oauth2/v2/auth?state=abc',
     }),
+    logoutCurrentSession: vi.fn().mockResolvedValue(undefined),
+    deleteAccount: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeAll(async () => {
@@ -270,6 +272,41 @@ describe('API (e2e)', () => {
     expect(response.body.paths['/auth/guest']).toBeDefined();
     expect(response.body.paths['/auth/magic-link']).toBeDefined();
     expect(response.body.paths['/auth/google/start']).toBeDefined();
+    expect(response.body.paths['/auth/logout']).toBeDefined();
+  });
+
+  it('logs out the current session and issues a new guest cookie', async () => {
+    authService.resolvePrincipal.mockResolvedValueOnce({
+      id: USER_ID,
+      kind: 'registered',
+    });
+    authService.createGuestSession.mockResolvedValueOnce({
+      token: 'new-guest-token',
+      expiresAt: new Date('2027-01-01T00:00:00.000Z'),
+      principal: {
+        id: 99,
+        kind: 'guest',
+        email: null,
+        displayName: null,
+      },
+    });
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Cookie', 'compy_session=registered-token')
+      .expect(200);
+
+    expect(authService.logoutCurrentSession).toHaveBeenCalledWith(
+      'registered-token',
+    );
+    expect(authService.createGuestSession).toHaveBeenCalled();
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        token: 'new-guest-token',
+        principal: expect.objectContaining({ id: 99, kind: 'guest' }),
+      }),
+    );
+    expect(response.headers['set-cookie'][0]).toContain('compy_session=');
   });
 
   it('requests a magic link', async () => {

@@ -55,6 +55,7 @@
     "errorBody": "Something went wrong while signing in. Try again from the app.",
     "oauthUnavailable": "Google sign-in is not configured on this server.",
     "backHome": "Back home",
+    "logout": "Log out",
     "deleteAccount": "Delete account",
     "deleteAccountTitle": "Delete your account?",
     "deleteAccountDescription": "This permanently deletes your account and all comparisons you own. This cannot be undone.",
@@ -266,6 +267,7 @@
     "failedToInvite": "Failed to invite user",
     "failedToApplyForAccess": "Failed to apply for access",
     "failedToReviewAccessRequest": "Failed to update access request",
-    "failedToDeleteAccount": "Failed to delete account"
+    "failedToDeleteAccount": "Failed to delete account",
+    "failedToLogout": "Failed to log out"
   }
 }

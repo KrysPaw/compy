@@ -5,12 +5,12 @@ Move items into a feature plan or `REMAINING.md` when they become real work.
 
 ## Open
 
-- Add logout
 - Make app responsive for mobile
 - Refactor dialogs
 
 ## Done
 
+- Add logout
 - Refactor sidebar bottom section
 - Add shared comparisons list below "My comparisons" in UI
 - Translate mail content for different languages
