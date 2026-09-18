@@ -31,7 +31,10 @@
   "sidebar": {
     "myComparisons": "My Comparisons",
     "sharedComparisons": "Shared with me",
-    "newComparison": "New comparison"
+    "newComparison": "New comparison",
+    "guest": "Guest",
+    "account": "Account",
+    "language": "Language"
   },
   "auth": {
     "signIn": "Sign in",

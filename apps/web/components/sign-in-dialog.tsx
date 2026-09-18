@@ -19,15 +19,23 @@ import {
 
 type SignInDialogProps = {
   trigger?: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export function SignInDialog({ trigger }: SignInDialogProps) {
+export function SignInDialog({
+  trigger,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+}: SignInDialogProps) {
   const t = useTranslations('auth');
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [sent, setSent] = useState(false);
   const [devMagicLinkUrl, setDevMagicLinkUrl] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : uncontrolledOpen;
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -46,7 +54,10 @@ export function SignInDialog({ trigger }: SignInDialogProps) {
   }
 
   function handleOpenChange(next: boolean) {
-    setOpen(next);
+    if (!isControlled) {
+      setUncontrolledOpen(next);
+    }
+    onOpenChangeProp?.(next);
     if (!next) {
       setError(undefined);
       setSent(false);
@@ -54,11 +65,15 @@ export function SignInDialog({ trigger }: SignInDialogProps) {
     }
   }
 
+  const showTrigger = !isControlled || trigger !== undefined;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger ?? <Button variant="outline">{t('signIn')}</Button>}
-      </DialogTrigger>
+      {showTrigger ? (
+        <DialogTrigger asChild>
+          {trigger ?? <Button variant="outline">{t('signIn')}</Button>}
+        </DialogTrigger>
+      ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>

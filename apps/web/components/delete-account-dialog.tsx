@@ -11,16 +11,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 
 type DeleteAccountDialogProps = {
-  displayName: string | null | undefined;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-export function DeleteAccountDialog({ displayName }: DeleteAccountDialogProps) {
+export function DeleteAccountDialog({
+  open,
+  onOpenChange,
+}: DeleteAccountDialogProps) {
   const t = useTranslations('auth');
-  const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
 
@@ -35,49 +37,39 @@ export function DeleteAccountDialog({ displayName }: DeleteAccountDialogProps) {
   }
 
   function handleOpenChange(next: boolean) {
-    setOpen(next);
+    onOpenChange(next);
     if (!next) {
       setError(undefined);
     }
   }
 
   return (
-    <div className="flex flex-col gap-1 px-2">
-      {displayName ? (
-        <p className="text-xs text-muted-foreground">{displayName}</p>
-      ) : null}
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-auto justify-start px-0 text-xs text-destructive">
-            {t('deleteAccount')}
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('deleteAccountTitle')}</DialogTitle>
+          <DialogDescription>{t('deleteAccountDescription')}</DialogDescription>
+        </DialogHeader>
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+            disabled={isPending}
+          >
+            {t('cancel')}
           </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('deleteAccountTitle')}</DialogTitle>
-            <DialogDescription>{t('deleteAccountDescription')}</DialogDescription>
-          </DialogHeader>
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isPending}
-            >
-              {t('cancel')}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isPending}
-            >
-              {isPending ? t('deletingAccount') : t('confirmDeleteAccount')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            {isPending ? t('deletingAccount') : t('confirmDeleteAccount')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
