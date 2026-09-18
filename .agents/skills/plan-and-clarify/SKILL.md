@@ -1,11 +1,19 @@
 ---
 name: plan-and-clarify
-description: "Use when the user wants a plan before implementation, or attaches /plan-and-clarify. Clarify open points with questions first, check answers against the current codebase for contradictions, then produce an implementation plan—split into phases when the work is large. Do not implement until the user accepts the plan; then hand off to implement-and-explain."
+description: "Use when the user wants a plan before implementation, or attaches /plan-and-clarify. Switch into Cursor Plan mode, clarify open points with questions first, check answers against the current codebase for contradictions, then produce an implementation plan—split into phases when the work is large. Do not implement until the user accepts the plan; then hand off to implement-and-explain in Agent mode."
 ---
 
 # Plan and Clarify
 
 Turn a user request into a concrete implementation plan. **Do not implement** while this skill is active. When the user accepts the plan and asks to execute it, **stop following this skill** and follow `.agents/skills/implement-and-explain/SKILL.md` for the implementation.
+
+## Mode
+
+- **As soon as this skill starts**, switch to Cursor **Plan mode** (`SwitchMode` with `target_mode_id: "plan"`). Briefly explain that planning/clarification runs in Plan mode (read-only; no code edits).
+- Stay in Plan mode for the whole clarify → plan → acceptance loop.
+- **Do not** edit application code, configs, or docs for the feature under plan while in this skill—Plan mode is for design and questions only.
+- When the user clearly asks to **execute** the accepted plan: switch to **Agent mode** (`SwitchMode` with `target_mode_id: "agent"`), then read and follow `implement-and-explain`. If `SwitchMode` is unavailable, tell the user to switch to Agent mode manually before implementation.
+- If already in Plan mode when the skill attaches, do not switch again; continue the workflow.
 
 ## Workflow
 
@@ -61,7 +69,7 @@ For phased plans:
 
 - Present the plan and wait for the user to accept, revise, or reject.
 - On revision requests, update the plan (and re-clarify if new contradictions appear). Do not implement yet.
-- When the user clearly asks to execute the accepted plan: read and follow `implement-and-explain` (`.agents/skills/implement-and-explain/SKILL.md`). Do not implement under this skill alone.
+- When the user clearly asks to execute the accepted plan: switch to Agent mode (see **Mode**), then read and follow `implement-and-explain` (`.agents/skills/implement-and-explain/SKILL.md`). Do not implement under this skill alone.
 
 ## Question quality
 
@@ -94,7 +102,8 @@ For phased work, nest **Approach** as `Phase 1`, `Phase 2`, … each with goal, 
 
 ## Boundaries
 
-- Clarifying questions first; plan second; implementation only after acceptance via `implement-and-explain`.
+- Run clarify/plan in **Plan mode**; implement only after acceptance via **Agent mode** + `implement-and-explain`.
+- Clarifying questions first; plan second; no feature implementation under this skill.
 - Never ignore contradictions between answers and the codebase.
 - Never expand scope beyond the request and confirmed answers.
 - Do not edit the plan file the user attached unless they ask; produce or update the plan they will review.
