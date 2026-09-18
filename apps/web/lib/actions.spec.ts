@@ -15,6 +15,7 @@ import {
   deleteCriterion,
   deleteEntry,
   replaceCriterionWeights,
+  requestMagicLink,
   updateComparisonName,
   updateCriterionName,
   updateCriterionRuleConfig,
@@ -529,5 +530,27 @@ describe('deleteCriterion', () => {
     await expect(deleteCriterion(SAMPLE_PUBLIC_ID, 1)).resolves.toEqual({
       error: 'Key criterion cannot be deleted.',
     });
+  });
+});
+
+describe('requestMagicLink', () => {
+  it('posts email and locale from the current UI', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const formData = new FormData();
+    formData.set('email', 'user@example.com');
+
+    await expect(requestMagicLink(formData)).resolves.toEqual({ sent: true });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/auth\/magic-link$/),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'user@example.com',
+          locale: 'en',
+        }),
+      }),
+    );
   });
 });

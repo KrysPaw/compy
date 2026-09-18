@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const RequestMagicLinkSchema = z.object({
   email: z.string().trim().email().max(320),
+  locale: z.enum(['en', 'pl']).optional().default('en'),
 });
 export type RequestMagicLinkInput = z.infer<typeof RequestMagicLinkSchema>;
 

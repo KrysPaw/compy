@@ -501,6 +501,7 @@ export async function requestMagicLink(
 ): Promise<RequestMagicLinkState> {
   const parsed = RequestMagicLinkSchema.safeParse({
     email: formData.get('email'),
+    locale: await getLocale(),
   });
 
   if (!parsed.success) {

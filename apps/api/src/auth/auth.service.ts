@@ -10,6 +10,10 @@ import {
   SESSION_TTL_MS,
   type Principal,
 } from './session.constants.js';
+import {
+  magicLinkMailCopy,
+  type MagicLinkMailLocale,
+} from './magic-link-mail.js';
 
 const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
 const OAUTH_STATE_TTL_MS = 10 * 60 * 1000;
@@ -135,7 +139,10 @@ export class AuthService {
     await this.prisma.user.delete({ where: { id: userId } });
   }
 
-  public async requestMagicLink(email: string): Promise<{
+  public async requestMagicLink(
+    email: string,
+    locale: MagicLinkMailLocale = 'en',
+  ): Promise<{
     ok: true;
     devMagicLinkUrl?: string;
   }> {
@@ -154,7 +161,7 @@ export class AuthService {
     const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:3001';
     const magicLinkUrl = `${webOrigin}/auth/verify?token=${encodeURIComponent(token)}`;
 
-    await this.deliverMagicLink(normalizedEmail, magicLinkUrl);
+    await this.deliverMagicLink(normalizedEmail, magicLinkUrl, locale);
 
     const includeDevUrl =
       process.env.NODE_ENV !== 'production' ||
@@ -508,9 +515,11 @@ export class AuthService {
   private async deliverMagicLink(
     email: string,
     magicLinkUrl: string,
+    locale: MagicLinkMailLocale,
   ): Promise<void> {
     const apiKey = process.env.RESEND_API_KEY;
     const from = process.env.MAGIC_LINK_FROM_EMAIL ?? 'Compy <onboarding@resend.dev>';
+    const { subject, text } = magicLinkMailCopy(locale, magicLinkUrl);
 
     if (apiKey === undefined || apiKey.length === 0) {
       console.info(`[auth] Magic link for ${email}: ${magicLinkUrl}`);
@@ -526,8 +535,8 @@ export class AuthService {
       body: JSON.stringify({
         from,
         to: [email],
-        subject: 'Sign in to Compy',
-        text: `Open this link to sign in to Compy (expires in 15 minutes):\n\n${magicLinkUrl}\n`,
+        subject,
+        text,
       }),
     });
 

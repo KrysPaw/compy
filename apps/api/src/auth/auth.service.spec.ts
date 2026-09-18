@@ -334,4 +334,36 @@ describe('AuthService', () => {
   it('derives display names from the email local-part', () => {
     expect(displayNameFromEmail('ada.lovelace@example.com')).toBe('ada.lovelace');
   });
+
+  it('sends Polish magic-link copy when locale is pl', async () => {
+    const previousKey = process.env.RESEND_API_KEY;
+    process.env.RESEND_API_KEY = 'test-resend-key';
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    try {
+      await service.requestMagicLink('user@example.com', 'pl');
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://api.resend.com/emails',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"subject":"Zaloguj się do Compy"'),
+        }),
+      );
+      const body = JSON.parse(
+        (fetchMock.mock.calls[0]?.[1] as { body: string }).body,
+      ) as { text: string };
+      expect(body.text).toContain('wygasa za 15 minut');
+    } finally {
+      if (previousKey === undefined) {
+        delete process.env.RESEND_API_KEY;
+      } else {
+        process.env.RESEND_API_KEY = previousKey;
+      }
+      vi.unstubAllGlobals();
+    }
+  });
 });

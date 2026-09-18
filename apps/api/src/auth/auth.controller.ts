@@ -94,7 +94,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     response.status(200);
-    return this.authService.requestMagicLink(body.email);
+    return this.authService.requestMagicLink(body.email, body.locale);
   }
 
   @Post('magic-link/verify')
