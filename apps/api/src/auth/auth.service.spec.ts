@@ -25,6 +25,15 @@ describe('AuthService', () => {
   const userCreate = vi.fn();
   const userDelete = vi.fn();
   const comparisonUpdateMany = vi.fn().mockResolvedValue({ count: 2 });
+  const comparisonGrantFindMany = vi.fn().mockResolvedValue([]);
+  const comparisonGrantFindUnique = vi.fn();
+  const comparisonGrantDelete = vi.fn();
+  const comparisonGrantUpdate = vi.fn();
+  const comparisonGrantDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
+  const accessRequestFindMany = vi.fn().mockResolvedValue([]);
+  const accessRequestFindFirst = vi.fn();
+  const accessRequestDelete = vi.fn();
+  const accessRequestUpdate = vi.fn();
   const magicLinkCreate = vi.fn().mockResolvedValue({});
   const magicLinkFindUnique = vi.fn();
   const magicLinkUpdate = vi.fn();
@@ -35,6 +44,19 @@ describe('AuthService', () => {
     async (callback: (tx: unknown) => Promise<unknown>) =>
       callback({
         comparison: { updateMany: comparisonUpdateMany },
+        comparisonGrant: {
+          findMany: comparisonGrantFindMany,
+          findUnique: comparisonGrantFindUnique,
+          delete: comparisonGrantDelete,
+          update: comparisonGrantUpdate,
+          deleteMany: comparisonGrantDeleteMany,
+        },
+        accessRequest: {
+          findMany: accessRequestFindMany,
+          findFirst: accessRequestFindFirst,
+          delete: accessRequestDelete,
+          update: accessRequestUpdate,
+        },
         session: { deleteMany: sessionDeleteMany },
         user: { delete: userDelete },
       }),
@@ -56,6 +78,19 @@ describe('AuthService', () => {
     },
     comparison: {
       updateMany: comparisonUpdateMany,
+    },
+    comparisonGrant: {
+      findMany: comparisonGrantFindMany,
+      findUnique: comparisonGrantFindUnique,
+      delete: comparisonGrantDelete,
+      update: comparisonGrantUpdate,
+      deleteMany: comparisonGrantDeleteMany,
+    },
+    accessRequest: {
+      findMany: accessRequestFindMany,
+      findFirst: accessRequestFindFirst,
+      delete: accessRequestDelete,
+      update: accessRequestUpdate,
     },
     magicLinkToken: {
       create: magicLinkCreate,
@@ -218,6 +253,18 @@ describe('AuthService', () => {
     expect(comparisonUpdateMany).toHaveBeenCalledWith({
       where: { ownerId: 7 },
       data: { ownerId: 42 },
+    });
+    expect(comparisonGrantFindMany).toHaveBeenCalledWith({
+      where: { userId: 7 },
+    });
+    expect(accessRequestFindMany).toHaveBeenCalledWith({
+      where: { requesterId: 7 },
+    });
+    expect(comparisonGrantDeleteMany).toHaveBeenCalledWith({
+      where: {
+        userId: 42,
+        comparison: { ownerId: 42 },
+      },
     });
     expect(userDelete).toHaveBeenCalledWith({ where: { id: 7 } });
     expect(result.principal.id).toBe(42);

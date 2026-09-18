@@ -3,7 +3,7 @@ import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { RulesDataTable } from '@/components/rules-data-table';
 import { WeightQuestionnaireDialog } from '@/components/weight-questionnaire-dialog';
-import { getComparisonByPublicId } from '@/lib/api';
+import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function RulesPage({
   params,
@@ -16,10 +16,10 @@ export default async function RulesPage({
   }
 
   const publicId = parsed.data;
-  const comparison = await getComparisonByPublicId(publicId);
+  const open = await loadOpenComparison(publicId);
 
-  if (comparison === null) {
-    notFound();
+  if (open === null) {
+    return null;
   }
 
   const t = await getTranslations('pages');
@@ -30,12 +30,12 @@ export default async function RulesPage({
         <p className="text-sm text-muted-foreground">{t('rulesBlurb')}</p>
         <WeightQuestionnaireDialog
           publicId={publicId}
-          criteria={comparison.criteria}
+          criteria={open.comparison.criteria}
         />
       </div>
       <RulesDataTable
         publicId={publicId}
-        criteria={comparison.criteria}
+        criteria={open.comparison.criteria}
       />
     </div>
   );

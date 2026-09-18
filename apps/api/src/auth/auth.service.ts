@@ -354,7 +354,59 @@ export class AuthService {
         data: { ownerId: registeredUserId },
       });
 
-      // Grants / access requests are Phase 3; reassignment hooks go here later.
+      const guestGrants = await tx.comparisonGrant.findMany({
+        where: { userId: guestUserId },
+      });
+      for (const grant of guestGrants) {
+        const existing = await tx.comparisonGrant.findUnique({
+          where: {
+            comparisonId_userId: {
+              comparisonId: grant.comparisonId,
+              userId: registeredUserId,
+            },
+          },
+        });
+        if (existing !== null) {
+          await tx.comparisonGrant.delete({ where: { id: grant.id } });
+        } else {
+          await tx.comparisonGrant.update({
+            where: { id: grant.id },
+            data: { userId: registeredUserId },
+          });
+        }
+      }
+
+      // Owner does not need a grant on their own comparisons after claim.
+      await tx.comparisonGrant.deleteMany({
+        where: {
+          userId: registeredUserId,
+          comparison: { ownerId: registeredUserId },
+        },
+      });
+
+      const guestRequests = await tx.accessRequest.findMany({
+        where: { requesterId: guestUserId },
+      });
+      for (const request of guestRequests) {
+        if (request.status === 'pending') {
+          const existingPending = await tx.accessRequest.findFirst({
+            where: {
+              comparisonId: request.comparisonId,
+              requesterId: registeredUserId,
+              status: 'pending',
+            },
+          });
+          if (existingPending !== null) {
+            await tx.accessRequest.delete({ where: { id: request.id } });
+            continue;
+          }
+        }
+
+        await tx.accessRequest.update({
+          where: { id: request.id },
+          data: { requesterId: registeredUserId },
+        });
+      }
 
       await tx.session.deleteMany({ where: { userId: guestUserId } });
       await tx.user.delete({ where: { id: guestUserId } });

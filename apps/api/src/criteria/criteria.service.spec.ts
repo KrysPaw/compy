@@ -77,7 +77,13 @@ describe('CriteriaService', () => {
     await service.create(PUBLIC_ID, USER_ID, criterion);
 
     expect(comparisonFindFirst).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
+      where: {
+        publicId: PUBLIC_ID,
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       select: { id: true },
     });
     expect(criterionCreate).toHaveBeenCalledWith({
@@ -128,7 +134,13 @@ describe('CriteriaService', () => {
     const result = await service.findAll(PUBLIC_ID, USER_ID);
 
     expect(comparisonFindFirst).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
+      where: {
+        publicId: PUBLIC_ID,
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       select: { id: true },
     });
     expect(criterionFindMany).toHaveBeenCalledWith({

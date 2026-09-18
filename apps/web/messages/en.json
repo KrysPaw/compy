@@ -113,6 +113,27 @@
     "deleteDescription": "This permanently deletes the comparison and all its criteria and entries. Type <name>{comparisonName}</name> to confirm.",
     "nameLabel": "Comparison name"
   },
+  "sharing": {
+    "share": "Share",
+    "shareTitle": "Share comparison",
+    "shareDescription": "Invite a registered user by email, or review people who applied via the link.",
+    "inviteEmail": "Email",
+    "inviteEmailPlaceholder": "colleague@example.com",
+    "invite": "Invite",
+    "inviting": "Inviting…",
+    "inviteSent": "Access granted.",
+    "pendingRequests": "Pending requests",
+    "noPendingRequests": "No pending requests.",
+    "accept": "Accept",
+    "reject": "Reject",
+    "lockedTitle": "This comparison is private",
+    "lockedDescription": "You don’t have access yet. Apply and the owner can accept or reject your request.",
+    "displayName": "Your name",
+    "message": "Message (optional)",
+    "apply": "Apply for access",
+    "applying": "Sending…",
+    "applySent": "Request sent. You’ll get access after the owner accepts."
+  },
   "criterionActions": {
     "menuLabel": "{name} actions",
     "rename": "Rename",
@@ -231,6 +252,9 @@
     "failedToDeleteCriterion": "Failed to delete criterion",
     "failedToSendMagicLink": "Failed to send sign-in link",
     "failedToVerifyMagicLink": "Failed to verify sign-in link",
-    "invalidEmail": "Invalid email"
+    "invalidEmail": "Invalid email",
+    "failedToInvite": "Failed to invite user",
+    "failedToApplyForAccess": "Failed to apply for access",
+    "failedToReviewAccessRequest": "Failed to update access request"
   }
 }

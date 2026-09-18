@@ -4,7 +4,8 @@ import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ComparisonActionsMenu } from '@/components/comparison-actions-menu';
 import { ComparisonTabs } from '@/components/comparison-tabs';
-import { getComparisonByPublicId } from '@/lib/api';
+import { LockedComparison } from '@/components/locked-comparison';
+import { loadComparisonAccess, loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function ComparisonLayout({
   children,
@@ -18,9 +19,24 @@ export default async function ComparisonLayout({
   }
 
   const publicId = parsed.data;
-  const comparison = await getComparisonByPublicId(publicId);
+  const access = await loadComparisonAccess(publicId);
 
-  if (comparison === null) {
+  if (access === null) {
+    notFound();
+  }
+
+  if (access.status === 'locked') {
+    return (
+      <>
+        <LockedComparison publicId={publicId} />
+        {children}
+      </>
+    );
+  }
+
+  const open = await loadOpenComparison(publicId);
+
+  if (open === null) {
     notFound();
   }
 
@@ -32,12 +48,14 @@ export default async function ComparisonLayout({
           orientation="vertical"
           className="mr-2 data-vertical:h-4 data-vertical:self-auto"
         />
-        <div>{comparison.name}</div>
+        <div>{open.comparison.name}</div>
         <ComparisonTabs publicId={publicId} />
         <div className="ml-auto">
           <ComparisonActionsMenu
             publicId={publicId}
-            comparisonName={comparison.name}
+            comparisonName={open.comparison.name}
+            isOwner={open.access.role === 'owner'}
+            pendingRequests={open.pendingRequests}
           />
         </div>
       </header>

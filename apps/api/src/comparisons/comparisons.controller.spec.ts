@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { SessionAuthGuard } from '../auth/session-auth.guard.js';
 import { ComparisonsController } from './comparisons.controller.js';
 import { ComparisonsService } from './comparisons.service.js';
+import { SharingService } from './sharing.service.js';
 
 const PUBLIC_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
 const PRINCIPAL = { id: 42, kind: 'guest' as const };
@@ -36,6 +37,10 @@ describe('ComparisonsController', () => {
         {
           provide: ComparisonsService,
           useValue: { createComparison, getAll, getByPublicId, update, remove },
+        },
+        {
+          provide: SharingService,
+          useValue: {},
         },
       ],
     })

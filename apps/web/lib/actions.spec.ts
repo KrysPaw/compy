@@ -499,7 +499,7 @@ describe('updateCriterionName', () => {
       ),
     );
 
-    await expect(updateCriterionName(7, 3, 'Price')).resolves.toEqual({
+    await expect(updateCriterionName(SAMPLE_PUBLIC_ID, 3, 'Price')).resolves.toEqual({
       error: 'Name already exists',
     });
   });

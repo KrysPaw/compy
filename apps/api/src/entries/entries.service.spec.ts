@@ -139,7 +139,13 @@ describe('EntriesService', () => {
     });
 
     expect(comparisonFindFirst).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
+      where: {
+        publicId: PUBLIC_ID,
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       select: { id: true },
     });
     expect(criterionFindMany).toHaveBeenCalledWith({

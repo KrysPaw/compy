@@ -3,8 +3,10 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-react';
+import { EllipsisIcon, PencilIcon, Share2Icon, Trash2Icon } from 'lucide-react';
+import type { AccessRequestResponse } from '@compy/shared';
 import { deleteComparison, updateComparisonName } from '@/lib/actions';
+import { ShareComparisonDialog } from '@/components/share-comparison-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -26,13 +28,17 @@ import { Label } from '@/components/ui/label';
 type ComparisonActionsMenuProps = {
   publicId: string;
   comparisonName: string;
+  isOwner: boolean;
+  pendingRequests: AccessRequestResponse[];
 };
 
-type ActiveDialog = 'rename' | 'delete' | null;
+type ActiveDialog = 'rename' | 'delete' | 'share' | null;
 
 export function ComparisonActionsMenu({
   publicId,
   comparisonName,
+  isOwner,
+  pendingRequests,
 }: ComparisonActionsMenuProps) {
   const router = useRouter();
   const t = useTranslations();
@@ -102,13 +108,21 @@ export function ComparisonActionsMenu({
             <PencilIcon />
             {t('comparisonActions.rename')}
           </DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onSelect={() => setActiveDialog('delete')}
-          >
-            <Trash2Icon />
-            {t('common.delete')}
-          </DropdownMenuItem>
+          {isOwner ? (
+            <DropdownMenuItem onSelect={() => setActiveDialog('share')}>
+              <Share2Icon />
+              {t('sharing.share')}
+            </DropdownMenuItem>
+          ) : null}
+          {isOwner ? (
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setActiveDialog('delete')}
+            >
+              <Trash2Icon />
+              {t('common.delete')}
+            </DropdownMenuItem>
+          ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -148,6 +162,21 @@ export function ComparisonActionsMenu({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {isOwner ? (
+        <ShareComparisonDialog
+          publicId={publicId}
+          open={activeDialog === 'share'}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeDialog();
+            } else {
+              setActiveDialog('share');
+            }
+          }}
+          pendingRequests={pendingRequests}
+        />
+      ) : null}
 
       <Dialog
         open={activeDialog === 'delete'}

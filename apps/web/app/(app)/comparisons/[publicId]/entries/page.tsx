@@ -3,7 +3,7 @@ import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { ComparisonDataTable } from '@/components/comparison-data-table';
 import { CreateEntryDialog } from '@/components/create-entry-dialog';
-import { getComparisonByPublicId } from '@/lib/api';
+import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function EntriesPage({
   params,
@@ -16,10 +16,10 @@ export default async function EntriesPage({
   }
 
   const publicId = parsed.data;
-  const comparison = await getComparisonByPublicId(publicId);
+  const open = await loadOpenComparison(publicId);
 
-  if (comparison === null) {
-    notFound();
+  if (open === null) {
+    return null;
   }
 
   const t = await getTranslations('pages');
@@ -30,13 +30,13 @@ export default async function EntriesPage({
         <p className="text-sm text-muted-foreground">{t('entriesBlurb')}</p>
         <CreateEntryDialog
           publicId={publicId}
-          criteria={comparison.criteria}
+          criteria={open.comparison.criteria}
         />
       </div>
       <ComparisonDataTable
         publicId={publicId}
-        criteria={comparison.criteria}
-        entries={comparison.entries}
+        criteria={open.comparison.criteria}
+        entries={open.comparison.entries}
       />
     </div>
   );

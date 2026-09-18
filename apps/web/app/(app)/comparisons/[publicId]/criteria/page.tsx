@@ -3,7 +3,7 @@ import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { CriteriaDataTable } from '@/components/criteria-data-table';
 import { CreateCriterionDialog } from '@/components/create-criterion-dialog';
-import { getComparisonByPublicId } from '@/lib/api';
+import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function CriteriaPage({
   params,
@@ -16,10 +16,10 @@ export default async function CriteriaPage({
   }
 
   const publicId = parsed.data;
-  const comparison = await getComparisonByPublicId(publicId);
+  const open = await loadOpenComparison(publicId);
 
-  if (comparison === null) {
-    notFound();
+  if (open === null) {
+    return null;
   }
 
   const t = await getTranslations('pages');
@@ -32,7 +32,7 @@ export default async function CriteriaPage({
       </div>
       <CriteriaDataTable
         publicId={publicId}
-        criteria={comparison.criteria}
+        criteria={open.comparison.criteria}
       />
     </div>
   );

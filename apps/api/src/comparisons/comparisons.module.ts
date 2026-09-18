@@ -3,6 +3,7 @@ import { AuthModule } from '../auth/auth.module.js';
 import { ComparisonsController } from './comparisons.controller.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ComparisonsService } from './comparisons.service.js';
+import { SharingService } from './sharing.service.js';
 import { CriteriaService } from '../criteria/criteria.service.js';
 import { CriteriaController } from '../criteria/criteria.controller.js';
 import { EntriesController } from '../entries/entries.controller.js';
@@ -13,10 +14,10 @@ import { EntriesService } from '../entries/entries.service.js';
   controllers: [ComparisonsController, CriteriaController, EntriesController],
   providers: [
     ComparisonsService,
+    SharingService,
     CriteriaService,
     EntriesService,
     PrismaService,
   ],
 })
 export class ComparisonsModule {}
-

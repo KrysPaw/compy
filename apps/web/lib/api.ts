@@ -1,8 +1,12 @@
 import { z } from 'zod';
 import {
+  AccessRequestResponseSchema,
+  ComparisonAccessStatusSchema,
   ComparisonDetailsResponseSchema,
   ComparisonResponseSchema,
   PrincipalResponseSchema,
+  type AccessRequestResponse,
+  type ComparisonAccessStatus,
   type ComparisonResponse,
   type PrincipalResponse,
 } from '@compy/shared';
@@ -43,6 +47,22 @@ export async function getComparisonByPublicId(
   publicId: string,
 ): Promise<ComparisonDetailsResponse | null> {
   return fetchJson(`/comparisons/${publicId}`, ComparisonDetailsResponseSchema);
+}
+
+export async function getComparisonAccess(
+  publicId: string,
+): Promise<ComparisonAccessStatus | null> {
+  return fetchJson(`/comparisons/${publicId}/access`, ComparisonAccessStatusSchema);
+}
+
+export async function getPendingAccessRequests(
+  publicId: string,
+): Promise<AccessRequestResponse[]> {
+  const requests = await fetchJson(
+    `/comparisons/${publicId}/access-requests`,
+    AccessRequestResponseSchema.array(),
+  );
+  return requests ?? [];
 }
 
 export async function getCurrentPrincipal(): Promise<PrincipalResponse | null> {

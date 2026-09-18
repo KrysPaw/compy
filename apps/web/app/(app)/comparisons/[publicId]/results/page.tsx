@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { rankEntries } from '@compy/shared';
 import { ResultsConfigAlert } from '@/components/results-config-alert';
 import { ResultsDataTable } from '@/components/results-data-table';
-import { getComparisonByPublicId } from '@/lib/api';
+import { loadOpenComparison } from '@/lib/load-comparison';
 import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
 
 export default async function ResultsPage({
@@ -18,12 +18,13 @@ export default async function ResultsPage({
   }
 
   const publicId = parsed.data;
-  const comparison = await getComparisonByPublicId(publicId);
+  const open = await loadOpenComparison(publicId);
 
-  if (comparison === null) {
-    notFound();
+  if (open === null) {
+    return null;
   }
 
+  const comparison = open.comparison;
   const ranked = rankEntries(comparison.criteria, comparison.entries);
   const infoColumns = resultsInfoColumns(comparison.criteria);
   const rows = buildResultsRows(comparison, ranked, infoColumns);

@@ -2,10 +2,12 @@
 
 import { z } from 'zod';
 import {
+  CreateAccessRequestSchema,
   CreateComparisonSchema,
   ComparisonResponseSchema,
   CreateCriterionSchema,
   CreateEntrySchema,
+  InviteByEmailSchema,
   RequestMagicLinkSchema,
   SessionResponseSchema,
   UpdateComparisonSchema,
@@ -44,7 +46,10 @@ async function errorMessage(
     | 'failedToDeleteCriterion'
     | 'failedToSendMagicLink'
     | 'failedToVerifyMagicLink'
-    | 'invalidEmail',
+    | 'invalidEmail'
+    | 'failedToInvite'
+    | 'failedToApplyForAccess'
+    | 'failedToReviewAccessRequest',
 ) {
   const t = await getTranslations('errors');
   return t(key);
@@ -546,5 +551,120 @@ export async function verifyMagicLink(
 
   const session = SessionResponseSchema.parse(await res.json());
   await setSessionCookie(session.token, session.expiresAt);
+  return { ok: true };
+}
+
+export type InviteByEmailState = {
+  error?: string;
+  ok?: boolean;
+};
+
+export async function inviteByEmail(
+  publicId: string,
+  email: string,
+): Promise<InviteByEmailState> {
+  const parsed = InviteByEmailSchema.safeParse({ email });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidEmail')),
+    };
+  }
+
+  const res = await apiFetch(`/comparisons/${publicId}/invites`, {
+    method: 'POST',
+    body: JSON.stringify(parsed.data),
+  });
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(res, await errorMessage('failedToInvite')),
+    };
+  }
+
+  return { ok: true };
+}
+
+export type ApplyForAccessState = {
+  error?: string;
+  ok?: boolean;
+};
+
+export async function applyForAccess(
+  publicId: string,
+  formData: FormData,
+): Promise<ApplyForAccessState> {
+  const parsed = CreateAccessRequestSchema.safeParse({
+    displayName: formData.get('displayName'),
+    message: formData.get('message') || undefined,
+  });
+
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? (await errorMessage('invalidInput')),
+    };
+  }
+
+  const res = await apiFetch(`/comparisons/${publicId}/access-requests`, {
+    method: 'POST',
+    body: JSON.stringify(parsed.data),
+  });
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToApplyForAccess'),
+      ),
+    };
+  }
+
+  return { ok: true };
+}
+
+export type ReviewAccessRequestState = {
+  error?: string;
+  ok?: boolean;
+};
+
+export async function acceptAccessRequest(
+  publicId: string,
+  requestId: number,
+): Promise<ReviewAccessRequestState> {
+  const res = await apiFetch(
+    `/comparisons/${publicId}/access-requests/${requestId}/accept`,
+    { method: 'POST' },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToReviewAccessRequest'),
+      ),
+    };
+  }
+
+  return { ok: true };
+}
+
+export async function rejectAccessRequest(
+  publicId: string,
+  requestId: number,
+): Promise<ReviewAccessRequestState> {
+  const res = await apiFetch(
+    `/comparisons/${publicId}/access-requests/${requestId}/reject`,
+    { method: 'POST' },
+  );
+
+  if (!res.ok) {
+    return {
+      error: await readApiErrorMessage(
+        res,
+        await errorMessage('failedToReviewAccessRequest'),
+      ),
+    };
+  }
+
   return { ok: true };
 }

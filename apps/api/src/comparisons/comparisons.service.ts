@@ -5,7 +5,11 @@ import type {
 } from '@compy/shared';
 import { ulid } from 'ulid';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { resolveComparisonId } from './resolve-comparison-id.js';
+import {
+  accessibleByUser,
+  resolveComparisonId,
+  resolveOwnedComparisonId,
+} from './resolve-comparison-id.js';
 
 @Injectable()
 export class ComparisonsService {
@@ -15,7 +19,7 @@ export class ComparisonsService {
     const comparison = await this.prisma.comparison.findFirst({
       where: {
         publicId,
-        ownerId: userId,
+        ...accessibleByUser(userId),
       },
       include: {
         criteria: {
@@ -43,9 +47,7 @@ export class ComparisonsService {
 
   public getAll(userId: number) {
     return this.prisma.comparison.findMany({
-      where: {
-        ownerId: userId,
-      },
+      where: accessibleByUser(userId),
       orderBy: {
         updatedAt: 'desc',
       },
@@ -66,7 +68,7 @@ export class ComparisonsService {
   }
 
   public async remove(publicId: string, userId: number) {
-    const id = await resolveComparisonId(this.prisma, publicId, userId);
+    const id = await resolveOwnedComparisonId(this.prisma, publicId, userId);
 
     return this.prisma.comparison.delete({ where: { id } });
   }

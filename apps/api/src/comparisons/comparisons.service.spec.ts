@@ -137,11 +137,16 @@ describe('ComparisonsService', () => {
     expect(result).toEqual(createdComparison);
   });
 
-  it('returns only comparisons owned by the caller', async () => {
+  it('returns only comparisons owned by or granted to the caller', async () => {
     const result = await service.getAll(USER_ID);
 
     expect(comparisonFindMany).toHaveBeenCalledWith({
-      where: { ownerId: USER_ID },
+      where: {
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       orderBy: { updatedAt: 'desc' },
     });
     expect(result).toEqual([createdComparison]);
@@ -151,7 +156,13 @@ describe('ComparisonsService', () => {
     const result = await service.getByPublicId(PUBLIC_ID, USER_ID);
 
     expect(comparisonFindFirst).toHaveBeenCalledWith({
-      where: { publicId: PUBLIC_ID, ownerId: USER_ID },
+      where: {
+        publicId: PUBLIC_ID,
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       include: {
         criteria: {
           orderBy: { createdAt: 'asc' },

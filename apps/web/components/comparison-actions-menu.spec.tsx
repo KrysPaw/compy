@@ -16,7 +16,17 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/lib/actions', () => ({
   deleteComparison: (...args: unknown[]) => deleteComparison(...args),
   updateComparisonName: (...args: unknown[]) => updateComparisonName(...args),
+  inviteByEmail: vi.fn(),
+  acceptAccessRequest: vi.fn(),
+  rejectAccessRequest: vi.fn(),
 }));
+
+const ownerProps = {
+  publicId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  comparisonName: 'Phones 2026',
+  isOwner: true,
+  pendingRequests: [],
+};
 
 describe('ComparisonActionsMenu', () => {
   beforeEach(() => {
@@ -30,12 +40,7 @@ describe('ComparisonActionsMenu', () => {
     const user = userEvent.setup();
     updateComparisonName.mockResolvedValue({});
 
-    render(
-      <ComparisonActionsMenu
-        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        comparisonName="Phones 2026"
-      />,
-    );
+    render(<ComparisonActionsMenu {...ownerProps} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Comparison actions' }),
@@ -63,12 +68,7 @@ describe('ComparisonActionsMenu', () => {
       error: 'Failed to update name',
     });
 
-    render(
-      <ComparisonActionsMenu
-        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        comparisonName="Phones 2026"
-      />,
-    );
+    render(<ComparisonActionsMenu {...ownerProps} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Comparison actions' }),
@@ -87,12 +87,7 @@ describe('ComparisonActionsMenu', () => {
   it('keeps delete disabled until the comparison name is confirmed', async () => {
     const user = userEvent.setup();
 
-    render(
-      <ComparisonActionsMenu
-        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        comparisonName="Phones 2026"
-      />,
-    );
+    render(<ComparisonActionsMenu {...ownerProps} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Comparison actions' }),
@@ -114,12 +109,7 @@ describe('ComparisonActionsMenu', () => {
     const user = userEvent.setup();
     deleteComparison.mockResolvedValue({});
 
-    render(
-      <ComparisonActionsMenu
-        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        comparisonName="Phones 2026"
-      />,
-    );
+    render(<ComparisonActionsMenu {...ownerProps} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Comparison actions' }),
@@ -146,12 +136,7 @@ describe('ComparisonActionsMenu', () => {
       error: 'Failed to delete comparison',
     });
 
-    render(
-      <ComparisonActionsMenu
-        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
-        comparisonName="Phones 2026"
-      />,
-    );
+    render(<ComparisonActionsMenu {...ownerProps} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Comparison actions' }),
