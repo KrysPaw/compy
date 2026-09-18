@@ -111,6 +111,30 @@ export class AuthService {
     return user;
   }
 
+  public async deleteAccount(userId: number): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true },
+    });
+
+    if (user === null) {
+      return;
+    }
+
+    await this.prisma.oAuthState.deleteMany({ where: { userId } });
+
+    if (user.email !== null && user.email.length > 0) {
+      await this.prisma.magicLinkToken.deleteMany({
+        where: {
+          email: user.email,
+          consumedAt: null,
+        },
+      });
+    }
+
+    await this.prisma.user.delete({ where: { id: userId } });
+  }
+
   public async requestMagicLink(email: string): Promise<{
     ok: true;
     devMagicLinkUrl?: string;

@@ -50,7 +50,13 @@
     "errorTitle": "Logowanie nie powiodło się",
     "errorBody": "Coś poszło nie tak podczas logowania. Spróbuj ponownie z aplikacji.",
     "oauthUnavailable": "Logowanie przez Google nie jest skonfigurowane na tym serwerze.",
-    "backHome": "Wróć do strony głównej"
+    "backHome": "Wróć do strony głównej",
+    "deleteAccount": "Usuń konto",
+    "deleteAccountTitle": "Usunąć konto?",
+    "deleteAccountDescription": "To trwale usunie Twoje konto oraz wszystkie porównania, których jesteś właścicielem. Tej operacji nie można cofnąć.",
+    "confirmDeleteAccount": "Usuń konto",
+    "deletingAccount": "Usuwanie…",
+    "cancel": "Anuluj"
   },
   "tabs": {
     "criteria": "Kryteria",
@@ -255,6 +261,7 @@
     "invalidEmail": "Nieprawidłowy e-mail",
     "failedToInvite": "Nie udało się zaprosić użytkownika",
     "failedToApplyForAccess": "Nie udało się wysłać prośby o dostęp",
-    "failedToReviewAccessRequest": "Nie udało się zaktualizować prośby o dostęp"
+    "failedToReviewAccessRequest": "Nie udało się zaktualizować prośby o dostęp",
+    "failedToDeleteAccount": "Nie udało się usunąć konta"
   }
 }

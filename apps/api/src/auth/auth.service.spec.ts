@@ -37,9 +37,11 @@ describe('AuthService', () => {
   const magicLinkCreate = vi.fn().mockResolvedValue({});
   const magicLinkFindUnique = vi.fn();
   const magicLinkUpdate = vi.fn();
+  const magicLinkDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
   const oAuthStateCreate = vi.fn().mockResolvedValue({});
   const oAuthStateFindUnique = vi.fn();
   const oAuthStateDelete = vi.fn();
+  const oAuthStateDeleteMany = vi.fn().mockResolvedValue({ count: 0 });
   const transaction = vi.fn(
     async (callback: (tx: unknown) => Promise<unknown>) =>
       callback({
@@ -96,11 +98,13 @@ describe('AuthService', () => {
       create: magicLinkCreate,
       findUnique: magicLinkFindUnique,
       update: magicLinkUpdate,
+      deleteMany: magicLinkDeleteMany,
     },
     oAuthState: {
       create: oAuthStateCreate,
       findUnique: oAuthStateFindUnique,
       delete: oAuthStateDelete,
+      deleteMany: oAuthStateDeleteMany,
     },
     $transaction: transaction,
   } as unknown as PrismaService;
@@ -283,6 +287,48 @@ describe('AuthService', () => {
     await expect(service.verifyMagicLink('stale', 7)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
+  });
+
+  it('deletes the account and cleans oauth state plus unconsumed magic links', async () => {
+    userFindUnique.mockResolvedValueOnce({
+      id: 42,
+      email: 'ada@example.com',
+    });
+    userDelete.mockResolvedValueOnce({ id: 42 });
+
+    await service.deleteAccount(42);
+
+    expect(oAuthStateDeleteMany).toHaveBeenCalledWith({ where: { userId: 42 } });
+    expect(magicLinkDeleteMany).toHaveBeenCalledWith({
+      where: {
+        email: 'ada@example.com',
+        consumedAt: null,
+      },
+    });
+    expect(userDelete).toHaveBeenCalledWith({ where: { id: 42 } });
+  });
+
+  it('skips magic-link cleanup when the account has no email', async () => {
+    userFindUnique.mockResolvedValueOnce({
+      id: 7,
+      email: null,
+    });
+    userDelete.mockResolvedValueOnce({ id: 7 });
+
+    await service.deleteAccount(7);
+
+    expect(oAuthStateDeleteMany).toHaveBeenCalledWith({ where: { userId: 7 } });
+    expect(magicLinkDeleteMany).not.toHaveBeenCalled();
+    expect(userDelete).toHaveBeenCalledWith({ where: { id: 7 } });
+  });
+
+  it('is a no-op when the user row is already gone', async () => {
+    userFindUnique.mockResolvedValueOnce(null);
+
+    await service.deleteAccount(99);
+
+    expect(oAuthStateDeleteMany).not.toHaveBeenCalled();
+    expect(userDelete).not.toHaveBeenCalled();
   });
 
   it('derives display names from the email local-part', () => {

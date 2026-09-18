@@ -50,7 +50,13 @@
     "errorTitle": "Sign-in failed",
     "errorBody": "Something went wrong while signing in. Try again from the app.",
     "oauthUnavailable": "Google sign-in is not configured on this server.",
-    "backHome": "Back home"
+    "backHome": "Back home",
+    "deleteAccount": "Delete account",
+    "deleteAccountTitle": "Delete your account?",
+    "deleteAccountDescription": "This permanently deletes your account and all comparisons you own. This cannot be undone.",
+    "confirmDeleteAccount": "Delete account",
+    "deletingAccount": "Deleting…",
+    "cancel": "Cancel"
   },
   "tabs": {
     "criteria": "Criteria",
@@ -255,6 +261,7 @@
     "invalidEmail": "Invalid email",
     "failedToInvite": "Failed to invite user",
     "failedToApplyForAccess": "Failed to apply for access",
-    "failedToReviewAccessRequest": "Failed to update access request"
+    "failedToReviewAccessRequest": "Failed to update access request",
+    "failedToDeleteAccount": "Failed to delete account"
   }
 }

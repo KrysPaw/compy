@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Post,
   Query,
   Res,
@@ -52,6 +54,36 @@ export class AuthController {
   @ApiOperation({ summary: 'Return the current session principal' })
   public async me(@CurrentPrincipal() principal: Principal) {
     return this.authService.getPrincipalProfile(principal);
+  }
+
+  @Delete('me')
+  @UseGuards(SessionAuthGuard)
+  @HttpCode(200)
+  @ApiOperation({
+    summary:
+      'Delete the current account and return a fresh guest session cookie',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Account deleted; new guest session issued.',
+  })
+  public async deleteMe(
+    @CurrentPrincipal() principal: Principal,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    await this.authService.deleteAccount(principal.id);
+    const created = await this.authService.createGuestSession();
+
+    response.setHeader(
+      'Set-Cookie',
+      buildSessionCookie(created.token, created.expiresAt),
+    );
+
+    return {
+      token: created.token,
+      expiresAt: created.expiresAt.toISOString(),
+      principal: created.principal,
+    };
   }
 
   @Post('magic-link')

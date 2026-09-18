@@ -17,7 +17,9 @@ import {
   VerifyMagicLinkSchema,
 } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { apiFetch } from './api-fetch';
 import { SESSION_COOKIE_NAME } from './session';
 
@@ -49,7 +51,8 @@ async function errorMessage(
     | 'invalidEmail'
     | 'failedToInvite'
     | 'failedToApplyForAccess'
-    | 'failedToReviewAccessRequest',
+    | 'failedToReviewAccessRequest'
+    | 'failedToDeleteAccount',
 ) {
   const t = await getTranslations('errors');
   return t(key);
@@ -667,4 +670,23 @@ export async function rejectAccessRequest(
   }
 
   return { ok: true };
+}
+
+export type DeleteAccountState = {
+  error?: string;
+};
+
+export async function deleteAccount(): Promise<DeleteAccountState> {
+  const res = await apiFetch('/auth/me', {
+    method: 'DELETE',
+  });
+
+  if (!res.ok) {
+    return { error: await errorMessage('failedToDeleteAccount') };
+  }
+
+  const session = SessionResponseSchema.parse(await res.json());
+  await setSessionCookie(session.token, session.expiresAt);
+  revalidatePath('/');
+  redirect('/');
 }

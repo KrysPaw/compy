@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { SidebarLogo } from '@/components/sidebar-logo';
 import { SidebarComparisonsMenu } from '@/components/sidebar-comparisons-menu';
 import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
+import { DeleteAccountDialog } from '@/components/delete-account-dialog';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { getComparisons, getCurrentPrincipal } from '@/lib/api';
 import {
@@ -38,10 +39,8 @@ export async function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        {principal?.kind === 'registered' && principal.displayName ? (
-          <p className="px-2 text-xs text-muted-foreground">
-            {principal.displayName}
-          </p>
+        {principal?.kind === 'registered' ? (
+          <DeleteAccountDialog displayName={principal.displayName} />
         ) : null}
         <LanguageSwitcher />
       </SidebarFooter>
