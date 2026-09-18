@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useTransition, type ReactNode } from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { requestMagicLink } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -81,14 +80,6 @@ export function SignInDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          <Button asChild variant="outline">
-            <Link href="/auth/google">{t('continueWithGoogle')}</Link>
-          </Button>
-
-          <div className="relative text-center text-xs text-muted-foreground">
-            <span className="bg-background px-2">{t('or')}</span>
-          </div>
-
           {sent ? (
             <div className="flex flex-col gap-2 text-sm">
               <p>{t('magicLinkSent')}</p>
