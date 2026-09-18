@@ -31,6 +31,11 @@ export const ComparisonResponseSchema = z.object({
 });
 export type ComparisonResponse = z.infer<typeof ComparisonResponseSchema>;
 
+export const ComparisonListItemSchema = ComparisonResponseSchema.extend({
+  role: z.enum(["owner", "editor"]),
+});
+export type ComparisonListItem = z.infer<typeof ComparisonListItemSchema>;
+
 const ComparisonCriterionSchema = z.object({
   id: z.coerce.number().int().positive(),
   name: z.string(),

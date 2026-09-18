@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ComparisonResponse } from '@compy/shared';
+import type { ComparisonListItem } from '@compy/shared';
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -12,7 +12,7 @@ import {
 export function SidebarComparisonsMenu({
   comparisons,
 }: {
-  comparisons: ComparisonResponse[];
+  comparisons: ComparisonListItem[];
 }) {
   const pathname = usePathname();
 

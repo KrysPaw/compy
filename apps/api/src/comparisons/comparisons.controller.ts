@@ -43,7 +43,7 @@ export class ComparisonsController {
   @ApiOperation({ summary: 'List comparisons accessible to the caller' })
   @ApiResponse({
     status: 200,
-    description: 'Owned or granted comparisons ordered by most recently updated.',
+    description: 'Owned or granted comparisons with role, ordered by most recently updated.',
   })
   public getComparisons(@CurrentPrincipal() principal: Principal) {
     return this.comparisonsService.getAll(principal.id);

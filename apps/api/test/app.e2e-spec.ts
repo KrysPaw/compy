@@ -156,17 +156,30 @@ describe('API (e2e)', () => {
   });
 
   it('lists comparisons for the session principal', async () => {
+    comparisonFindMany.mockResolvedValueOnce([comparison]);
+
     const response = await request(app.getHttpServer())
       .get('/comparisons')
       .expect(200);
 
     expect(comparisonFindMany).toHaveBeenCalledWith({
-      where: { ownerId: USER_ID },
+      where: {
+        OR: [
+          { ownerId: USER_ID },
+          { grants: { some: { userId: USER_ID } } },
+        ],
+      },
       orderBy: { updatedAt: 'desc' },
     });
     expect(response.body).toEqual([
-      expect.objectContaining({ id: 1, publicId: PUBLIC_ID, name: 'Phones' }),
+      expect.objectContaining({
+        id: 1,
+        publicId: PUBLIC_ID,
+        name: 'Phones',
+        role: 'owner',
+      }),
     ]);
+    expect(response.body[0]).not.toHaveProperty('ownerId');
   });
 
   it('creates a comparison with the built-in criterion', async () => {

@@ -23,6 +23,12 @@ export async function AppSidebar({
   const t = await getTranslations('sidebar');
   const comparisons = await getComparisons();
   const principal = await getCurrentPrincipal();
+  const ownedComparisons = comparisons.filter(
+    (comparison) => comparison.role === 'owner',
+  );
+  const sharedComparisons = comparisons.filter(
+    (comparison) => comparison.role === 'editor',
+  );
 
   return (
     <Sidebar {...props}>
@@ -34,9 +40,17 @@ export async function AppSidebar({
           <SidebarGroupLabel>{t('myComparisons')}</SidebarGroupLabel>
           <CreateComparisonDialog />
           <SidebarGroupContent>
-            <SidebarComparisonsMenu comparisons={comparisons} />
+            <SidebarComparisonsMenu comparisons={ownedComparisons} />
           </SidebarGroupContent>
         </SidebarGroup>
+        {sharedComparisons.length > 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>{t('sharedComparisons')}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarComparisonsMenu comparisons={sharedComparisons} />
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
       </SidebarContent>
       <SidebarFooter>
         {principal?.kind === 'registered' ? (

@@ -3,11 +3,11 @@ import {
   AccessRequestResponseSchema,
   ComparisonAccessStatusSchema,
   ComparisonDetailsResponseSchema,
-  ComparisonResponseSchema,
+  ComparisonListItemSchema,
   PrincipalResponseSchema,
   type AccessRequestResponse,
   type ComparisonAccessStatus,
-  type ComparisonResponse,
+  type ComparisonListItem,
   type PrincipalResponse,
 } from '@compy/shared';
 import type { ComparisonDetailsResponse } from '@compy/shared';
@@ -35,10 +35,10 @@ async function fetchJson<Schema extends z.ZodType>(
   return schema.parse(data);
 }
 
-export async function getComparisons(): Promise<ComparisonResponse[]> {
+export async function getComparisons(): Promise<ComparisonListItem[]> {
   const comparisons = await fetchJson(
     '/comparisons',
-    ComparisonResponseSchema.array(),
+    ComparisonListItemSchema.array(),
   );
   return comparisons ?? [];
 }

@@ -155,6 +155,26 @@ describe('ComparisonsService', () => {
   });
 
   it('returns only comparisons owned by or granted to the caller', async () => {
+    const owned = {
+      id: 1,
+      publicId: PUBLIC_ID,
+      name: 'Phones',
+      ownerId: USER_ID,
+      lastActiveAt: comparison.lastActiveAt,
+      createdAt: comparison.createdAt,
+      updatedAt: comparison.updatedAt,
+    };
+    const shared = {
+      id: 2,
+      publicId: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+      name: 'Hotels',
+      ownerId: 99,
+      lastActiveAt: comparison.lastActiveAt,
+      createdAt: comparison.createdAt,
+      updatedAt: comparison.updatedAt,
+    };
+    comparisonFindMany.mockResolvedValueOnce([owned, shared]);
+
     const result = await service.getAll(USER_ID);
 
     expect(comparisonFindMany).toHaveBeenCalledWith({
@@ -166,7 +186,24 @@ describe('ComparisonsService', () => {
       },
       orderBy: { updatedAt: 'desc' },
     });
-    expect(result).toEqual([createdComparison]);
+    expect(result).toEqual([
+      {
+        id: 1,
+        publicId: PUBLIC_ID,
+        name: 'Phones',
+        createdAt: comparison.createdAt,
+        updatedAt: comparison.updatedAt,
+        role: 'owner',
+      },
+      {
+        id: 2,
+        publicId: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+        name: 'Hotels',
+        createdAt: comparison.createdAt,
+        updatedAt: comparison.updatedAt,
+        role: 'editor',
+      },
+    ]);
   });
 
   it('returns a comparison with criteria, entries, and entry values', async () => {

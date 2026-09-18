@@ -30,6 +30,7 @@
   },
   "sidebar": {
     "myComparisons": "Moje porównania",
+    "sharedComparisons": "Udostępnione mi",
     "newComparison": "Nowe porównanie"
   },
   "auth": {

@@ -30,6 +30,7 @@
   },
   "sidebar": {
     "myComparisons": "My Comparisons",
+    "sharedComparisons": "Shared with me",
     "newComparison": "New comparison"
   },
   "auth": {

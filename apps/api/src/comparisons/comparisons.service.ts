@@ -45,13 +45,24 @@ export class ComparisonsService {
     return comparison;
   }
 
-  public getAll(userId: number) {
-    return this.prisma.comparison.findMany({
+  public async getAll(userId: number) {
+    const comparisons = await this.prisma.comparison.findMany({
       where: accessibleByUser(userId),
       orderBy: {
         updatedAt: 'desc',
       },
     });
+
+    return comparisons.map(
+      ({ id, publicId, name, createdAt, updatedAt, ownerId }) => ({
+        id,
+        publicId,
+        name,
+        createdAt,
+        updatedAt,
+        role: ownerId === userId ? ('owner' as const) : ('editor' as const),
+      }),
+    );
   }
 
   public async update(
