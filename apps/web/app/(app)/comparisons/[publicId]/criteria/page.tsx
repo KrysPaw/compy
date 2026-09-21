@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
-import { CriteriaDataTable } from '@/components/criteria-data-table';
-import { CreateCriterionDialog } from '@/components/create-criterion-dialog';
+import { CriteriaDataTable } from '@/components/criteria/criteria-data-table';
+import { CreateCriterionDialog } from '@/components/criteria/create-criterion-dialog';
 import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function CriteriaPage({

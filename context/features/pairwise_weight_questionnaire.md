@@ -77,7 +77,7 @@ Guard: fewer than 2 comparable criteria → no questionnaire (button disabled).
 
 ## UX
 
-New client dialog (same Radix pattern as [`create-criterion-dialog.tsx`](../../apps/web/components/create-criterion-dialog.tsx)), triggered from [`rules-data-table.tsx`](../../apps/web/components/rules-data-table.tsx) above the table.
+New client dialog (same Radix pattern as [`create-criterion-dialog.tsx`](../../apps/web/components/criteria/create-criterion-dialog.tsx)), triggered from [`rules-data-table.tsx`](../../apps/web/components/rules/rules-data-table.tsx) above the table.
 
 - Button: **Set weights with questions**. Disabled when fewer than 2 comparable criteria. Subtitle **Up to N questions**.
 - Dialog description: if any comparable weight is already non-zero, say this **replaces current weights**.
@@ -110,7 +110,7 @@ Add `ReplaceCriterionWeightsSchema`: every comparable criterion id present, uniq
 ### Web
 
 - Server action `replaceCriterionWeights` next to [`updateCriterionWeight`](../../apps/web/lib/actions.ts).
-- New [`apps/web/components/weight-questionnaire-dialog.tsx`](../../apps/web/components/weight-questionnaire-dialog.tsx): asked answers only; next pair from shared inference; no persistence of answers.
+- New [`apps/web/components/rules/weight-questionnaire-dialog.tsx`](../../apps/web/components/rules/weight-questionnaire-dialog.tsx): asked answers only; next pair from shared inference; no persistence of answers.
 - Mount in the Rules table header area.
 
 ### Tests (behavior, not UI chrome)

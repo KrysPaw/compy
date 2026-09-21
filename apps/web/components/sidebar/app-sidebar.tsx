@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { getTranslations } from 'next-intl/server';
-import { SidebarLogo } from '@/components/sidebar-logo';
-import { SidebarComparisonsMenu } from '@/components/sidebar-comparisons-menu';
-import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
-import { SidebarUserMenu } from '@/components/sidebar-user-menu';
+import { SidebarLogo } from '@/components/sidebar/sidebar-logo';
+import { SidebarComparisonsMenu } from '@/components/sidebar/sidebar-comparisons-menu';
+import { CreateComparisonDialog } from '@/components/comparison/create-comparison-dialog';
+import { SidebarUserMenu } from '@/components/sidebar/sidebar-user-menu';
 import { getComparisons, getCurrentPrincipal } from '@/lib/api';
 import {
   Sidebar,

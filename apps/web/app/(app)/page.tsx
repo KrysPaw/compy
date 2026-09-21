@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { PlusIcon } from 'lucide-react';
-import { CreateComparisonDialog } from '@/components/create-comparison-dialog';
+import { CreateComparisonDialog } from '@/components/comparison/create-comparison-dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';

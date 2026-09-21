@@ -5,23 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { EllipsisIcon, PencilIcon, Trash2Icon } from 'lucide-react';
 import { deleteCriterion, updateCriterionName } from '@/lib/actions';
+import { DeleteCriterionDialog } from '@/components/criteria/delete-criterion-dialog';
+import { RenameCriterionDialog } from '@/components/criteria/rename-criterion-dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 type CriterionActionsMenuProps = {
   publicId: string;
@@ -59,11 +51,7 @@ export function CriterionActionsMenu({
 
   function handleRename() {
     startTransition(async () => {
-      const result = await updateCriterionName(
-        publicId,
-        criterionId,
-        name,
-      );
+      const result = await updateCriterionName(publicId, criterionId, name);
 
       if (result.error) {
         setError(result.error);
@@ -123,74 +111,25 @@ export function CriterionActionsMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog
+      <RenameCriterionDialog
+        criterionId={criterionId}
         open={activeDialog === 'rename'}
+        name={name}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('criterionActions.renameTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('criterionActions.renameDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor={`rename-criterion-${criterionId}`}>
-              {t('common.name')}
-            </Label>
-            <Input
-              id={`rename-criterion-${criterionId}`}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              maxLength={200}
-              autoComplete="off"
-              autoFocus
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <Button
-              type="button"
-              disabled={isPending || name.trim().length === 0}
-              onClick={handleRename}
-            >
-              {isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onNameChange={setName}
+        onSave={handleRename}
+      />
 
-      <Dialog
+      <DeleteCriterionDialog
+        criterionName={criterionName}
         open={activeDialog === 'delete'}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('criterionActions.deleteTitle')}</DialogTitle>
-            <DialogDescription>
-              {t.rich('criterionActions.deleteDescription', {
-                criterionName,
-                name: (chunks) => (
-                  <span className="font-semibold text-foreground">
-                    {chunks}
-                  </span>
-                ),
-              })}
-            </DialogDescription>
-          </DialogHeader>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isPending}
-              onClick={handleDelete}
-            >
-              {isPending ? t('common.deleting') : t('common.delete')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onDelete={handleDelete}
+      />
     </>
   );
 }

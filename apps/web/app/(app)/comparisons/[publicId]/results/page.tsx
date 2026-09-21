@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
 import { rankEntries } from '@compy/shared';
-import { ResultsConfigAlert } from '@/components/results-config-alert';
-import { ResultsDataTable } from '@/components/results-data-table';
+import { ResultsConfigAlert } from '@/components/results/results-config-alert';
+import { ResultsDataTable } from '@/components/results/results-data-table';
 import { loadOpenComparison } from '@/lib/load-comparison';
 import { buildResultsRows, resultsInfoColumns } from '@/lib/results';
 

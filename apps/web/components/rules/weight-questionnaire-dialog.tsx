@@ -16,15 +16,9 @@ import {
 } from '@compy/shared';
 import { replaceCriterionWeights } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { WeightQuestionnaireIntro } from '@/components/rules/weight-questionnaire-intro';
+import { WeightQuestionnaireQuestions } from '@/components/rules/weight-questionnaire-questions';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
@@ -139,102 +133,25 @@ export function WeightQuestionnaireDialog({
       </DialogTrigger>
       <DialogContent>
         {step === 'intro' ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>{t('weightQuestionnaire.title')}</DialogTitle>
-              <DialogDescription>
-                {t('weightQuestionnaire.introDescription')}{' '}
-                {t('weightQuestionnaire.maxQuestions', { count: pairs.length })}
-                {hasExistingWeights
-                  ? ` ${t('weightQuestionnaire.replaceNote')}`
-                  : null}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button type="button" onClick={() => setStep('questions')}>
-                {t('common.continue')}
-              </Button>
-            </DialogFooter>
-          </>
+          <WeightQuestionnaireIntro
+            pairCount={pairs.length}
+            hasExistingWeights={hasExistingWeights}
+            onCancel={() => handleOpenChange(false)}
+            onContinue={() => setStep('questions')}
+          />
         ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>{t('weightQuestionnaire.question')}</DialogTitle>
-              <DialogDescription>
-                {t('weightQuestionnaire.questionHint')}
-              </DialogDescription>
-            </DialogHeader>
-
-            {currentPair ? (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-0.5 text-sm">
-                  <p>
-                    {t('weightQuestionnaire.progress', { n: questionNumber })}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {t('weightQuestionnaire.undecided', { count: remaining })}
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isPending}
-                    onClick={() => handleAnswer('a')}
-                  >
-                    {criterionName(comparableCriteria, currentPair.a)}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isPending}
-                    onClick={() => handleAnswer('b')}
-                  >
-                    {criterionName(comparableCriteria, currentPair.b)}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={isPending}
-                    onClick={() => handleAnswer('both')}
-                  >
-                    {t('weightQuestionnaire.both')}
-                  </Button>
-                </div>
-              </div>
-            ) : null}
-
-            {error ? (
-              <p className="text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            ) : null}
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={asked.length === 0 || isPending}
-                onClick={handleBack}
-              >
-                {t('common.back')}
-              </Button>
-            </DialogFooter>
-          </>
+          <WeightQuestionnaireQuestions
+            currentPair={currentPair}
+            questionNumber={questionNumber}
+            remaining={remaining}
+            nameFor={(id) => criterionName(comparableCriteria, id)}
+            error={error}
+            isPending={isPending}
+            canGoBack={asked.length > 0}
+            onAnswer={handleAnswer}
+            onCancel={() => handleOpenChange(false)}
+            onBack={handleBack}
+          />
         )}
       </DialogContent>
     </Dialog>

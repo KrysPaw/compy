@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ArrowDown, ArrowUp, ArrowUpDown, StarIcon } from 'lucide-react';
 import type { ComparisonDetailsResponse } from '@compy/shared';
-import { EntryActionsMenu } from '@/components/entry-actions-menu';
-import { ratingBoundsOf } from '@/lib/create-entry';
+import { EntryActionsMenu } from '@/components/entries/entry-actions-menu';
+import {
+  EntryCellValue,
+  rawEntryValue,
+} from '@/components/entries/entry-cell-value';
+import { SortIcon } from '@/components/entries/sort-icon';
 import {
   Table,
   TableBody,
@@ -18,66 +21,13 @@ import {
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 type Entry = ComparisonDetailsResponse['entries'][number];
 
-function rawValue(value: unknown) {
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  return typeof value === 'object' ? JSON.stringify(value) : String(value);
-}
-
-function EntryCellValue({
-  criterion,
-  value,
-}: {
-  criterion: Criterion;
-  value: unknown;
-}) {
-  const t = useTranslations('common');
-  const text = rawValue(value);
-  if (text.length === 0) {
-    return t('emDash');
-  }
-
-  if (criterion.type === 'rating') {
-    const { max } = ratingBoundsOf(criterion);
-    const label = typeof max === 'number' ? `${text} / ${max}` : text;
-
-    return (
-      <span className="inline-flex items-center gap-1">
-        {label}
-        <StarIcon
-          aria-hidden
-          className="size-3.5 shrink-0 text-amber-500"
-          fill="currentColor"
-          fillOpacity={0.35}
-        />
-      </span>
-    );
-  }
-
-  return text;
-}
-
-function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
-  if (direction === 'asc') {
-    return <ArrowUp aria-hidden="true" className="size-3.5" />;
-  }
-
-  if (direction === 'desc') {
-    return <ArrowDown aria-hidden="true" className="size-3.5" />;
-  }
-
-  return <ArrowUpDown aria-hidden="true" className="size-3.5" />;
-}
-
 function entryLabel(entry: Entry, criteria: Criterion[]) {
   const keyCriterion = criteria.find((criterion) => criterion.is_key);
   if (keyCriterion === undefined) {
     return '';
   }
 
-  return rawValue(
+  return rawEntryValue(
     entry.entryValues.find((value) => value.criterionId === keyCriterion.id)
       ?.value,
   );
@@ -101,11 +51,11 @@ export function ComparisonDataTable({
       return 0;
     }
 
-    const leftValue = rawValue(
+    const leftValue = rawEntryValue(
       left.entryValues.find((value) => value.criterionId === sort.criterionId)
         ?.value,
     );
-    const rightValue = rawValue(
+    const rightValue = rawEntryValue(
       right.entryValues.find((value) => value.criterionId === sort.criterionId)
         ?.value,
     );

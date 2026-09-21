@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { SignInDialog } from '@/components/sign-in-dialog';
+import { SignInDialog } from '@/components/sidebar/sign-in-dialog';
 import { Button } from '@/components/ui/button';
 import { getCurrentPrincipal } from '@/lib/api';
 

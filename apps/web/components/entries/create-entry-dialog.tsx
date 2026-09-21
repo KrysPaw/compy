@@ -12,7 +12,7 @@ import {
   orderedCriteria,
   type Criterion,
 } from '@/lib/create-entry';
-import { EntryValueField } from '@/components/entry-value-field';
+import { EntryValueField } from '@/components/entries/entry-value-field';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

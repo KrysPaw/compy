@@ -9,8 +9,8 @@ import {
   locales,
   type Locale,
 } from '@/i18n/config';
-import { DeleteAccountDialog } from '@/components/delete-account-dialog';
-import { SignInDialog } from '@/components/sign-in-dialog';
+import { DeleteAccountDialog } from '@/components/sidebar/delete-account-dialog';
+import { SignInDialog } from '@/components/sidebar/sign-in-dialog';
 import { logout } from '@/lib/actions';
 import {
   DropdownMenu,

@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
-import { ComparisonDataTable } from '@/components/comparison-data-table';
-import { CreateEntryDialog } from '@/components/create-entry-dialog';
+import { ComparisonDataTable } from '@/components/entries/comparison-data-table';
+import { CreateEntryDialog } from '@/components/entries/create-entry-dialog';
 import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function EntriesPage({

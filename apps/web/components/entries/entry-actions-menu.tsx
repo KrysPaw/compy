@@ -14,16 +14,9 @@ import {
   type Criterion,
   type EntryFieldValue,
 } from '@/lib/create-entry';
-import { EntryValueField } from '@/components/entry-value-field';
+import { DeleteEntryDialog } from '@/components/entries/delete-entry-dialog';
+import { EditEntryDialog } from '@/components/entries/edit-entry-dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,12 +89,7 @@ export function EntryActionsMenu({
     );
 
     startTransition(async () => {
-      const result = await updateEntry(
-        publicId,
-        entryId,
-        payload,
-        clearIds,
-      );
+      const result = await updateEntry(publicId, entryId, payload, clearIds);
 
       if (result.error) {
         setError(result.error);
@@ -156,71 +144,28 @@ export function EntryActionsMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog
+      <EditEntryDialog
+        entryId={entryId}
         open={activeDialog === 'edit'}
+        fieldsCriteria={fieldsCriteria}
+        fields={fields}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent className="max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{t('entryActions.editTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('entryActions.editDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-4">
-            {fieldsCriteria.map((criterion) => (
-              <EntryValueField
-                key={criterion.id}
-                criterion={criterion}
-                idPrefix={`edit-entry-${entryId}`}
-                value={
-                  fields[criterion.id] ??
-                  (criterion.type === 'boolean' ? false : '')
-                }
-                onChange={(value) =>
-                  setFields((prev) => ({ ...prev, [criterion.id]: value }))
-                }
-              />
-            ))}
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
-          <DialogFooter>
-            <Button type="button" disabled={isPending} onClick={handleSave}>
-              {isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onFieldChange={(criterionId, value) =>
+          setFields((prev) => ({ ...prev, [criterionId]: value }))
+        }
+        onSave={handleSave}
+      />
 
-      <Dialog
+      <DeleteEntryDialog
+        label={label}
         open={activeDialog === 'delete'}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('entryActions.deleteTitle')}</DialogTitle>
-            <DialogDescription>
-              {t.rich('entryActions.deleteDescription', {
-                label,
-                name: (chunks) => (
-                  <span className="font-semibold text-foreground">{chunks}</span>
-                ),
-              })}
-            </DialogDescription>
-          </DialogHeader>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isPending}
-              onClick={handleDelete}
-            >
-              {isPending ? t('common.deleting') : t('common.delete')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onDelete={handleDelete}
+      />
     </>
   );
 }

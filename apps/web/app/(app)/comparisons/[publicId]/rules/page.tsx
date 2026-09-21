@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { PublicIdSchema } from '@compy/shared';
 import { getTranslations } from 'next-intl/server';
-import { RulesDataTable } from '@/components/rules-data-table';
-import { WeightQuestionnaireDialog } from '@/components/weight-questionnaire-dialog';
+import { RulesDataTable } from '@/components/rules/rules-data-table';
+import { WeightQuestionnaireDialog } from '@/components/rules/weight-questionnaire-dialog';
 import { loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function RulesPage({

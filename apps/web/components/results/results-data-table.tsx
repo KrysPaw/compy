@@ -1,10 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MedalIcon, MinusIcon, PlusIcon } from 'lucide-react';
-import type { HighlightItem } from '@compy/shared';
 import type { ResultsInfoColumn, ResultsTableRow } from '@/lib/results';
-import { formatHighlightLabel } from '@/lib/format-highlight';
 import {
   Table,
   TableBody,
@@ -13,12 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-const PLACE_MEDALS = [
-  { labelKey: 'firstPlace', color: '#D4AF37' },
-  { labelKey: 'secondPlace', color: '#A8A9AD' },
-  { labelKey: 'thirdPlace', color: '#CD7F32' },
-] as const;
+import { HighlightsCell } from '@/components/results/highlights-cell';
+import { PlaceMedal } from '@/components/results/place-medal';
 
 /**
  * Dense ranking for medals: equal *displayed* scores share a place, and the
@@ -45,30 +38,6 @@ export function denseMedalPlaceIndex(
   return placeIndex <= 2 ? placeIndex : null;
 }
 
-function PlaceMedal({ placeIndex }: { placeIndex: number | null }) {
-  const t = useTranslations('results');
-
-  if (placeIndex === null) {
-    return null;
-  }
-
-  const medal = PLACE_MEDALS[placeIndex];
-  if (!medal) {
-    return null;
-  }
-
-  return (
-    <MedalIcon
-      aria-label={t(medal.labelKey)}
-      className="size-4 shrink-0"
-      color={medal.color}
-      fill={medal.color}
-      fillOpacity={0.35}
-      stroke={medal.color}
-    />
-  );
-}
-
 /** Rounded score shown in the UI; medals must use this for ties. */
 export function displayScore(rate: number): number {
   return Math.round(rate);
@@ -76,58 +45,6 @@ export function displayScore(rate: number): number {
 
 function formatScore(rate: number): string {
   return String(displayScore(rate));
-}
-
-function HighlightItems({
-  items,
-  kind,
-}: {
-  items: HighlightItem[];
-  kind: 'pro' | 'con';
-}) {
-  const t = useTranslations('results');
-  const Icon = kind === 'pro' ? PlusIcon : MinusIcon;
-  const iconClass =
-    kind === 'pro'
-      ? 'size-3.5 shrink-0 text-emerald-600'
-      : 'size-3.5 shrink-0 text-red-600';
-  const messages = {
-    yes: t('highlightYes'),
-    no: t('highlightNo'),
-    high: t('highlightHigh'),
-    low: t('highlightLow'),
-  };
-
-  return items.map((item) => {
-    const label = formatHighlightLabel(item, messages);
-    return (
-      <li key={`${kind}:${label}`} className="inline-flex items-center gap-1.5">
-        <Icon aria-hidden className={iconClass} />
-        <span>{label}</span>
-      </li>
-    );
-  });
-}
-
-function HighlightsCell({
-  pros,
-  cons,
-}: {
-  pros: HighlightItem[];
-  cons: HighlightItem[];
-}) {
-  const t = useTranslations('common');
-
-  if (pros.length === 0 && cons.length === 0) {
-    return t('emDash');
-  }
-
-  return (
-    <ul className="flex list-none flex-col gap-1 p-0">
-      <HighlightItems items={pros} kind="pro" />
-      <HighlightItems items={cons} kind="con" />
-    </ul>
-  );
 }
 
 export function ResultsDataTable({

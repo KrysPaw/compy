@@ -1,9 +1,9 @@
 'use client';
 
-import { Fingerprint, KeyRound, Scale } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { ComparisonDetailsResponse } from '@compy/shared';
-import { CriterionActionsMenu } from '@/components/criterion-actions-menu';
+import { CriterionActionsMenu } from '@/components/criteria/criterion-actions-menu';
+import { RoleIcon, type Role } from '@/components/criteria/role-icon';
 import {
   Table,
   TableBody,
@@ -12,15 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
-
-type Role = 'key' | 'identity' | 'comparable';
 
 function roleOf(criterion: Criterion): Role {
   if (criterion.is_key) {
@@ -30,32 +23,11 @@ function roleOf(criterion: Criterion): Role {
   return criterion.is_comparable ? 'comparable' : 'identity';
 }
 
-const ROLE_ICON: Record<Role, typeof KeyRound> = {
-  key: KeyRound,
-  identity: Fingerprint,
-  comparable: Scale,
-};
-
 const ROLE_ORDER: Record<Role, number> = {
   key: 0,
   identity: 1,
   comparable: 2,
 };
-
-function RoleIcon({ role }: { role: Role }) {
-  const t = useTranslations('criteriaTable.roles');
-  const Icon = ROLE_ICON[role];
-  const label = t(role);
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Icon aria-label={label} className="size-4 text-muted-foreground" />
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
-}
 
 function formatConfig(
   criterion: Criterion,

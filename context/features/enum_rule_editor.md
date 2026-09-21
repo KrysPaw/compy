@@ -15,7 +15,7 @@ Let users set a ranking rule for comparable enum criteria by assigning options t
 
 ## Current gap
 
-Backend already validates and persists enum `ruleConfig` in `apps/api/src/criteria/criteria.service.ts` (all options assigned, no unknowns). Shared schema today is still the old model (`rank` 1–5, required `label`, tiers 1–5) in `packages/shared/src/criterion.ts`. Rules UI falls through to `"—"` in `apps/web/components/rules-data-table.tsx` / `apps/web/lib/format-rule.ts`.
+Backend already validates and persists enum `ruleConfig` in `apps/api/src/criteria/criteria.service.ts` (all options assigned, no unknowns). Shared schema today is still the old model (`rank` 1–5, required `label`, tiers 1–5) in `packages/shared/src/criterion.ts`. Rules UI falls through to `"—"` in `apps/web/components/rules/rules-data-table.tsx` / `apps/web/lib/format-rule.ts`.
 
 ```mermaid
 flowchart LR
@@ -48,7 +48,7 @@ Extend `apps/web/lib/format-rule.ts`:
 
 ### 3) Enum rule dialog + Rules row wiring
 
-Add `apps/web/components/enum-rule-dialog.tsx`:
+Add `apps/web/components/rules/enum-rule-dialog.tsx`:
 
 - Triggered from the Rules table enum cell
 - Layout: **Unassigned** list + ordered tier columns/rows (label ends as Worst / Best with one clear orientation)
@@ -57,12 +57,12 @@ Add `apps/web/components/enum-rule-dialog.tsx`:
 - **Save** enabled only when every criterion option is assigned exactly once; then call existing `onChange` / `applyRule` → `updateCriterionRuleConfig`
 - Cancel discards draft
 
-Wire in `apps/web/components/rules-data-table.tsx` `RuleEditor`: for `type === 'enum'`, render summary + dialog instead of `formatRuleMessage` fallback.
+Wire in `apps/web/components/rules/rules-data-table.tsx` `RuleEditor`: for `type === 'enum'`, render summary + dialog instead of `formatRuleMessage` fallback.
 
 ### 4) Tests / validation
 
 - Update `apps/web/lib/format-rule.spec.ts` for best/worst summary (and empty → `—`)
-- Update `apps/web/components/rules-data-table.spec.tsx`: replace invalid `{ tiers: [] }` fixture; assert enum row shows summary + Edit; exercise save with a valid tier payload (mock `updateCriterionRuleConfig`)
+- Update `apps/web/components/rules/rules-data-table.spec.tsx`: replace invalid `{ tiers: [] }` fixture; assert enum row shows summary + Edit; exercise save with a valid tier payload (mock `updateCriterionRuleConfig`)
 - Focused dialog helper tests if logic lives outside the component
 - Run: web vitest for touched files + api `criteria.service.spec`
 

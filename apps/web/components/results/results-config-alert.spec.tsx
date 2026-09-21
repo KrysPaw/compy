@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { screen } from '@testing-library/react';
 import { render } from '@/test/render';
 import { describe, expect, it } from 'vitest';
-import { ResultsConfigAlertView } from './results-config-alert';
+import { ResultsConfigAlertView } from './results-config-alert-view';
 
 const labels = {
   weightsZero: 'No weights assigned — all scores are equal.',

@@ -6,24 +6,16 @@ import { useTranslations } from 'next-intl';
 import { EllipsisIcon, PencilIcon, Share2Icon, Trash2Icon } from 'lucide-react';
 import type { AccessRequestResponse } from '@compy/shared';
 import { deleteComparison, updateComparisonName } from '@/lib/actions';
-import { ShareComparisonDialog } from '@/components/share-comparison-dialog';
+import { DeleteComparisonDialog } from '@/components/comparison/delete-comparison-dialog';
+import { RenameComparisonDialog } from '@/components/comparison/rename-comparison-dialog';
+import { ShareComparisonDialog } from '@/components/comparison/share-comparison-dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 type ComparisonActionsMenuProps = {
   publicId: string;
@@ -47,7 +39,6 @@ export function ComparisonActionsMenu({
   const [confirmationName, setConfirmationName] = useState('');
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
-  const isNameConfirmed = confirmationName === comparisonName;
 
   function closeDialog() {
     setActiveDialog(null);
@@ -94,7 +85,11 @@ export function ComparisonActionsMenu({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label={t('comparisonActions.menuLabel')}>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t('comparisonActions.menuLabel')}
+          >
             <EllipsisIcon />
           </Button>
         </DropdownMenuTrigger>
@@ -126,42 +121,16 @@ export function ComparisonActionsMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog
+      <RenameComparisonDialog
+        publicId={publicId}
         open={activeDialog === 'rename'}
+        name={name}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('comparisonActions.renameTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('comparisonActions.renameDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor={`rename-comparison-${publicId}`}>
-              {t('common.name')}
-            </Label>
-            <Input
-              id={`rename-comparison-${publicId}`}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              maxLength={200}
-              autoComplete="off"
-              autoFocus
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <Button
-              type="button"
-              disabled={isPending || name.trim().length === 0}
-              onClick={handleRename}
-            >
-              {isPending ? t('common.saving') : t('common.save')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onNameChange={setName}
+        onSave={handleRename}
+      />
 
       {isOwner ? (
         <ShareComparisonDialog
@@ -178,49 +147,16 @@ export function ComparisonActionsMenu({
         />
       ) : null}
 
-      <Dialog
+      <DeleteComparisonDialog
+        comparisonName={comparisonName}
         open={activeDialog === 'delete'}
+        confirmationName={confirmationName}
+        error={error}
+        isPending={isPending}
         onOpenChange={handleDialogOpenChange}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('comparisonActions.deleteTitle')}</DialogTitle>
-            <DialogDescription>
-              {t.rich('comparisonActions.deleteDescription', {
-                comparisonName,
-                name: (chunks) => (
-                  <span className="font-mono font-semibold text-foreground">
-                    {chunks}
-                  </span>
-                ),
-              })}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="delete-comparison-name">
-              {t('comparisonActions.nameLabel')}
-            </Label>
-            <Input
-              id="delete-comparison-name"
-              value={confirmationName}
-              onChange={(event) => setConfirmationName(event.target.value)}
-              autoComplete="off"
-              autoFocus
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={!isNameConfirmed || isPending}
-              onClick={handleDelete}
-            >
-              {isPending ? t('common.deleting') : t('common.delete')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onConfirmationChange={setConfirmationName}
+        onDelete={handleDelete}
+      />
     </>
   );
 }

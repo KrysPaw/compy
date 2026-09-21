@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 import { PublicIdSchema } from '@compy/shared';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { ComparisonActionsMenu } from '@/components/comparison-actions-menu';
-import { ComparisonTabs } from '@/components/comparison-tabs';
-import { LockedComparison } from '@/components/locked-comparison';
+import { ComparisonActionsMenu } from '@/components/comparison/comparison-actions-menu';
+import { ComparisonTabs } from '@/components/comparison/comparison-tabs';
+import { LockedComparison } from '@/components/comparison/locked-comparison';
 import { loadComparisonAccess, loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function ComparisonLayout({
