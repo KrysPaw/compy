@@ -57,8 +57,8 @@ export function EnumRuleDialog({
       : t(summary.id);
 
   return (
-    <div className="flex min-w-0 items-center gap-2">
-      <span className="truncate text-sm">{summaryText}</span>
+    <div className="flex min-w-0 flex-wrap items-center gap-2">
+      <span className="min-w-0 break-words text-sm">{summaryText}</span>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
           <Button type="button" variant="outline" size="xs">

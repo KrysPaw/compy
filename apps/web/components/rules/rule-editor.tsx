@@ -34,6 +34,7 @@ export function RuleEditor({
         type="single"
         variant="outline"
         size="sm"
+        className="w-full flex-wrap"
         value={direction}
         onValueChange={(next) => {
           if (next !== 'higher' && next !== 'lower') {
@@ -66,6 +67,7 @@ export function RuleEditor({
         type="single"
         variant="outline"
         size="sm"
+        className="w-full flex-wrap"
         value={preferred}
         onValueChange={(next) => {
           if (next !== 'yes' && next !== 'no') {
