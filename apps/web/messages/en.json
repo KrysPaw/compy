@@ -24,6 +24,11 @@
     "sidebar": "Sidebar",
     "sidebarDescription": "Displays the mobile sidebar."
   },
+  "viewMode": {
+    "label": "View mode",
+    "table": "Table",
+    "cards": "Cards"
+  },
   "languageSwitcher": {
     "en": "English",
     "pl": "Polski"
@@ -481,7 +486,10 @@
     }
   },
   "comparisonTable": {
-    "empty": "No entries yet."
+    "empty": "No entries yet.",
+    "sortBy": "Sort by",
+    "sortAscending": "Ascending",
+    "sortDescending": "Descending"
   },
   "errors": {
     "invalidName": "Invalid name",

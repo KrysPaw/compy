@@ -31,7 +31,10 @@ export function RulesTable({
   const t = useTranslations();
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-background">
+    <div
+      className="overflow-hidden rounded-xl border bg-background"
+      data-testid="rules-data-table"
+    >
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>

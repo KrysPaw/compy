@@ -48,6 +48,12 @@ test.describe('A. Home & shell — navigation smoke', () => {
     await mobile.goto(entriesPath);
 
     await expect(mobile.getByRole('tab', { name: 'Entries' })).toBeVisible();
+    await expect(mobile.getByTestId('entries-card-list')).toBeVisible();
+    await expect(mobile.getByTestId('entries-data-table')).toHaveCount(0);
+    await expect(
+      mobile.getByRole('group', { name: 'View mode' }),
+    ).toHaveCount(0);
+
     const mobileTrigger = mobile.locator('[data-slot="sidebar-trigger"]');
     await mobileTrigger.click();
     await expect(
@@ -59,5 +65,13 @@ test.describe('A. Home & shell — navigation smoke', () => {
       .click();
     await expect(mobile).toHaveURL(new RegExp(`${entriesPath}$`));
     await mobile.close();
+
+    await expect(page.getByTestId('entries-data-table')).toBeVisible();
+    const viewMode = page.getByRole('group', { name: 'View mode' });
+    await expect(viewMode).toBeVisible();
+    await viewMode.getByRole('radio', { name: 'Cards' }).click();
+    await expect(page.getByTestId('entries-card-list')).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId('entries-card-list')).toBeVisible();
   });
 });

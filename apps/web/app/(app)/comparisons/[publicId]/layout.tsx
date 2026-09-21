@@ -5,6 +5,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ComparisonActionsMenu } from '@/components/comparison/comparison-actions-menu';
 import { ComparisonTabs } from '@/components/comparison/comparison-tabs';
 import { LockedComparison } from '@/components/comparison/locked-comparison';
+import { ComparisonViewModeProvider } from '@/hooks/use-comparison-view-mode';
 import { loadComparisonAccess, loadOpenComparison } from '@/lib/load-comparison';
 
 export default async function ComparisonLayout({
@@ -41,7 +42,7 @@ export default async function ComparisonLayout({
   }
 
   return (
-    <>
+    <ComparisonViewModeProvider>
       <header className="shrink-0 border-b">
         <div className="flex h-14 items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1 shrink-0" />
@@ -64,6 +65,6 @@ export default async function ComparisonLayout({
         </div>
       </header>
       {children}
-    </>
+    </ComparisonViewModeProvider>
   );
 }

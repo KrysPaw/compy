@@ -24,6 +24,11 @@
     "sidebar": "Panel boczny",
     "sidebarDescription": "Wyświetla panel boczny na urządzeniach mobilnych."
   },
+  "viewMode": {
+    "label": "Tryb widoku",
+    "table": "Tabela",
+    "cards": "Karty"
+  },
   "languageSwitcher": {
     "en": "English",
     "pl": "Polski"
@@ -481,7 +486,10 @@
     }
   },
   "comparisonTable": {
-    "empty": "Brak wariantów."
+    "empty": "Brak wariantów.",
+    "sortBy": "Sortuj według",
+    "sortAscending": "Rosnąco",
+    "sortDescending": "Malejąco"
   },
   "errors": {
     "invalidName": "Nieprawidłowa nazwa",

@@ -2,6 +2,27 @@ import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import enMessages from './messages/en.json';
 
+Object.defineProperty(window, 'innerWidth', {
+  writable: true,
+  configurable: true,
+  value: 1280,
+});
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  configurable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
 function lookup(tree: unknown, path: string[]): unknown {
   let current: unknown = tree;
   for (const segment of path) {

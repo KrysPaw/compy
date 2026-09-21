@@ -3,7 +3,12 @@
 import { useTranslations } from 'next-intl';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import { CriterionActionsMenu } from '@/components/criteria/criterion-actions-menu';
-import { RoleIcon, type Role } from '@/components/criteria/role-icon';
+import {
+  formatCriterionConfig,
+  roleOf,
+  sortCriteriaByRole,
+} from '@/components/criteria/criterion-display';
+import { RoleIcon } from '@/components/criteria/role-icon';
 import {
   Table,
   TableBody,
@@ -15,48 +20,6 @@ import {
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
-function roleOf(criterion: Criterion): Role {
-  if (criterion.is_key) {
-    return 'key';
-  }
-
-  return criterion.is_comparable ? 'comparable' : 'identity';
-}
-
-const ROLE_ORDER: Record<Role, number> = {
-  key: 0,
-  identity: 1,
-  comparable: 2,
-};
-
-function formatConfig(
-  criterion: Criterion,
-  moreOptions: (list: string, count: number) => string,
-  emDash: string,
-) {
-  const config = criterion.config;
-
-  if (criterion.type === 'rating' && config && typeof config === 'object') {
-    const { min, max } = config as { min?: number; max?: number };
-    if (typeof min === 'number' && typeof max === 'number') {
-      return `${min}–${max}`;
-    }
-  }
-
-  if (criterion.type === 'enum' && config && typeof config === 'object') {
-    const { options } = config as { options?: string[] };
-    if (Array.isArray(options)) {
-      const shown = options.slice(0, 3);
-      const remaining = options.length - shown.length;
-      return remaining > 0
-        ? moreOptions(shown.join(', '), remaining)
-        : shown.join(', ');
-    }
-  }
-
-  return emDash;
-}
-
 export function CriteriaDataTable({
   publicId,
   criteria,
@@ -64,12 +27,13 @@ export function CriteriaDataTable({
   publicId: string;
 } & Pick<ComparisonDetailsResponse, 'criteria'>) {
   const t = useTranslations();
-  const sortedCriteria = [...criteria].sort(
-    (left, right) => ROLE_ORDER[roleOf(left)] - ROLE_ORDER[roleOf(right)],
-  );
+  const sortedCriteria = sortCriteriaByRole(criteria);
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-background">
+    <div
+      className="overflow-hidden rounded-xl border bg-background"
+      data-testid="criteria-data-table"
+    >
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -104,7 +68,7 @@ export function CriteriaDataTable({
                     {t(`criteriaTable.types.${criterion.type}`)}
                   </TableCell>
                   <TableCell>
-                    {formatConfig(
+                    {formatCriterionConfig(
                       criterion,
                       (list, count) =>
                         t('criteriaTable.moreOptions', { list, count }),

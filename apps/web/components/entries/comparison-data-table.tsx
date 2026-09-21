@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { ComparisonDetailsResponse } from '@compy/shared';
 import { EntryActionsMenu } from '@/components/entries/entry-actions-menu';
+import { EntryCellValue } from '@/components/entries/entry-cell-value';
 import {
-  EntryCellValue,
-  rawEntryValue,
-} from '@/components/entries/entry-cell-value';
+  entryLabel,
+  nextEntrySort,
+  sortEntries,
+  type EntrySort,
+} from '@/components/entries/entry-sort';
 import { SortIcon } from '@/components/entries/sort-icon';
 import {
   Table,
@@ -21,69 +24,29 @@ import {
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 type Entry = ComparisonDetailsResponse['entries'][number];
 
-function entryLabel(entry: Entry, criteria: Criterion[]) {
-  const keyCriterion = criteria.find((criterion) => criterion.is_key);
-  if (keyCriterion === undefined) {
-    return '';
-  }
-
-  return rawEntryValue(
-    entry.entryValues.find((value) => value.criterionId === keyCriterion.id)
-      ?.value,
-  );
-}
-
 export function ComparisonDataTable({
   publicId,
   criteria,
   entries,
+  sort: sortProp,
+  onSortChange,
 }: Pick<ComparisonDetailsResponse, 'criteria' | 'entries'> & {
   publicId: string;
+  sort?: EntrySort | null;
+  onSortChange?: (next: EntrySort | null) => void;
 }) {
   const t = useTranslations('comparisonTable');
-  const [sort, setSort] = useState<{
-    criterionId: number;
-    direction: 'asc' | 'desc';
-  } | null>(null);
-
-  const sortedEntries = [...entries].sort((left, right) => {
-    if (sort === null) {
-      return 0;
-    }
-
-    const leftValue = rawEntryValue(
-      left.entryValues.find((value) => value.criterionId === sort.criterionId)
-        ?.value,
-    );
-    const rightValue = rawEntryValue(
-      right.entryValues.find((value) => value.criterionId === sort.criterionId)
-        ?.value,
-    );
-    const comparison = leftValue.localeCompare(rightValue, undefined, {
-      numeric: true,
-      sensitivity: 'base',
-    });
-
-    return sort.direction === 'asc' ? comparison : -comparison;
-  });
-
-  function toggleSort(criterionId: number) {
-    setSort((current) => {
-      if (current?.criterionId !== criterionId) {
-        return { criterionId, direction: 'asc' };
-      }
-
-      return {
-        criterionId,
-        direction: current.direction === 'asc' ? 'desc' : 'asc',
-      };
-    });
-  }
-
+  const [internalSort, setInternalSort] = useState<EntrySort | null>(null);
+  const sort = sortProp !== undefined ? sortProp : internalSort;
+  const setSort = onSortChange ?? setInternalSort;
+  const sortedEntries = sortEntries(entries, sort);
   const columnCount = criteria.length + 1;
 
   return (
-    <div className="overflow-hidden rounded-xl border bg-background">
+    <div
+      className="overflow-hidden rounded-xl border bg-background"
+      data-testid="entries-data-table"
+    >
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -97,7 +60,9 @@ export function ComparisonDataTable({
                     <button
                       type="button"
                       className="inline-flex items-center gap-2 font-medium text-foreground hover:text-primary"
-                      onClick={() => toggleSort(criterion.id)}
+                      onClick={() =>
+                        setSort(nextEntrySort(sort, criterion.id))
+                      }
                     >
                       {criterion.name}
                       <SortIcon direction={direction} />

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { screen, waitFor, within } from '@testing-library/react';
-import { render } from '@/test/render';
+import { renderWithViewMode } from '@/test/render';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RulesDataTable } from './rules-data-table';
@@ -88,7 +88,7 @@ describe('RulesDataTable', () => {
   });
 
   it('renders only comparable criteria with rule and weight columns', () => {
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const rows = screen.getAllByRole('row');
     const bodyRows = rows.slice(1);
@@ -146,7 +146,7 @@ describe('RulesDataTable', () => {
   });
 
   it('shows an empty state when there are no comparable criteria', () => {
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={[criteria[0]]} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={[criteria[0]]} />);
 
     expect(screen.getByText('No comparable criteria yet.')).toBeInTheDocument();
 
@@ -156,7 +156,7 @@ describe('RulesDataTable', () => {
 
   it('reduces the remaining pool when weight increases by 1', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
@@ -169,7 +169,7 @@ describe('RulesDataTable', () => {
   });
 
   it('disables decrease when weight is 0', () => {
-    render(
+    renderWithViewMode(
       <RulesDataTable
         publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[
@@ -189,7 +189,7 @@ describe('RulesDataTable', () => {
   });
 
   it('disables increase when the remaining pool is 0', () => {
-    render(
+    renderWithViewMode(
       <RulesDataTable
         publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
         criteria={[
@@ -216,7 +216,7 @@ describe('RulesDataTable', () => {
 
   it('saves the updated weight after debounce', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
@@ -234,7 +234,7 @@ describe('RulesDataTable', () => {
   it('rolls the weight back when saving fails', async () => {
     const user = userEvent.setup();
     updateCriterionWeight.mockResolvedValue({ error: 'Pool exceeded' });
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     await user.click(
       screen.getByRole('button', { name: 'Increase weight for Price' }),
@@ -255,7 +255,7 @@ describe('RulesDataTable', () => {
 
   it('saves a number direction change and keeps only one option active', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const priceRow = screen.getByText('Price').closest('tr');
     await user.click(
@@ -281,7 +281,7 @@ describe('RulesDataTable', () => {
 
   it('saves a rating direction change without dropping min and max', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const scoreRow = screen.getByText('Score').closest('tr');
     await user.click(
@@ -302,7 +302,7 @@ describe('RulesDataTable', () => {
 
   it('saves a boolean preferred-value change', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const electricRow = screen.getByText('Electric').closest('tr');
     await user.click(
@@ -322,7 +322,7 @@ describe('RulesDataTable', () => {
   it('rolls the rule back when saving fails', async () => {
     const user = userEvent.setup();
     updateCriterionRuleConfig.mockResolvedValue({ error: 'Invalid rule' });
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const priceRow = screen.getByText('Price').closest('tr');
     await user.click(
@@ -342,7 +342,7 @@ describe('RulesDataTable', () => {
 
   it('saves a valid enum rule payload when every option is assigned', async () => {
     const user = userEvent.setup();
-    render(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
+    renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={criteria} />);
 
     const fuelRow = screen.getByText('Fuel').closest('tr');
     await user.click(within(fuelRow!).getByRole('button', { name: 'Edit' }));

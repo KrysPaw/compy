@@ -40,7 +40,7 @@ These were never v1 must-haves; keep as backlog unless prioritized:
 | Auth         | Accounts / ownership                               |
 | Sharing      | Shareable view/edit links                          |
 | Collaboration| Multi-user on one comparison                       |
-| Views        | Cards and layouts beyond the table                 |
+| Views        | Extra layouts beyond table + mobile cards (e.g. kanban) |
 | Demo hygiene | Seed data, reset, or light protection if abused    |
 
 ## Optional / low priority
