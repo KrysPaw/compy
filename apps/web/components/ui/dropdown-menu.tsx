@@ -20,12 +20,21 @@ function DropdownMenuPortal({
 }
 
 function DropdownMenuTrigger({
+  onPointerDown,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
       {...props}
+      onPointerDown={(event) => {
+        // Touch/pen: don't open on press — only on click/tap. Otherwise a scroll
+        // gesture that starts on the trigger opens the menu.
+        if (event.pointerType !== "mouse") {
+          event.preventDefault()
+        }
+        onPointerDown?.(event)
+      }}
     />
   )
 }
