@@ -167,7 +167,7 @@ describe('CriteriaService', () => {
     });
     expect(criterionFindMany).toHaveBeenCalledWith({
       where: { comparisonId: 1 },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
     expect(result).toEqual([
       { id: 1, comparisonId: 1, name: 'name', is_key: true },
@@ -403,7 +403,7 @@ describe('CriteriaService', () => {
 
     expect(criterionFindMany).toHaveBeenNthCalledWith(1, {
       where: { comparisonId: 1, is_comparable: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       select: { id: true },
     });
     expect(prisma.$transaction).toHaveBeenCalledOnce();

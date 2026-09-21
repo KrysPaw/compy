@@ -145,6 +145,28 @@ describe('RulesDataTable', () => {
     ).toHaveAttribute('aria-checked', 'false');
   });
 
+  it('keeps comparable row order stable when criteria arrive reshuffled', () => {
+    const reshuffled = [
+      criteria[0],
+      criteria[4],
+      criteria[2],
+      criteria[1],
+      criteria[3],
+    ];
+
+    renderWithViewMode(
+      <RulesDataTable
+        publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
+        criteria={reshuffled}
+      />,
+    );
+
+    const bodyRows = screen.getAllByRole('row').slice(1);
+    expect(bodyRows.map((row) => row.querySelector('td')?.textContent)).toEqual(
+      ['Price', 'Electric', 'Fuel', 'Score'],
+    );
+  });
+
   it('shows an empty state when there are no comparable criteria', () => {
     renderWithViewMode(<RulesDataTable publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV" criteria={[criteria[0]]} />);
 

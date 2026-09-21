@@ -62,9 +62,9 @@ export function useRulesDataTableState(
     };
   }, []);
 
-  const comparableCriteria = criteria.filter(
-    (criterion) => criterion.is_comparable,
-  );
+  const comparableCriteria = criteria
+    .filter((criterion) => criterion.is_comparable)
+    .sort((left, right) => left.id - right.id);
   const remaining = remainingWeightPool(
     comparableCriteria.map((criterion) => ({
       is_comparable: true,

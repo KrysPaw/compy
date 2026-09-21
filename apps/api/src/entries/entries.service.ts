@@ -37,6 +37,7 @@ export class EntriesService {
   private async getComparisonCriteria(comparisonId: number) {
     return this.prisma.criterion.findMany({
       where: { comparisonId },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
   }
 

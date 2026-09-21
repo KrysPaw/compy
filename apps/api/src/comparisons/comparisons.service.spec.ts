@@ -134,7 +134,7 @@ describe('ComparisonsService', () => {
       where: { id: comparison.id },
       include: {
         criteria: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         },
       },
     });
@@ -279,7 +279,7 @@ describe('ComparisonsService', () => {
       },
       include: {
         criteria: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         },
         entries: {
           include: {

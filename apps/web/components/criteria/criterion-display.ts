@@ -48,6 +48,7 @@ export function formatCriterionConfig(
 export function sortCriteriaByRole(criteria: Criterion[]) {
   return [...criteria].sort(
     (left, right) =>
-      CRITERION_ROLE_ORDER[roleOf(left)] - CRITERION_ROLE_ORDER[roleOf(right)],
+      CRITERION_ROLE_ORDER[roleOf(left)] - CRITERION_ROLE_ORDER[roleOf(right)] ||
+      left.id - right.id,
   );
 }

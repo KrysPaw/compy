@@ -152,7 +152,7 @@ export class CriteriaService {
 
     return this.prisma.criterion.findMany({
       where: { comparisonId },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
   }
 
@@ -246,7 +246,7 @@ export class CriteriaService {
 
     const comparableCriteria = await this.prisma.criterion.findMany({
       where: { comparisonId, is_comparable: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       select: { id: true },
     });
     const comparableIds = comparableCriteria.map((criterion) => criterion.id);

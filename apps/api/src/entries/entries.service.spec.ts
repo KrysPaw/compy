@@ -150,6 +150,7 @@ describe('EntriesService', () => {
     });
     expect(criterionFindMany).toHaveBeenCalledWith({
       where: { comparisonId: 1 },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
     expect(entryCreate).toHaveBeenCalledWith({
       data: { comparisonId: 1 },

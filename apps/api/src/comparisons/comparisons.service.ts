@@ -23,7 +23,7 @@ export class ComparisonsService {
       },
       include: {
         criteria: {
-          orderBy: { createdAt: 'asc' },
+          orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
         },
         entries: {
           include: {
@@ -130,7 +130,7 @@ export class ComparisonsService {
         },
         include: {
           criteria: {
-            orderBy: { createdAt: 'asc' },
+            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
           },
         },
       });
