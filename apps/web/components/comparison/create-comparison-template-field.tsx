@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ComparisonTemplateCategorySchema,
+  ComparisonTemplateIdSchema,
   listComparisonTemplates,
+  type ComparisonTemplateId,
 } from '@compy/shared';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,11 +21,21 @@ import {
 
 const BLANK_TEMPLATE_ID = 'blank';
 
+type TemplateSelectId = ComparisonTemplateId | typeof BLANK_TEMPLATE_ID;
+
 const CATEGORY_ORDER = ComparisonTemplateCategorySchema.options;
+
+function parseTemplateSelectId(value: string | null): TemplateSelectId | null {
+  if (value === BLANK_TEMPLATE_ID) {
+    return BLANK_TEMPLATE_ID;
+  }
+  const parsed = ComparisonTemplateIdSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
 
 export function CreateComparisonTemplateField() {
   const t = useTranslations('createComparison');
-  const [templateId, setTemplateId] = useState(BLANK_TEMPLATE_ID);
+  const [templateId, setTemplateId] = useState<TemplateSelectId>(BLANK_TEMPLATE_ID);
   const templates = listComparisonTemplates();
 
   const byCategory = CATEGORY_ORDER.map((category) => ({
@@ -35,7 +47,15 @@ export function CreateComparisonTemplateField() {
     <div className="flex flex-col gap-2">
       <Label htmlFor="comparison-template">{t('template')}</Label>
       <input type="hidden" name="templateId" value={templateId} />
-      <Select value={templateId} onValueChange={setTemplateId}>
+      <Select
+        value={templateId}
+        onValueChange={(value) => {
+          const next = parseTemplateSelectId(value);
+          if (next !== null) {
+            setTemplateId(next);
+          }
+        }}
+      >
         <SelectTrigger id="comparison-template" className="w-full">
           <SelectValue />
         </SelectTrigger>

@@ -105,7 +105,7 @@ export async function createComparison(
 
     const t = await getTranslations(`comparisonTemplates.${parsedTemplateId.data}`);
     templateCriteria = resolveTemplateCriteria(parsedTemplateId.data, (key) =>
-      t(key),
+      t(key as Parameters<typeof t>[0]),
     );
   }
 
