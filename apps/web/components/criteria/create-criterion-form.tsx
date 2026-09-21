@@ -4,23 +4,18 @@ import { useTranslations } from 'next-intl';
 import { Collapse } from '@/components/criteria/collapse';
 import { CreateCriterionEnumOptions } from '@/components/criteria/create-criterion-enum-options';
 import { CreateCriterionRatingFields } from '@/components/criteria/create-criterion-rating-fields';
+import {
+  CreateCriterionTypeCards,
+  selectedCriterionTypeCard,
+  typeCardSelectionPatch,
+} from '@/components/criteria/create-criterion-type-cards';
 import { CreateCriterionUnitField } from '@/components/criteria/create-criterion-unit-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { DialogFooter } from '@/components/ui/dialog';
 
 export type ComparableType = 'number' | 'boolean' | 'rating' | 'enum';
-
-export const TYPE_KEYS: ComparableType[] = ['number', 'boolean', 'rating', 'enum'];
 
 export type CreateCriterionFormState = {
   name: string;
@@ -60,6 +55,7 @@ export function CreateCriterionForm({
   showFooter?: boolean;
 }) {
   const t = useTranslations();
+  const typeSectionId = `${idPrefix}-type-section`;
 
   function update(partial: Partial<CreateCriterionFormState>) {
     onStateChange({ ...state, ...partial });
@@ -87,65 +83,40 @@ export function CreateCriterionForm({
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <Label htmlFor={`${idPrefix}-comparable`}>
-          {t('createCriterion.comparable')}
-        </Label>
-        <Switch
-          id={`${idPrefix}-comparable`}
-          checked={state.isComparable}
-          onCheckedChange={(checked) => update({ isComparable: checked })}
+      <div className="flex flex-col gap-2">
+        <Label id={typeSectionId}>{t('createCriterion.typeSection')}</Label>
+        <CreateCriterionTypeCards
+          labelledBy={typeSectionId}
+          selected={selectedCriterionTypeCard(state.isComparable, state.type)}
+          onSelect={(id) => update(typeCardSelectionPatch(id))}
         />
       </div>
 
-      <Collapse open={state.isComparable}>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor={`${idPrefix}-type`}>{t('createCriterion.type')}</Label>
-          <Select
-            value={state.type}
-            onValueChange={(value) =>
-              update({ type: value as ComparableType })
-            }
-          >
-            <SelectTrigger id={`${idPrefix}-type`} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TYPE_KEYS.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {t(`createCriterion.types.${type}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <Collapse open={state.isComparable && state.type === 'number'}>
+        <CreateCriterionUnitField
+          idPrefix={idPrefix}
+          unit={state.unit}
+          onUnitChange={(unit) => update({ unit })}
+        />
+      </Collapse>
 
-        <Collapse open={state.isComparable && state.type === 'number'}>
-          <CreateCriterionUnitField
-            idPrefix={idPrefix}
-            unit={state.unit}
-            onUnitChange={(unit) => update({ unit })}
-          />
-        </Collapse>
+      <Collapse open={state.isComparable && state.type === 'rating'}>
+        <CreateCriterionRatingFields
+          idPrefix={idPrefix}
+          ratingMin={state.ratingMin}
+          ratingMax={state.ratingMax}
+          required={state.isComparable && state.type === 'rating'}
+          onRatingMinChange={(ratingMin) => update({ ratingMin })}
+          onRatingMaxChange={(ratingMax) => update({ ratingMax })}
+        />
+      </Collapse>
 
-        <Collapse open={state.isComparable && state.type === 'rating'}>
-          <CreateCriterionRatingFields
-            idPrefix={idPrefix}
-            ratingMin={state.ratingMin}
-            ratingMax={state.ratingMax}
-            required={state.isComparable && state.type === 'rating'}
-            onRatingMinChange={(ratingMin) => update({ ratingMin })}
-            onRatingMaxChange={(ratingMax) => update({ ratingMax })}
-          />
-        </Collapse>
-
-        <Collapse open={state.isComparable && state.type === 'enum'}>
-          <CreateCriterionEnumOptions
-            enumOptions={state.enumOptions}
-            required={state.isComparable && state.type === 'enum'}
-            onEnumOptionsChange={(enumOptions) => update({ enumOptions })}
-          />
-        </Collapse>
+      <Collapse open={state.isComparable && state.type === 'enum'}>
+        <CreateCriterionEnumOptions
+          enumOptions={state.enumOptions}
+          required={state.isComparable && state.type === 'enum'}
+          onEnumOptionsChange={(enumOptions) => update({ enumOptions })}
+        />
       </Collapse>
 
       {error && <p className="text-sm text-destructive">{error}</p>}

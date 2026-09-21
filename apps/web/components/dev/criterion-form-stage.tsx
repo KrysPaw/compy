@@ -21,7 +21,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
   {
     id: 'create-criterion-identity',
     title: 'Identity only (default)',
-    description: 'Comparable off — maps to text / not ranked.',
+    description: 'Identity card — maps to text / not ranked.',
     initialState: {
       ...CREATE_CRITERION_INITIAL_STATE,
       name: 'SKU / notes',
@@ -31,7 +31,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
   {
     id: 'create-criterion-number',
     title: 'Comparable number',
-    description: 'Comparable on, type number.',
+    description: 'Number card with optional unit.',
     initialState: {
       ...CREATE_CRITERION_INITIAL_STATE,
       name: 'Battery life',
@@ -43,7 +43,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
   {
     id: 'create-criterion-boolean',
     title: 'Yes / No',
-    description: 'Comparable on, type boolean.',
+    description: 'Yes / No card selected.',
     initialState: {
       ...CREATE_CRITERION_INITIAL_STATE,
       name: 'Wireless charging',
@@ -54,7 +54,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
   {
     id: 'create-criterion-rating',
     title: 'Rating scale',
-    description: 'Comparable on, type rating with min/max.',
+    description: 'Rating card with min/max.',
     initialState: {
       ...CREATE_CRITERION_INITIAL_STATE,
       name: 'Build quality',
@@ -67,7 +67,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
   {
     id: 'create-criterion-enum',
     title: 'Choice list',
-    description: 'Comparable on, type enum with options.',
+    description: 'Choice list card with options.',
     initialState: {
       ...CREATE_CRITERION_INITIAL_STATE,
       name: 'Size',

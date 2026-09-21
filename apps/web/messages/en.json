@@ -314,9 +314,30 @@
   "createCriterion": {
     "add": "Add criterion",
     "title": "New criterion",
-    "description": "Criteria describe how entries are named and compared.",
-    "comparable": "Comparable",
-    "type": "Type",
+    "description": "Name it, then pick how values work when comparing entries.",
+    "typeSection": "How should this criterion work?",
+    "cards": {
+      "identity": {
+        "title": "Identity only",
+        "helper": "Label or note — not used in ranking"
+      },
+      "number": {
+        "title": "Comparable number",
+        "helper": "Price, weight, score — ranked numerically"
+      },
+      "boolean": {
+        "title": "Yes / No",
+        "helper": "Has feature or not"
+      },
+      "rating": {
+        "title": "Rating scale",
+        "helper": "Subjective score on a range"
+      },
+      "enum": {
+        "title": "Choice list",
+        "helper": "Fixed options like size or brand"
+      }
+    },
     "min": "Min",
     "max": "Max",
     "options": "Options",
@@ -342,12 +363,6 @@
         "digital": "Digital",
         "other": "Other"
       }
-    },
-    "types": {
-      "number": "Number",
-      "boolean": "Boolean",
-      "rating": "Rating",
-      "enum": "Enum"
     }
   },
   "createEntry": {

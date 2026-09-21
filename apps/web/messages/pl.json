@@ -314,9 +314,30 @@
   "createCriterion": {
     "add": "Dodaj kryterium",
     "title": "Nowe kryterium",
-    "description": "Kryteria opisują, jak warianty są nazywane i porównywane.",
-    "comparable": "Porównywalne",
-    "type": "Typ",
+    "description": "Nazwij je, a potem wybierz, jak wartości działają przy porównywaniu wariantów.",
+    "typeSection": "Jak ma działać to kryterium?",
+    "cards": {
+      "identity": {
+        "title": "Tylko tożsamość",
+        "helper": "Etykieta lub notatka — nie używane w rankingu"
+      },
+      "number": {
+        "title": "Liczba porównywalna",
+        "helper": "Cena, waga, wynik — ranking liczbowy"
+      },
+      "boolean": {
+        "title": "Tak / Nie",
+        "helper": "Ma cechę albo nie"
+      },
+      "rating": {
+        "title": "Skala oceny",
+        "helper": "Subiektywny wynik w zakresie"
+      },
+      "enum": {
+        "title": "Lista wyboru",
+        "helper": "Stałe opcje, np. rozmiar lub marka"
+      }
+    },
     "min": "Min",
     "max": "Maks",
     "options": "Opcje",
@@ -342,12 +363,6 @@
         "digital": "Cyfrowe",
         "other": "Inne"
       }
-    },
-    "types": {
-      "number": "Liczba",
-      "boolean": "Logiczny",
-      "rating": "Ocena",
-      "enum": "Enumeracja"
     }
   },
   "createEntry": {
