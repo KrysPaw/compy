@@ -97,6 +97,11 @@
     "description": "Name your comparison and optionally start from a template.",
     "placeholder": "Phones 2026",
     "template": "Template",
+    "templateCategories": {
+      "electronics": "Electronics",
+      "vehicles": "Vehicles",
+      "travel": "Travel"
+    },
     "templates": {
       "blank": {
         "label": "Blank",
@@ -106,17 +111,45 @@
         "label": "Phones",
         "description": "Price, storage, battery, camera, and related phone criteria."
       },
+      "laptops": {
+        "label": "Laptops",
+        "description": "Price, RAM, storage, weight, battery, and related laptop criteria."
+      },
+      "tablets": {
+        "label": "Tablets",
+        "description": "Price, storage, RAM, screen size, and battery life."
+      },
+      "headphones": {
+        "label": "Headphones",
+        "description": "Price, type, wireless, ANC, and battery life."
+      },
+      "tvs": {
+        "label": "TVs",
+        "description": "Price, screen size, resolution, refresh rate, and smart TV."
+      },
       "cars": {
         "label": "Cars",
         "description": "Price, mileage, year, fuel type, and related car criteria."
+      },
+      "bikes": {
+        "label": "Bikes",
+        "description": "Price, type, weight, gears, and frame size."
+      },
+      "eScooters": {
+        "label": "E-scooters",
+        "description": "Price, range, top speed, weight, and foldability."
       },
       "hotels": {
         "label": "Hotels",
         "description": "Nightly price, distance, ratings, and stay amenities."
       },
-      "laptops": {
-        "label": "Laptops",
-        "description": "Price, RAM, storage, weight, battery, and related laptop criteria."
+      "flights": {
+        "label": "Flights",
+        "description": "Price, duration, stops, baggage, and airline."
+      },
+      "shortStays": {
+        "label": "Short stays",
+        "description": "Nightly price, distance, guest rating, and cleaning fee."
       }
     }
   },
@@ -130,6 +163,62 @@
         "camera": "Camera",
         "screenSize": "Screen size",
         "fiveG": "5G",
+        "rating": "Rating"
+      }
+    },
+    "laptops": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "ram": "RAM",
+        "storage": "Storage",
+        "weight": "Weight",
+        "batteryLife": "Battery life",
+        "screenSize": "Screen size",
+        "rating": "Rating"
+      }
+    },
+    "tablets": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "storage": "Storage",
+        "ram": "RAM",
+        "screenSize": "Screen size",
+        "batteryLife": "Battery life",
+        "rating": "Rating"
+      }
+    },
+    "headphones": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "type": "Type",
+        "typeOptions": {
+          "overEar": "Over-ear",
+          "onEar": "On-ear",
+          "inEar": "In-ear"
+        },
+        "wireless": "Wireless",
+        "anc": "Active noise cancelling",
+        "batteryLife": "Battery life",
+        "rating": "Rating"
+      }
+    },
+    "tvs": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "screenSize": "Screen size",
+        "resolution": "Resolution",
+        "resolutionOptions": {
+          "hd": "HD",
+          "fhd": "Full HD",
+          "uhd": "4K UHD",
+          "8k": "8K"
+        },
+        "refreshRate": "Refresh rate",
+        "smartTv": "Smart TV",
         "rating": "Rating"
       }
     },
@@ -150,6 +239,35 @@
         "rating": "Rating"
       }
     },
+    "bikes": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "type": "Type",
+        "typeOptions": {
+          "road": "Road",
+          "mountain": "Mountain",
+          "hybrid": "Hybrid",
+          "electric": "Electric"
+        },
+        "weight": "Weight",
+        "gearCount": "Gear count",
+        "frameSize": "Frame size",
+        "rating": "Rating"
+      }
+    },
+    "eScooters": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "range": "Range",
+        "topSpeed": "Top speed",
+        "weight": "Weight",
+        "maxLoad": "Max load",
+        "foldable": "Foldable",
+        "rating": "Rating"
+      }
+    },
     "hotels": {
       "criteria": {
         "neighborhood": "Neighborhood",
@@ -161,16 +279,31 @@
         "stars": "Stars"
       }
     },
-    "laptops": {
+    "flights": {
       "criteria": {
-        "brand": "Brand",
+        "airline": "Airline",
         "price": "Price",
-        "ram": "RAM",
-        "storage": "Storage",
-        "weight": "Weight",
-        "batteryLife": "Battery life",
-        "screenSize": "Screen size",
+        "duration": "Duration",
+        "stops": "Stops",
+        "stopsOptions": {
+          "nonstop": "Nonstop",
+          "1stop": "1 stop",
+          "2plus": "2+ stops"
+        },
+        "departureTime": "Departure time",
+        "baggageIncluded": "Baggage included",
         "rating": "Rating"
+      }
+    },
+    "shortStays": {
+      "criteria": {
+        "neighborhood": "Neighborhood",
+        "pricePerNight": "Price per night",
+        "distanceToCenter": "Distance to center",
+        "guestRating": "Guest rating",
+        "entirePlace": "Entire place",
+        "freeCancellation": "Free cancellation",
+        "cleaningFee": "Cleaning fee"
       }
     }
   },
@@ -192,7 +325,10 @@
       "placeholder": "e.g. kg",
       "clear": "Clear unit",
       "hints": "Unit suggestions",
-      "quantityUnits": ["pcs", "pieces"],
+      "quantityUnits": [
+        "pcs",
+        "pieces"
+      ],
       "categories": {
         "mass": "Mass",
         "length": "Length",

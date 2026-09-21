@@ -29,7 +29,7 @@ describe('ComparisonsService', () => {
       {
         id: 1,
         comparisonId: comparison.id,
-        name: 'name',
+        name: 'Name',
         type: 'text',
         config: null,
         is_comparable: false,
@@ -123,7 +123,7 @@ describe('ComparisonsService', () => {
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
         comparisonId: comparison.id,
-        name: 'name',
+        name: 'Name',
         type: 'text',
         is_comparable: false,
         is_key: true,
@@ -143,14 +143,14 @@ describe('ComparisonsService', () => {
 
   it('creates the key criterion with a provided keyCriterionName', async () => {
     await service.createComparison(
-      { name: 'Phones', keyCriterionName: 'nazwa' },
+      { name: 'Phones', keyCriterionName: 'Nazwa' },
       USER_ID,
     );
 
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
         comparisonId: comparison.id,
-        name: 'nazwa',
+        name: 'Nazwa',
         type: 'text',
         is_comparable: false,
         is_key: true,

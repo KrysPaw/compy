@@ -70,7 +70,7 @@ describe('createComparison', () => {
         method: 'POST',
         body: JSON.stringify({
           name: 'Phones',
-          keyCriterionName: 'name',
+          keyCriterionName: 'Name',
         }),
       }),
     );
@@ -137,7 +137,7 @@ describe('createComparison', () => {
         method: 'POST',
         body: JSON.stringify({
           name: 'Phones',
-          keyCriterionName: 'name',
+          keyCriterionName: 'Name',
         }),
       }),
     );

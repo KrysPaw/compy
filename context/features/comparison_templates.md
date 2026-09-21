@@ -6,7 +6,10 @@ Let users optionally pick a built-in template when creating a comparison so they
 
 ## Scope
 
-- Built-in catalog only: `phones`, `cars`, `hotels`, `laptops`
+- Built-in catalog only, grouped by category:
+  - **electronics** — `phones`, `laptops`, `tablets`, `headphones`, `tvs`
+  - **vehicles** — `cars`, `bikes`, `eScooters`
+  - **travel** — `hotels`, `flights`, `shortStays`
 - Seeded at create time after the key criterion
 - Criteria: name (locale-aware via web message catalogs), type, config, `is_comparable`
 - Partial `ruleConfig` where a sensible default exists
@@ -20,11 +23,11 @@ Let users optionally pick a built-in template when creating a comparison so they
 - `templateId` — one of the catalog ids
 - `templateCriteria` — resolved criterion payloads (required with `templateId`); names/options come from `apps/web/messages/{locale}.json` under `comparisonTemplates.*`, resolved on the web before POST
 
-Catalog structure (keys, types, configs, ruleConfigs) lives in `@compy/shared` (`comparison-templates.ts`) and is validated at module load. API rejects `templateCriteria` that do not match the catalog shape.
+Catalog structure (keys, types, configs, ruleConfigs, category) lives in `@compy/shared` (`comparison-templates.ts`) and is validated at module load. API rejects `templateCriteria` that do not match the catalog shape. `listComparisonTemplates()` returns `{ id, category }` in display order.
 
 ## UX
 
-Create dialog: name + template select (Blank + four templates) with a short description. After create, users add/remove criteria and adjust rules as today.
+Create dialog: name + template select (Blank, then category groups with section labels) and a short description for the selected option. After create, users add/remove criteria and adjust rules as today.
 
 ## Out of scope
 

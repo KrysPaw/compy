@@ -66,11 +66,11 @@ Comparison
 
 - **Comparison** — Named container for one decision (e.g. “Lisbon hotels”, “Junior backend offers”).
 - **Criterion** — User-defined (or system) attribute with a **type**, an `is_comparable` flag, an `is_key` flag, and a display name. Becomes a table column. The business roles remain identity (`is_comparable: false`) and comparable (`is_comparable: true`).
-- **Built-in identity criterion** — Every comparison has exactly one built-in criterion with `is_key: true`. It is created with the comparison, **cannot be deleted**, and is the canonical row label. Its initial display name is **"name"**, but the display name may be changed; `is_key`, not the name, identifies it.
+- **Built-in identity criterion** — Every comparison has exactly one built-in criterion with `is_key: true`. It is created with the comparison, **cannot be deleted**, and is the canonical row label. Its initial display name is **"Name"** (or **"Nazwa"** in Polish), but the display name may be changed; `is_key`, not the name, identifies it.
 - **Entry** — One thing being compared. Becomes a table row. No separate `name` column on `Entry` itself — the display name lives as a **value** of the built-in criterion (`is_key: true`) (keeps one values model). Alternative at implementation: denormalize `Entry.name` synced with that criterion; prefer single values model unless UX requires otherwise.
 - **Value** — The datum for one entry on one criterion. Hard-deleted if a **removable** criterion or entry is deleted. Deleting an entry removes its name value with it.
 
-Users may start from an optional **built-in comparison template** (phones, cars, hotels, laptops) at create time, which seeds criteria and selective `ruleConfig` (not weights). Blank create remains the default. Users may add more identity criteria (URL, source, …) and any comparable criteria after create.
+Users may start from an optional **built-in comparison template** (electronics / vehicles / travel categories: phones, laptops, tablets, headphones, TVs, cars, bikes, e-scooters, hotels, flights, short stays) at create time, which seeds criteria and selective `ruleConfig` (not weights). Blank create remains the default. Users may add more identity criteria (URL, source, …) and any comparable criteria after create.
 
 ### 4.1 Criterion roles
 
@@ -120,7 +120,7 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 
 **Criteria**
 
-- Each new comparison is created with a built-in identity criterion **`name`** (text, not removable)
+- Each new comparison is created with a built-in identity criterion **`Name`** (text, not removable)
 - Add custom criterion (**name + type + `is_comparable`**; enum options / rating bounds as needed)
 - Edit criterion (name for custom criteria only; type/`is_comparable` locked after create — see open decisions)
 - Delete **custom** criterion → **hard-delete** its values; **cannot delete** the criterion with `is_key: true`
@@ -161,7 +161,7 @@ Exact UX for defining enum options and rating scale bounds should follow a simpl
 ## 7. User flows (v1)
 
 1. **Start a comparison**  
-   User creates a comparison (built-in **name** column already present) → adds more identity/comparable criteria as needed → adds entries (with names) → sorts by a comparable column to decide.
+   User creates a comparison (built-in **Name** column already present) → adds more identity/comparable criteria as needed → adds entries (with names) → sorts by a comparable column to decide.
 
 2. **Refine**  
    User edits values, renames things, adds/removes criteria or entries; removed criteria/entries wipe related values.
@@ -329,7 +329,7 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 | Purpose          | Portfolio / learning                                                                               |
 | Name             | Compy                                                                                              |
 | v1 users         | Single instance, no auth, empty start                                                              |
-| Categories       | Free-form; optional built-in templates at create (phones, cars, hotels, laptops)                   |
+| Categories       | Free-form; optional built-in templates at create (electronics / vehicles / travel)                 |
 | Criteria         | Number, text, boolean, rating, enum; each uses `is_comparable`                                     |
 | Entry identity   | Built-in non-removable criterion (`is_key: true`) + optional custom identity criteria              |
 | Compare in v1    | Table + single-column header sort                                                                  |

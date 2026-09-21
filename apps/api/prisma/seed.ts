@@ -121,7 +121,7 @@ async function seed() {
     const nameCriterion = await prisma.criterion.create({
       data: {
         comparisonId: comparison.id,
-        name: 'name',
+        name: 'Name',
         type: 'text',
         is_comparable: false,
         is_key: true,

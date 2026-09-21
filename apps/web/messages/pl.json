@@ -97,6 +97,11 @@
     "description": "Nadaj porównaniu nazwę i opcjonalnie wybierz szablon.",
     "placeholder": "Telefony 2026",
     "template": "Szablon",
+    "templateCategories": {
+      "electronics": "Elektronika",
+      "vehicles": "Pojazdy",
+      "travel": "Podróże"
+    },
     "templates": {
       "blank": {
         "label": "Pusty",
@@ -106,17 +111,45 @@
         "label": "Telefony",
         "description": "Cena, pamięć, bateria, aparat i inne kryteria telefonów."
       },
+      "laptops": {
+        "label": "Laptopy",
+        "description": "Cena, RAM, dysk, waga, bateria i inne kryteria laptopów."
+      },
+      "tablets": {
+        "label": "Tablety",
+        "description": "Cena, pamięć, RAM, ekran i czas pracy na baterii."
+      },
+      "headphones": {
+        "label": "Słuchawki",
+        "description": "Cena, typ, bezprzewodowe, ANC i czas pracy na baterii."
+      },
+      "tvs": {
+        "label": "Telewizory",
+        "description": "Cena, ekran, rozdzielczość, odświeżanie i smart TV."
+      },
       "cars": {
         "label": "Samochody",
         "description": "Cena, przebieg, rok, paliwo i inne kryteria samochodów."
+      },
+      "bikes": {
+        "label": "Rowery",
+        "description": "Cena, typ, waga, biegi i rozmiar ramy."
+      },
+      "eScooters": {
+        "label": "Hulajnogi elektryczne",
+        "description": "Cena, zasięg, prędkość, waga i składanie."
       },
       "hotels": {
         "label": "Hotele",
         "description": "Cena za noc, odległość, oceny i udogodnienia."
       },
-      "laptops": {
-        "label": "Laptopy",
-        "description": "Cena, RAM, dysk, waga, bateria i inne kryteria laptopów."
+      "flights": {
+        "label": "Loty",
+        "description": "Cena, czas lotu, przesiadki, bagaż i linia lotnicza."
+      },
+      "shortStays": {
+        "label": "Krótkie pobyty",
+        "description": "Cena za noc, odległość, ocena gości i opłata za sprzątanie."
       }
     }
   },
@@ -130,6 +163,62 @@
         "camera": "Aparat",
         "screenSize": "Ekran",
         "fiveG": "5G",
+        "rating": "Ocena"
+      }
+    },
+    "laptops": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "ram": "RAM",
+        "storage": "Pamięć",
+        "weight": "Waga",
+        "batteryLife": "Czas pracy na baterii",
+        "screenSize": "Ekran",
+        "rating": "Ocena"
+      }
+    },
+    "tablets": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "storage": "Pamięć",
+        "ram": "RAM",
+        "screenSize": "Ekran",
+        "batteryLife": "Czas pracy na baterii",
+        "rating": "Ocena"
+      }
+    },
+    "headphones": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "type": "Typ",
+        "typeOptions": {
+          "overEar": "Nauszne",
+          "onEar": "Nauszne lekkie",
+          "inEar": "Douszne"
+        },
+        "wireless": "Bezprzewodowe",
+        "anc": "Aktywna redukcja szumów",
+        "batteryLife": "Czas pracy na baterii",
+        "rating": "Ocena"
+      }
+    },
+    "tvs": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "screenSize": "Ekran",
+        "resolution": "Rozdzielczość",
+        "resolutionOptions": {
+          "hd": "HD",
+          "fhd": "Full HD",
+          "uhd": "4K UHD",
+          "8k": "8K"
+        },
+        "refreshRate": "Odświeżanie",
+        "smartTv": "Smart TV",
         "rating": "Ocena"
       }
     },
@@ -150,6 +239,35 @@
         "rating": "Ocena"
       }
     },
+    "bikes": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "type": "Typ",
+        "typeOptions": {
+          "road": "Szosa",
+          "mountain": "Górski",
+          "hybrid": "Hybryda",
+          "electric": "Elektryczny"
+        },
+        "weight": "Waga",
+        "gearCount": "Liczba biegów",
+        "frameSize": "Rozmiar ramy",
+        "rating": "Ocena"
+      }
+    },
+    "eScooters": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "range": "Zasięg",
+        "topSpeed": "Prędkość maksymalna",
+        "weight": "Waga",
+        "maxLoad": "Maksymalne obciążenie",
+        "foldable": "Składana",
+        "rating": "Ocena"
+      }
+    },
     "hotels": {
       "criteria": {
         "neighborhood": "Dzielnica",
@@ -161,16 +279,31 @@
         "stars": "Gwiazdki"
       }
     },
-    "laptops": {
+    "flights": {
       "criteria": {
-        "brand": "Marka",
+        "airline": "Linia lotnicza",
         "price": "Cena",
-        "ram": "RAM",
-        "storage": "Dysk",
-        "weight": "Waga",
-        "batteryLife": "Czas pracy na baterii",
-        "screenSize": "Ekran",
+        "duration": "Czas lotu",
+        "stops": "Przesiadki",
+        "stopsOptions": {
+          "nonstop": "Bez przesiadek",
+          "1stop": "1 przesiadka",
+          "2plus": "2+ przesiadki"
+        },
+        "departureTime": "Godzina wylotu",
+        "baggageIncluded": "Bagaż w cenie",
         "rating": "Ocena"
+      }
+    },
+    "shortStays": {
+      "criteria": {
+        "neighborhood": "Dzielnica",
+        "pricePerNight": "Cena za noc",
+        "distanceToCenter": "Odległość od centrum",
+        "guestRating": "Ocena gości",
+        "entirePlace": "Całe mieszkanie",
+        "freeCancellation": "Bezpłatna anulacja",
+        "cleaningFee": "Opłata za sprzątanie"
       }
     }
   },
@@ -192,7 +325,10 @@
       "placeholder": "np. kg",
       "clear": "Wyczyść jednostkę",
       "hints": "Podpowiedzi jednostek",
-      "quantityUnits": ["szt.", "sztuki"],
+      "quantityUnits": [
+        "szt.",
+        "sztuki"
+      ],
       "categories": {
         "mass": "Masa",
         "length": "Długość",

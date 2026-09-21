@@ -35,7 +35,7 @@ describe('API (e2e)', () => {
   const builtInCriterion = {
     id: 1,
     comparisonId: 1,
-    name: 'name',
+    name: 'Name',
     type: 'text',
     config: null,
     is_comparable: false,
@@ -209,7 +209,7 @@ describe('API (e2e)', () => {
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
         comparisonId: 1,
-        name: 'name',
+        name: 'Name',
         type: 'text',
         is_comparable: false,
         is_key: true,
@@ -220,13 +220,13 @@ describe('API (e2e)', () => {
   it('creates a comparison with a custom key criterion name', async () => {
     await request(app.getHttpServer())
       .post('/comparisons')
-      .send({ name: 'Phones', keyCriterionName: 'nazwa' })
+      .send({ name: 'Phones', keyCriterionName: 'Nazwa' })
       .expect(201);
 
     expect(criterionCreate).toHaveBeenCalledWith({
       data: {
         comparisonId: 1,
-        name: 'nazwa',
+        name: 'Nazwa',
         type: 'text',
         is_comparable: false,
         is_key: true,

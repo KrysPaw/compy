@@ -99,7 +99,7 @@ export class ComparisonsService {
       await transaction.criterion.create({
         data: {
           comparisonId: comparison.id,
-          name: data.keyCriterionName ?? 'name',
+          name: data.keyCriterionName ?? 'Name',
           type: 'text',
           is_comparable: false,
           is_key: true,
