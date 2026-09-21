@@ -37,6 +37,7 @@ export const CRITERION_STAGES: CriterionStage[] = [
       name: 'Battery life',
       isComparable: true,
       type: 'number',
+      unit: 'h',
     },
   },
   {

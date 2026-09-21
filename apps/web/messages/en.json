@@ -99,6 +99,22 @@
     "removeOption": "Remove option",
     "addOption": "Add option",
     "placeholder": "Price",
+    "unit": {
+      "label": "Unit",
+      "placeholder": "e.g. kg",
+      "clear": "Clear unit",
+      "hints": "Unit suggestions",
+      "quantityUnits": ["pcs", "pieces"],
+      "categories": {
+        "mass": "Mass",
+        "length": "Length",
+        "quantity": "Quantity",
+        "currency": "Currency",
+        "time": "Time",
+        "digital": "Digital",
+        "other": "Other"
+      }
+    },
     "types": {
       "number": "Number",
       "boolean": "Boolean",

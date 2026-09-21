@@ -4,9 +4,11 @@ import {
   clearedCriterionIds,
   enumOptionsOf,
   fieldsFromEntryValues,
+  formatValueWithUnit,
   initialEntryFields,
   orderedCriteria,
   ratingBoundsOf,
+  unitOf,
   type Criterion,
 } from './create-entry';
 
@@ -243,5 +245,43 @@ describe('buildCreateEntryValues', () => {
         { criterionId: 4, type: 'boolean', value: false },
       ],
     });
+  });
+});
+
+describe('unitOf', () => {
+  it('reads a trimmed unit from number config', () => {
+    expect(
+      unitOf(
+        criterion({
+          id: 1,
+          name: 'Weight',
+          type: 'number',
+          config: { unit: ' kg ' },
+        }),
+      ),
+    ).toBe('kg');
+  });
+
+  it('returns undefined when unit is missing or blank', () => {
+    expect(
+      unitOf(criterion({ id: 1, name: 'Price', type: 'number', config: null })),
+    ).toBeUndefined();
+    expect(
+      unitOf(
+        criterion({
+          id: 1,
+          name: 'Price',
+          type: 'number',
+          config: { unit: '   ' },
+        }),
+      ),
+    ).toBeUndefined();
+  });
+});
+
+describe('formatValueWithUnit', () => {
+  it('appends the unit with a single space when present', () => {
+    expect(formatValueWithUnit('12', 'kg')).toBe('12 kg');
+    expect(formatValueWithUnit('12', undefined)).toBe('12');
   });
 });

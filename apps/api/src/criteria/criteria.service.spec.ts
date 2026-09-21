@@ -98,6 +98,28 @@ describe('CriteriaService', () => {
     });
   });
 
+  it('creates a number criterion with an optional unit in config', async () => {
+    const criterion: CreateCriterionInput = {
+      name: 'Weight',
+      type: 'number',
+      is_comparable: true,
+      config: { unit: 'kg' },
+    };
+
+    await service.create(PUBLIC_ID, USER_ID, criterion);
+
+    expect(criterionCreate).toHaveBeenCalledWith({
+      data: {
+        comparisonId: 1,
+        name: 'Weight',
+        type: 'number',
+        config: { unit: 'kg' },
+        is_comparable: true,
+        is_key: false,
+      },
+    });
+  });
+
   it('throws NotFoundException when the comparison does not exist', async () => {
     comparisonFindFirst.mockResolvedValueOnce(null);
 

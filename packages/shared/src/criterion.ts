@@ -29,8 +29,18 @@ export const EnumConfigSchema = z
     message: "Enum options must be unique",
   });
 
+export const NumberConfigSchema = z
+  .object({
+    unit: z.string().trim().min(1).max(32).optional(),
+  })
+  .strict();
+export type NumberConfig = z.infer<typeof NumberConfigSchema>;
+
 export const CriterionConfigSchema = z.discriminatedUnion("type", [
-  z.object({ type: z.literal("number"), config: z.undefined().optional() }),
+  z.object({
+    type: z.literal("number"),
+    config: NumberConfigSchema.optional(),
+  }),
   z.object({ type: z.literal("text"), config: z.undefined().optional() }),
   z.object({ type: z.literal("boolean"), config: z.undefined().optional() }),
   z.object({ type: z.literal("rating"), config: RatingConfigSchema }),

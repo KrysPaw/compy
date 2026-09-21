@@ -2,8 +2,14 @@
 
 import { useTranslations } from 'next-intl';
 import type { Criterion, EntryFieldValue } from '@/lib/create-entry';
-import { enumOptionsOf, ratingBoundsOf } from '@/lib/create-entry';
+import { enumOptionsOf, ratingBoundsOf, unitOf } from '@/lib/create-entry';
 import { Input } from '@/components/ui/input';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -68,8 +74,40 @@ export function EntryValueField({
 
   const textValue = typeof value === 'string' ? value : '';
 
-  if (type === 'number' || type === 'rating') {
-    const bounds = type === 'rating' ? ratingBoundsOf(criterion) : {};
+  if (type === 'number') {
+    const unit = unitOf(criterion);
+
+    return (
+      <div className="flex flex-col gap-2">
+        <Label htmlFor={id}>{criterion.name}</Label>
+        {unit ? (
+          <InputGroup>
+            <InputGroupInput
+              id={id}
+              type="number"
+              step="any"
+              value={textValue}
+              onChange={(event) => onChange(event.target.value)}
+            />
+            <InputGroupAddon align="inline-end">
+              <InputGroupText>{unit}</InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
+        ) : (
+          <Input
+            id={id}
+            type="number"
+            step="any"
+            value={textValue}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  if (type === 'rating') {
+    const bounds = ratingBoundsOf(criterion);
 
     return (
       <div className="flex flex-col gap-2">

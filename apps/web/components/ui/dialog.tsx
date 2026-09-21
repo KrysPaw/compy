@@ -48,6 +48,18 @@ function DialogOverlay({
   )
 }
 
+function isPortaledPopupTarget(target: EventTarget | null) {
+  if (!(target instanceof Element)) {
+    return false
+  }
+
+  return Boolean(
+    target.closest(
+      '[data-slot="combobox-content"], [data-slot="select-content"], [data-slot="unit-hints"], [data-slot="dropdown-menu-content"]',
+    ),
+  )
+}
+
 function DialogContent({
   className,
   children,
@@ -70,11 +82,17 @@ function DialogContent({
           className
         )}
         onPointerDownOutside={(event) => {
-          event.preventDefault()
+          // Portaled combobox/select popups live outside content; blocking
+          // outside pointer events makes them non-interactive.
+          if (!isPortaledPopupTarget(event.target)) {
+            event.preventDefault()
+          }
           onPointerDownOutside?.(event)
         }}
         onInteractOutside={(event) => {
-          event.preventDefault()
+          if (!isPortaledPopupTarget(event.target)) {
+            event.preventDefault()
+          }
           onInteractOutside?.(event)
         }}
         onEscapeKeyDown={(event) => {

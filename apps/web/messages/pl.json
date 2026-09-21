@@ -99,6 +99,22 @@
     "removeOption": "Usuń opcję",
     "addOption": "Dodaj opcję",
     "placeholder": "Cena",
+    "unit": {
+      "label": "Jednostka",
+      "placeholder": "np. kg",
+      "clear": "Wyczyść jednostkę",
+      "hints": "Podpowiedzi jednostek",
+      "quantityUnits": ["szt.", "sztuki"],
+      "categories": {
+        "mass": "Masa",
+        "length": "Długość",
+        "quantity": "Ilość",
+        "currency": "Waluta",
+        "time": "Czas",
+        "digital": "Cyfrowe",
+        "other": "Inne"
+      }
+    },
     "types": {
       "number": "Liczba",
       "boolean": "Logiczny",

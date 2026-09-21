@@ -112,6 +112,31 @@ export function ratingBoundsOf(criterion: Criterion): {
   };
 }
 
+export function unitOf(criterion: Criterion): string | undefined {
+  if (
+    criterion.type !== 'number' ||
+    !criterion.config ||
+    typeof criterion.config !== 'object'
+  ) {
+    return undefined;
+  }
+
+  const { unit } = criterion.config as { unit?: unknown };
+  if (typeof unit !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = unit.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+export function formatValueWithUnit(
+  valueText: string,
+  unit: string | undefined,
+): string {
+  return unit ? `${valueText} ${unit}` : valueText;
+}
+
 export type EntryValidationMessage =
   | { id: 'createEntry.nameRequired' }
   | { id: 'createEntry.mustBeANumber'; values: { name: string } };

@@ -3,7 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { StarIcon } from 'lucide-react';
 import type { ComparisonDetailsResponse } from '@compy/shared';
-import { ratingBoundsOf } from '@/lib/create-entry';
+import {
+  formatValueWithUnit,
+  ratingBoundsOf,
+  unitOf,
+} from '@/lib/create-entry';
 
 type Criterion = ComparisonDetailsResponse['criteria'][number];
 
@@ -43,6 +47,10 @@ export function EntryCellValue({
         />
       </span>
     );
+  }
+
+  if (criterion.type === 'number') {
+    return formatValueWithUnit(text, unitOf(criterion));
   }
 
   return text;

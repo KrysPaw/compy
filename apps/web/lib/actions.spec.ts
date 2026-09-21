@@ -122,6 +122,35 @@ describe('createCriterion', () => {
     );
   });
 
+  it('posts valid criterion input with a number unit and returns the created id', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ id: 4 }, { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      createCriterion(SAMPLE_PUBLIC_ID, {
+        name: 'Weight',
+        is_comparable: true,
+        type: 'number',
+        config: { unit: 'kg' },
+      }),
+    ).resolves.toEqual({ criterionId: 4 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons\/01ARZ3NDEKTSV4RRFFQ69G5FAV\/criteria$/),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Weight',
+          is_comparable: true,
+          type: 'number',
+          config: { unit: 'kg' },
+        }),
+      }),
+    );
+  });
+
   it('returns a failure message when the API rejects the create', async () => {
     vi.stubGlobal(
       'fetch',

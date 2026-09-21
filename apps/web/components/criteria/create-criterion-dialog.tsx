@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
 import { createCriterion } from '@/lib/actions';
+import { buildCreateCriterionPayload } from '@/lib/create-criterion';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -44,30 +45,7 @@ export function CreateCriterionDialog({
   }
 
   function handleSubmit() {
-    const payload = state.isComparable
-      ? state.type === 'rating'
-        ? {
-            name: state.name,
-            is_comparable: true,
-            type: 'rating',
-            config: {
-              min: Number(state.ratingMin),
-              max: Number(state.ratingMax),
-            },
-          }
-        : state.type === 'enum'
-          ? {
-              name: state.name,
-              is_comparable: true,
-              type: 'enum',
-              config: {
-                options: state.enumOptions
-                  .map((option) => option.trim())
-                  .filter((option) => option.length > 0),
-              },
-            }
-          : { name: state.name, is_comparable: true, type: state.type }
-      : { name: state.name, is_comparable: false, type: 'text' };
+    const payload = buildCreateCriterionPayload(state);
 
     startTransition(async () => {
       const result = await createCriterion(publicId, payload);

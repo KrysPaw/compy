@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Collapse } from '@/components/criteria/collapse';
 import { CreateCriterionEnumOptions } from '@/components/criteria/create-criterion-enum-options';
 import { CreateCriterionRatingFields } from '@/components/criteria/create-criterion-rating-fields';
+import { CreateCriterionUnitField } from '@/components/criteria/create-criterion-unit-field';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ export type CreateCriterionFormState = {
   name: string;
   isComparable: boolean;
   type: ComparableType;
+  unit: string;
   ratingMin: string;
   ratingMax: string;
   enumOptions: string[];
@@ -34,6 +36,7 @@ export const CREATE_CRITERION_INITIAL_STATE: CreateCriterionFormState = {
   name: '',
   isComparable: false,
   type: 'number',
+  unit: '',
   ratingMin: '',
   ratingMax: '',
   enumOptions: [''],
@@ -116,6 +119,14 @@ export function CreateCriterionForm({
             </SelectContent>
           </Select>
         </div>
+
+        <Collapse open={state.isComparable && state.type === 'number'}>
+          <CreateCriterionUnitField
+            idPrefix={idPrefix}
+            unit={state.unit}
+            onUnitChange={(unit) => update({ unit })}
+          />
+        </Collapse>
 
         <Collapse open={state.isComparable && state.type === 'rating'}>
           <CreateCriterionRatingFields
