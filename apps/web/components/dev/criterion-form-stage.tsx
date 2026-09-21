@@ -98,6 +98,7 @@ export function CriterionFormStage({
 }) {
   const t = useTranslations();
   const [state, setState] = useState(stage.initialState);
+  const [addNext, setAddNext] = useState(false);
 
   return (
     <GalleryStage
@@ -114,6 +115,8 @@ export function CriterionFormStage({
           onStateChange={setState}
           error={error}
           idPrefix={stage.id}
+          addNext={addNext}
+          onAddNextChange={setAddNext}
           onSubmit={() => undefined}
         />
       </DialogPanel>

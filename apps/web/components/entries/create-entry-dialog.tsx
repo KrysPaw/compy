@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
@@ -23,6 +23,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export function CreateEntryDialog({
   publicId,
@@ -40,6 +42,9 @@ export function CreateEntryDialog({
   const [fields, setFields] = useState(() =>
     initialEntryFields(fieldsCriteria),
   );
+  const [addNext, setAddNext] = useState(false);
+  const addNextRef = useRef(addNext);
+  addNextRef.current = addNext;
 
   function reset() {
     setFields(initialEntryFields(fieldsCriteria));
@@ -50,6 +55,7 @@ export function CreateEntryDialog({
     setOpen(nextOpen);
     if (!nextOpen) {
       reset();
+      setAddNext(false);
     }
   }
 
@@ -66,6 +72,12 @@ export function CreateEntryDialog({
 
       if (result.entryId === undefined) {
         setError(result.error);
+        return;
+      }
+
+      if (addNextRef.current) {
+        reset();
+        router.refresh();
         return;
       }
 
@@ -87,7 +99,14 @@ export function CreateEntryDialog({
           <DialogTitle>{t('createEntry.title')}</DialogTitle>
           <DialogDescription>{t('createEntry.description')}</DialogDescription>
         </DialogHeader>
-        <form action={handleSubmit} className="flex flex-col gap-4">
+        <form
+          action={handleSubmit}
+          className="flex flex-col gap-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSubmit();
+          }}
+        >
           {fieldsCriteria.map((criterion) => (
             <EntryValueField
               key={criterion.id}
@@ -103,9 +122,17 @@ export function CreateEntryDialog({
           ))}
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? t('common.creating') : t('common.create')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="entry-add-next"
+                checked={addNext}
+                onCheckedChange={setAddNext}
+              />
+              <Label htmlFor="entry-add-next">{t('common.addNext')}</Label>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? t('common.creating') : t('common.create')}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

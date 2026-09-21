@@ -13,6 +13,7 @@ import { CreateCriterionUnitField } from '@/components/criteria/create-criterion
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { DialogFooter } from '@/components/ui/dialog';
 
 export type ComparableType = 'number' | 'boolean' | 'rating' | 'enum';
@@ -45,6 +46,8 @@ export function CreateCriterionForm({
   onSubmit,
   idPrefix = 'criterion',
   showFooter = true,
+  addNext = false,
+  onAddNextChange,
 }: {
   state: CreateCriterionFormState;
   onStateChange: (next: CreateCriterionFormState) => void;
@@ -53,6 +56,8 @@ export function CreateCriterionForm({
   onSubmit: () => void;
   idPrefix?: string;
   showFooter?: boolean;
+  addNext?: boolean;
+  onAddNextChange?: (checked: boolean) => void;
 }) {
   const t = useTranslations();
   const typeSectionId = `${idPrefix}-type-section`;
@@ -122,9 +127,19 @@ export function CreateCriterionForm({
       {error && <p className="text-sm text-destructive">{error}</p>}
       {showFooter ? (
         <DialogFooter>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? t('common.creating') : t('common.create')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Switch
+              id={`${idPrefix}-add-next`}
+              checked={addNext}
+              onCheckedChange={onAddNextChange}
+            />
+            <Label htmlFor={`${idPrefix}-add-next`}>
+              {t('common.addNext')}
+            </Label>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? t('common.creating') : t('common.create')}
+            </Button>
+          </div>
         </DialogFooter>
       ) : null}
     </form>

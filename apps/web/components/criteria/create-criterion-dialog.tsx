@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { PlusIcon } from 'lucide-react';
@@ -31,6 +31,9 @@ export function CreateCriterionDialog({
   const [error, setError] = useState<string>();
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useState(CREATE_CRITERION_INITIAL_STATE);
+  const [addNext, setAddNext] = useState(false);
+  const addNextRef = useRef(addNext);
+  addNextRef.current = addNext;
 
   function reset() {
     setState(CREATE_CRITERION_INITIAL_STATE);
@@ -41,6 +44,7 @@ export function CreateCriterionDialog({
     setOpen(nextOpen);
     if (!nextOpen) {
       reset();
+      setAddNext(false);
     }
   }
 
@@ -52,6 +56,12 @@ export function CreateCriterionDialog({
 
       if (result.criterionId === undefined) {
         setError(result.error);
+        return;
+      }
+
+      if (addNextRef.current) {
+        reset();
+        router.refresh();
         return;
       }
 
@@ -80,6 +90,8 @@ export function CreateCriterionDialog({
           onStateChange={setState}
           error={error}
           isPending={isPending}
+          addNext={addNext}
+          onAddNextChange={setAddNext}
           onSubmit={handleSubmit}
         />
       </DialogContent>

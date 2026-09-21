@@ -2,6 +2,14 @@ import '@testing-library/jest-dom/vitest';
 import { vi } from 'vitest';
 import enMessages from './messages/en.json';
 
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+globalThis.ResizeObserver = ResizeObserverMock;
+
 Object.defineProperty(window, 'innerWidth', {
   writable: true,
   configurable: true,
