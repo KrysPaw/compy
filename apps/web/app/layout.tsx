@@ -3,14 +3,9 @@ import { NextIntlClientProvider } from 'next-intl';
 import { Analytics } from '@vercel/analytics/next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import './globals.css';
-import { Noto_Sans, Playfair_Display } from 'next/font/google';
+import { Noto_Sans } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
-
-const playfairDisplayHeading = Playfair_Display({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-heading',
-});
 
 const notoSans = Noto_Sans({
   subsets: ['latin', 'latin-ext'],
@@ -35,7 +30,6 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
         'h-full antialiased',
         'font-sans',
         notoSans.variable,
-        playfairDisplayHeading.variable,
       )}
     >
       <body className={`min-h-full flex flex-col`}>
