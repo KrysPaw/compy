@@ -1,3 +1,4 @@
+import type { BrowserContext } from '@playwright/test';
 import { E2E_API_URL } from '../env';
 
 export type ComparisonSummary = {
@@ -30,6 +31,27 @@ async function ensureGuestSession(): Promise<string> {
   }
 
   return sessionCookie;
+}
+
+/** Share the API helper guest with the browser so seeded comparisons are owned. */
+export async function applyGuestSession(
+  context: BrowserContext,
+): Promise<void> {
+  const cookieHeader = await ensureGuestSession();
+  const separator = cookieHeader.indexOf('=');
+  const name = cookieHeader.slice(0, separator);
+  const value = decodeURIComponent(cookieHeader.slice(separator + 1));
+
+  await context.addCookies([
+    {
+      name,
+      value,
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Lax',
+    },
+  ]);
 }
 
 async function api<T>(

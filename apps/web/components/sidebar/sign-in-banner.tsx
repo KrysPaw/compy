@@ -13,15 +13,17 @@ export async function SignInBanner() {
   const t = await getTranslations('auth');
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b bg-muted/40 px-4 py-2 text-sm">
-      <p className="text-muted-foreground">{t('guestBanner')}</p>
-      <SignInDialog
-        trigger={
-          <Button size="sm" variant="outline">
-            {t('signIn')}
-          </Button>
-        }
-      />
+    <div className="flex flex-col gap-3 border-b bg-muted/40 px-4 py-2 text-sm sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <p className="min-w-0 text-muted-foreground">{t('guestBanner')}</p>
+      <div className="shrink-0">
+        <SignInDialog
+          trigger={
+            <Button size="sm" variant="outline">
+              {t('signIn')}
+            </Button>
+          }
+        />
+      </div>
     </div>
   );
 }

@@ -26,9 +26,11 @@ export default async function CriteriaPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">{t('criteriaBlurb')}</p>
-        <CreateCriterionDialog publicId={publicId} />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="min-w-0 text-sm text-muted-foreground">{t('criteriaBlurb')}</p>
+        <div className="shrink-0">
+          <CreateCriterionDialog publicId={publicId} />
+        </div>
       </div>
       <CriteriaDataTable
         publicId={publicId}

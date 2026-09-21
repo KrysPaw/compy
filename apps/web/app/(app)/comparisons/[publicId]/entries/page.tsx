@@ -26,12 +26,14 @@ export default async function EntriesPage({
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">{t('entriesBlurb')}</p>
-        <CreateEntryDialog
-          publicId={publicId}
-          criteria={open.comparison.criteria}
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="min-w-0 text-sm text-muted-foreground">{t('entriesBlurb')}</p>
+        <div className="shrink-0">
+          <CreateEntryDialog
+            publicId={publicId}
+            criteria={open.comparison.criteria}
+          />
+        </div>
       </div>
       <ComparisonDataTable
         publicId={publicId}

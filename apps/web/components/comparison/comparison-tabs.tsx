@@ -26,8 +26,8 @@ export function ComparisonTabs({ publicId }: { publicId: string }) {
   }
 
   return (
-    <Tabs value={activeTab} className="absolute left-1/2 -translate-x-1/2">
-      <TabsList variant="line">
+    <Tabs value={activeTab} className="min-w-0 w-full overflow-x-auto">
+      <TabsList variant="line" className="w-max min-w-full justify-start">
         <TabsTrigger value="criteria" asChild>
           <Link href={criteriaPath}>{t('criteria')}</Link>
         </TabsTrigger>

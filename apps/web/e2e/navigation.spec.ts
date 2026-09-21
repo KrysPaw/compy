@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { createComparison, resetComparisons } from './helpers/api';
+import {
+  applyGuestSession,
+  createComparison,
+  resetComparisons,
+} from './helpers/api';
 
 test.describe('A. Home & shell — navigation smoke', () => {
   test.beforeEach(async () => {
@@ -13,6 +17,7 @@ test.describe('A. Home & shell — navigation smoke', () => {
     const comparison = await createComparison('Shell smoke');
     const entriesPath = `/comparisons/${comparison.publicId}/entries`;
 
+    await applyGuestSession(context);
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto(entriesPath);
 
@@ -43,8 +48,8 @@ test.describe('A. Home & shell — navigation smoke', () => {
     await mobile.goto(entriesPath);
 
     await expect(mobile.getByRole('tab', { name: 'Entries' })).toBeVisible();
-    // Centered tabs overlap the trigger on narrow widths; Ctrl+B is the shell shortcut.
-    await mobile.keyboard.press('Control+b');
+    const mobileTrigger = mobile.locator('[data-slot="sidebar-trigger"]');
+    await mobileTrigger.click();
     await expect(
       mobile.getByRole('dialog').getByRole('link', { name: 'Shell smoke' }),
     ).toBeVisible();
