@@ -15,7 +15,7 @@ This is primarily a **portfolio / learning project**: clear product thinking, a 
 ### Product goals (v1)
 
 - Let one person run useful free-form comparisons in a spreadsheet-like table.
-- Support flexible criteria types so real decisions (price, distance, “has balcony”, rating, brand) fit without templates.
+- Support flexible criteria types so real decisions (price, distance, “has balcony”, rating, brand) fit; optional built-in templates can seed a starting set.
 - Make comparison usable via **single-column sort** from column headers.
 
 ### Learning / portfolio goals
@@ -70,7 +70,7 @@ Comparison
 - **Entry** — One thing being compared. Becomes a table row. No separate `name` column on `Entry` itself — the display name lives as a **value** of the built-in criterion (`is_key: true`) (keeps one values model). Alternative at implementation: denormalize `Entry.name` synced with that criterion; prefer single values model unless UX requires otherwise.
 - **Value** — The datum for one entry on one criterion. Hard-deleted if a **removable** criterion or entry is deleted. Deleting an entry removes its name value with it.
 
-There are **no category templates** in v1. Users may add more identity criteria (URL, source, …) and any comparable criteria.
+Users may start from an optional **built-in comparison template** (phones, cars, hotels, laptops) at create time, which seeds criteria and selective `ruleConfig` (not weights). Blank create remains the default. Users may add more identity criteria (URL, source, …) and any comparable criteria after create.
 
 ### 4.1 Criterion roles
 
@@ -329,7 +329,7 @@ Validation: NestJS validates bodies/params with **`nestjs-zod`** using **Zod sch
 | Purpose          | Portfolio / learning                                                                               |
 | Name             | Compy                                                                                              |
 | v1 users         | Single instance, no auth, empty start                                                              |
-| Categories       | Free-form only                                                                                     |
+| Categories       | Free-form; optional built-in templates at create (phones, cars, hotels, laptops)                   |
 | Criteria         | Number, text, boolean, rating, enum; each uses `is_comparable`                                     |
 | Entry identity   | Built-in non-removable criterion (`is_key: true`) + optional custom identity criteria              |
 | Compare in v1    | Table + single-column header sort                                                                  |

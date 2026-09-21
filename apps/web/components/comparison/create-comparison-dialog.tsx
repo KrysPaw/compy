@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { SidebarGroupAction } from '@/components/ui/sidebar';
+import { CreateComparisonTemplateField } from '@/components/comparison/create-comparison-template-field';
 
 type CreateComparisonDialogProps = {
   trigger?: ReactNode;
@@ -75,6 +76,7 @@ export function CreateComparisonDialog({ trigger }: CreateComparisonDialogProps)
               autoFocus
             />
           </div>
+          <CreateComparisonTemplateField />
           {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>

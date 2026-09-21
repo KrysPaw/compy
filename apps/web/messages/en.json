@@ -83,8 +83,85 @@
   },
   "createComparison": {
     "title": "New comparison",
-    "description": "Give your comparison a name to get started.",
-    "placeholder": "Phones 2026"
+    "description": "Name your comparison and optionally start from a template.",
+    "placeholder": "Phones 2026",
+    "template": "Template",
+    "templates": {
+      "blank": {
+        "label": "Blank",
+        "description": "Start empty and add criteria yourself."
+      },
+      "phones": {
+        "label": "Phones",
+        "description": "Price, storage, battery, camera, and related phone criteria."
+      },
+      "cars": {
+        "label": "Cars",
+        "description": "Price, mileage, year, fuel type, and related car criteria."
+      },
+      "hotels": {
+        "label": "Hotels",
+        "description": "Nightly price, distance, ratings, and stay amenities."
+      },
+      "laptops": {
+        "label": "Laptops",
+        "description": "Price, RAM, storage, weight, battery, and related laptop criteria."
+      }
+    }
+  },
+  "comparisonTemplates": {
+    "phones": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "storage": "Storage",
+        "battery": "Battery",
+        "camera": "Camera",
+        "screenSize": "Screen size",
+        "fiveG": "5G",
+        "rating": "Rating"
+      }
+    },
+    "cars": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "mileage": "Mileage",
+        "year": "Year",
+        "fuelType": "Fuel type",
+        "fuelTypeOptions": {
+          "petrol": "Petrol",
+          "diesel": "Diesel",
+          "hybrid": "Hybrid",
+          "electric": "Electric"
+        },
+        "power": "Power",
+        "rating": "Rating"
+      }
+    },
+    "hotels": {
+      "criteria": {
+        "neighborhood": "Neighborhood",
+        "pricePerNight": "Price per night",
+        "distanceToCenter": "Distance to center",
+        "guestRating": "Guest rating",
+        "breakfastIncluded": "Breakfast included",
+        "freeCancellation": "Free cancellation",
+        "stars": "Stars"
+      }
+    },
+    "laptops": {
+      "criteria": {
+        "brand": "Brand",
+        "price": "Price",
+        "ram": "RAM",
+        "storage": "Storage",
+        "weight": "Weight",
+        "batteryLife": "Battery life",
+        "screenSize": "Screen size",
+        "rating": "Rating"
+      }
+    }
   },
   "createCriterion": {
     "add": "Add criterion",

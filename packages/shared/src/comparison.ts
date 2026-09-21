@@ -5,12 +5,48 @@ import {
   PublicIdSchema,
 } from "./common/primitives.js";
 import { CriterionWeightSchema } from "./criterion.js";
+import {
+  ComparisonTemplateIdSchema,
+  ResolvedTemplateCriterionSchema,
+  templateCriteriaMatchCatalog,
+} from "./comparison-templates.js";
 
+export const CreateComparisonSchema = z
+  .object({
+    name: NameSchema,
+    keyCriterionName: OptionalNameSchema,
+    templateId: ComparisonTemplateIdSchema.optional(),
+    templateCriteria: z.array(ResolvedTemplateCriterionSchema).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.templateId === undefined) {
+      if (value.templateCriteria !== undefined) {
+        ctx.addIssue({
+          code: "custom",
+          message: "templateCriteria requires templateId",
+          path: ["templateCriteria"],
+        });
+      }
+      return;
+    }
 
-export const CreateComparisonSchema = z.object({
-  name: NameSchema,
-  keyCriterionName: OptionalNameSchema,
-});
+    if (value.templateCriteria === undefined) {
+      ctx.addIssue({
+        code: "custom",
+        message: "templateCriteria is required when templateId is set",
+        path: ["templateCriteria"],
+      });
+      return;
+    }
+
+    if (!templateCriteriaMatchCatalog(value.templateId, value.templateCriteria)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "templateCriteria does not match the selected template",
+        path: ["templateCriteria"],
+      });
+    }
+  });
 export type CreateComparisonInput = z.infer<typeof CreateComparisonSchema>;
 
 export const UpdateComparisonSchema = z

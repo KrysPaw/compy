@@ -68,7 +68,77 @@ describe('createComparison', () => {
       expect.stringMatching(/\/comparisons$/),
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ name: 'Phones', keyCriterionName: 'name' }),
+        body: JSON.stringify({
+          name: 'Phones',
+          keyCriterionName: 'name',
+        }),
+      }),
+    );
+  });
+
+  it('posts a templateId when a template is selected', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        id: 12,
+        publicId: SAMPLE_PUBLIC_ID,
+        name: 'Phones',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const formData = new FormData();
+    formData.set('name', 'Phones');
+    formData.set('templateId', 'phones');
+
+    await expect(createComparison(formData)).resolves.toEqual({
+      publicId: SAMPLE_PUBLIC_ID,
+    });
+
+    const body = JSON.parse(
+      (fetchMock.mock.calls[0]?.[1] as { body: string }).body,
+    ) as {
+      templateId: string;
+      templateCriteria: Array<{ name: string }>;
+    };
+
+    expect(body.templateId).toBe('phones');
+    expect(body.templateCriteria.some((criterion) => criterion.name === 'Price')).toBe(
+      true,
+    );
+    expect(body.templateCriteria.some((criterion) => criterion.name === 'Cena')).toBe(
+      false,
+    );
+  });
+
+  it('omits templateId when blank is selected', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        id: 12,
+        publicId: SAMPLE_PUBLIC_ID,
+        name: 'Phones',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const formData = new FormData();
+    formData.set('name', 'Phones');
+    formData.set('templateId', 'blank');
+
+    await expect(createComparison(formData)).resolves.toEqual({
+      publicId: SAMPLE_PUBLIC_ID,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/comparisons$/),
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Phones',
+          keyCriterionName: 'name',
+        }),
       }),
     );
   });

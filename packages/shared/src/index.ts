@@ -3,6 +3,7 @@ export * from './common/params.js';
 export * from './auth.js';
 export * from './sharing.js';
 export * from './comparison.js';
+export * from './comparison-templates.js';
 export * from './criterion.js';
 export * from './entry.js';
 export * from './scoring.js';

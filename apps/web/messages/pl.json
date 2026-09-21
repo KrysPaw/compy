@@ -83,8 +83,85 @@
   },
   "createComparison": {
     "title": "Nowe porównanie",
-    "description": "Nadaj porównaniu nazwę, aby zacząć.",
-    "placeholder": "Telefony 2026"
+    "description": "Nadaj porównaniu nazwę i opcjonalnie wybierz szablon.",
+    "placeholder": "Telefony 2026",
+    "template": "Szablon",
+    "templates": {
+      "blank": {
+        "label": "Pusty",
+        "description": "Zacznij od zera i dodaj kryteria samodzielnie."
+      },
+      "phones": {
+        "label": "Telefony",
+        "description": "Cena, pamięć, bateria, aparat i inne kryteria telefonów."
+      },
+      "cars": {
+        "label": "Samochody",
+        "description": "Cena, przebieg, rok, paliwo i inne kryteria samochodów."
+      },
+      "hotels": {
+        "label": "Hotele",
+        "description": "Cena za noc, odległość, oceny i udogodnienia."
+      },
+      "laptops": {
+        "label": "Laptopy",
+        "description": "Cena, RAM, dysk, waga, bateria i inne kryteria laptopów."
+      }
+    }
+  },
+  "comparisonTemplates": {
+    "phones": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "storage": "Pamięć",
+        "battery": "Bateria",
+        "camera": "Aparat",
+        "screenSize": "Ekran",
+        "fiveG": "5G",
+        "rating": "Ocena"
+      }
+    },
+    "cars": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "mileage": "Przebieg",
+        "year": "Rok",
+        "fuelType": "Paliwo",
+        "fuelTypeOptions": {
+          "petrol": "Benzyna",
+          "diesel": "Diesel",
+          "hybrid": "Hybryda",
+          "electric": "Elektryczny"
+        },
+        "power": "Moc",
+        "rating": "Ocena"
+      }
+    },
+    "hotels": {
+      "criteria": {
+        "neighborhood": "Dzielnica",
+        "pricePerNight": "Cena za noc",
+        "distanceToCenter": "Odległość od centrum",
+        "guestRating": "Ocena gości",
+        "breakfastIncluded": "Śniadanie w cenie",
+        "freeCancellation": "Bezpłatna anulacja",
+        "stars": "Gwiazdki"
+      }
+    },
+    "laptops": {
+      "criteria": {
+        "brand": "Marka",
+        "price": "Cena",
+        "ram": "RAM",
+        "storage": "Dysk",
+        "weight": "Waga",
+        "batteryLife": "Czas pracy na baterii",
+        "screenSize": "Ekran",
+        "rating": "Ocena"
+      }
+    }
   },
   "createCriterion": {
     "add": "Dodaj kryterium",

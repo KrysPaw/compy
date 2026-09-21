@@ -106,6 +106,24 @@ export class ComparisonsService {
         },
       });
 
+      if (
+        data.templateId !== undefined &&
+        data.templateCriteria !== undefined
+      ) {
+        await transaction.criterion.createMany({
+          data: data.templateCriteria.map((criterion) => ({
+            comparisonId: comparison.id,
+            name: criterion.name,
+            type: criterion.type,
+            is_comparable: criterion.is_comparable,
+            is_key: false,
+            weight: 0,
+            config: criterion.config as any,
+            ruleConfig: criterion.ruleConfig as any,
+          })),
+        });
+      }
+
       return transaction.comparison.findUnique({
         where: {
           id: comparison.id,

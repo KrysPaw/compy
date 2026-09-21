@@ -5,10 +5,12 @@ import {
   CreateAccessRequestSchema,
   CreateComparisonSchema,
   ComparisonResponseSchema,
+  ComparisonTemplateIdSchema,
   CreateCriterionSchema,
   CreateEntrySchema,
   InviteByEmailSchema,
   RequestMagicLinkSchema,
+  resolveTemplateCriteria,
   SessionResponseSchema,
   UpdateComparisonSchema,
   UpdateCriterionSchema,
@@ -83,9 +85,36 @@ export type DeleteComparisonState = {
 export async function createComparison(
   formData: FormData,
 ): Promise<CreateComparisonState> {
+  const locale = await getLocale();
+  const templateRaw = formData.get('templateId');
+  const templateId =
+    typeof templateRaw === 'string' &&
+    templateRaw !== '' &&
+    templateRaw !== 'blank'
+      ? templateRaw
+      : undefined;
+
+  let templateCriteria;
+  if (templateId !== undefined) {
+    const parsedTemplateId = ComparisonTemplateIdSchema.safeParse(templateId);
+    if (!parsedTemplateId.success) {
+      return {
+        error: parsedTemplateId.error.issues[0]?.message ?? (await errorMessage('invalidInput')),
+      };
+    }
+
+    const t = await getTranslations(`comparisonTemplates.${parsedTemplateId.data}`);
+    templateCriteria = resolveTemplateCriteria(parsedTemplateId.data, (key) =>
+      t(key),
+    );
+  }
+
   const parsed = CreateComparisonSchema.safeParse({
     name: formData.get('name'),
-    keyCriterionName: defaultKeyCriterionName(await getLocale()),
+    keyCriterionName: defaultKeyCriterionName(locale),
+    ...(templateId !== undefined
+      ? { templateId, templateCriteria }
+      : {}),
   });
 
   if (!parsed.success) {
