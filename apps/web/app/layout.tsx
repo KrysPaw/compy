@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
+import { Analytics } from '@vercel/analytics/next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import './globals.css';
 import { Noto_Sans, Playfair_Display } from 'next/font/google';
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
         <NextIntlClientProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
