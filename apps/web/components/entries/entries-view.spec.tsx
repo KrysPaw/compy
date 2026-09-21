@@ -59,6 +59,7 @@ describe('EntriesView', () => {
 
     expect(screen.getByTestId('entries-data-table')).toBeInTheDocument();
     expect(screen.queryByTestId('entries-card-list')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Sort by')).toBeInTheDocument();
   });
 
   it('renders cards on mobile', () => {

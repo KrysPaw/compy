@@ -46,17 +46,3 @@ export function sortEntries(
     return sort.direction === 'asc' ? comparison : -comparison;
   });
 }
-
-export function nextEntrySort(
-  current: EntrySort | null,
-  criterionId: number,
-): EntrySort {
-  if (current?.criterionId !== criterionId) {
-    return { criterionId, direction: 'asc' };
-  }
-
-  return {
-    criterionId,
-    direction: current.direction === 'asc' ? 'desc' : 'asc',
-  };
-}

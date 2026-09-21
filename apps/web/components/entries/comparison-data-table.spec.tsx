@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { screen, within } from '@testing-library/react';
 import { render } from '@/test/render';
-import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ComparisonDataTable } from './comparison-data-table';
 
@@ -67,8 +66,7 @@ describe('ComparisonDataTable', () => {
     expect(screen.getByText('No entries yet.')).toBeInTheDocument();
   });
 
-  it('renders entry values and sorts by the clicked column', async () => {
-    const user = userEvent.setup();
+  it('renders entry values in the given order', () => {
     render(
       <ComparisonDataTable
         publicId="01ARZ3NDEKTSV4RRFFQ69G5FAV"
@@ -77,35 +75,26 @@ describe('ComparisonDataTable', () => {
       />,
     );
 
-    const valueCells = () =>
-      screen
-        .getAllByRole('row')
-        .slice(1)
-        .map((row) =>
-          within(row)
-            .getAllByRole('cell')
-            .slice(0, -1)
-            .map((cell) => cell.textContent),
-        );
+    const valueCells = screen
+      .getAllByRole('row')
+      .slice(1)
+      .map((row) =>
+        within(row)
+          .getAllByRole('cell')
+          .slice(0, -1)
+          .map((cell) => cell.textContent),
+      );
 
-    expect(valueCells()).toEqual([
+    expect(valueCells).toEqual([
       ['Pixel 8', '799'],
       ['iPhone 15', '999'],
     ]);
-
-    await user.click(screen.getByRole('button', { name: /Name/i }));
-
-    expect(valueCells()).toEqual([
-      ['iPhone 15', '999'],
-      ['Pixel 8', '799'],
-    ]);
-
-    await user.click(screen.getByRole('button', { name: /Name/i }));
-
-    expect(valueCells()).toEqual([
-      ['Pixel 8', '799'],
-      ['iPhone 15', '999'],
-    ]);
+    expect(
+      screen.getByRole('columnheader', { name: 'Name' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('columnheader', { name: 'Price' }),
+    ).toBeInTheDocument();
   });
 
   it('renders a dash for missing values', () => {

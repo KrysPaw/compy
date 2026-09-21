@@ -22,32 +22,28 @@ export function EntriesView({
   const [sort, setSort] = useState<EntrySort | null>(null);
   const sortedEntries = sortEntries(entries, sort);
 
-  if (effectiveMode === 'cards') {
-    return (
-      <div className="flex flex-col gap-3">
-        {criteria.length > 0 ? (
-          <EntriesSortControl
-            criteria={criteria}
-            sort={sort}
-            onSortChange={setSort}
-          />
-        ) : null}
+  return (
+    <div className="flex flex-col gap-3">
+      {criteria.length > 0 ? (
+        <EntriesSortControl
+          criteria={criteria}
+          sort={sort}
+          onSortChange={setSort}
+        />
+      ) : null}
+      {effectiveMode === 'cards' ? (
         <EntriesCardList
           publicId={publicId}
           criteria={criteria}
           entries={sortedEntries}
         />
-      </div>
-    );
-  }
-
-  return (
-    <ComparisonDataTable
-      publicId={publicId}
-      criteria={criteria}
-      entries={entries}
-      sort={sort}
-      onSortChange={setSort}
-    />
+      ) : (
+        <ComparisonDataTable
+          publicId={publicId}
+          criteria={criteria}
+          entries={sortedEntries}
+        />
+      )}
+    </div>
   );
 }

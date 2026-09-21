@@ -25,19 +25,22 @@ export function ComparisonTabs({ publicId }: { publicId: string }) {
     activeTab = 'entries';
   }
 
+  const triggerClassName =
+    'min-w-0 px-1 tracking-wide sm:px-4 sm:tracking-wider';
+
   return (
-    <Tabs value={activeTab} className="min-w-0 w-full overflow-x-auto">
-      <TabsList variant="line" className="w-max min-w-full justify-start">
-        <TabsTrigger value="criteria" asChild>
+    <Tabs value={activeTab} className="min-w-0 w-full">
+      <TabsList variant="line" className="grid w-full grid-cols-4 gap-0">
+        <TabsTrigger value="criteria" asChild className={triggerClassName}>
           <Link href={criteriaPath}>{t('criteria')}</Link>
         </TabsTrigger>
-        <TabsTrigger value="entries" asChild>
+        <TabsTrigger value="entries" asChild className={triggerClassName}>
           <Link href={entriesPath}>{t('entries')}</Link>
         </TabsTrigger>
-        <TabsTrigger value="rules" asChild>
+        <TabsTrigger value="rules" asChild className={triggerClassName}>
           <Link href={rulesPath}>{t('rules')}</Link>
         </TabsTrigger>
-        <TabsTrigger value="results" asChild>
+        <TabsTrigger value="results" asChild className={triggerClassName}>
           <Link href={resultsPath}>{t('results')}</Link>
         </TabsTrigger>
       </TabsList>
