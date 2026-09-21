@@ -34,7 +34,18 @@
     "newComparison": "New comparison",
     "guest": "Guest",
     "account": "Account",
-    "language": "Language"
+    "language": "Language",
+    "about": "About"
+  },
+  "about": {
+    "title": "About Compy",
+    "description": "Flexible comparison of products and services that are similar in terms of preference.",
+    "creator": "Creator",
+    "creatorName": "Krystian Pawełczak",
+    "contact": "Contact",
+    "contactEmail": "kryspaw0@gmail.com",
+    "version": "Version",
+    "changelog": "Changelog"
   },
   "auth": {
     "signIn": "Sign in",

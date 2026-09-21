@@ -34,7 +34,18 @@
     "newComparison": "Nowe porównanie",
     "guest": "Gość",
     "account": "Konto",
-    "language": "Język"
+    "language": "Język",
+    "about": "O aplikacji"
+  },
+  "about": {
+    "title": "O aplikacji Compy",
+    "description": "Porównywanie przedmiotów i usług zbliżonych pod względem preferencji, w bardzo elastycznej formie.",
+    "creator": "Twórca",
+    "creatorName": "Krystian Pawełczak",
+    "contact": "Kontakt",
+    "contactEmail": "kryspaw0@gmail.com",
+    "version": "Wersja",
+    "changelog": "Lista zmian"
   },
   "auth": {
     "signIn": "Zaloguj się",

@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { CheckIcon, ChevronUpIcon, LanguagesIcon, LogInIcon, LogOutIcon, Trash2Icon } from 'lucide-react';
+import { CheckIcon, ChevronUpIcon, InfoIcon, LanguagesIcon, LogInIcon, LogOutIcon, Trash2Icon } from 'lucide-react';
 import {
   localeCookieSetter,
   locales,
   type Locale,
 } from '@/i18n/config';
+import { AboutDialog } from '@/components/about/about-dialog';
 import { DeleteAccountDialog } from '@/components/sidebar/delete-account-dialog';
 import { SignInDialog } from '@/components/sidebar/sign-in-dialog';
 import { logout } from '@/lib/actions';
@@ -32,7 +33,7 @@ type SidebarUserMenuProps = {
   displayName?: string | null;
 };
 
-type ActiveDialog = 'signIn' | 'deleteAccount' | null;
+type ActiveDialog = 'about' | 'signIn' | 'deleteAccount' | null;
 
 export function SidebarUserMenu({ kind, displayName }: SidebarUserMenuProps) {
   const tSidebar = useTranslations('sidebar');
@@ -103,6 +104,11 @@ export function SidebarUserMenu({ kind, displayName }: SidebarUserMenuProps) {
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
 
+              <DropdownMenuItem onSelect={() => setActiveDialog('about')}>
+                <InfoIcon />
+                {tSidebar('about')}
+              </DropdownMenuItem>
+
               {kind === 'guest' ? (
                 <DropdownMenuItem onSelect={() => setActiveDialog('signIn')}>
                   <LogInIcon />
@@ -132,6 +138,10 @@ export function SidebarUserMenu({ kind, displayName }: SidebarUserMenuProps) {
         </SidebarMenuItem>
       </SidebarMenu>
 
+      <AboutDialog
+        open={activeDialog === 'about'}
+        onOpenChange={handleDialogOpenChange}
+      />
       <SignInDialog
         open={activeDialog === 'signIn'}
         onOpenChange={handleDialogOpenChange}
