@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { SidebarLogo } from '@/components/sidebar/sidebar-logo';
 import { SidebarComparisonsMenu } from '@/components/sidebar/sidebar-comparisons-menu';
 import { CreateComparisonDialog } from '@/components/comparison/create-comparison-dialog';
+import { SidebarSignInButton } from '@/components/sidebar/sidebar-sign-in-button';
 import { SidebarUserMenu } from '@/components/sidebar/sidebar-user-menu';
 import { getComparisons, getCurrentPrincipal } from '@/lib/api';
 import {
@@ -52,6 +53,7 @@ export async function AppSidebar({
         ) : null}
       </SidebarContent>
       <SidebarFooter>
+        {principal?.kind !== 'registered' ? <SidebarSignInButton /> : null}
         <SidebarUserMenu
           kind={principal?.kind === 'registered' ? 'registered' : 'guest'}
           displayName={

@@ -5,10 +5,46 @@ import { cn } from "cn"
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
 
+const TAP_MOVE_THRESHOLD_PX = 10
+
+type DropdownMenuContextValue = {
+  open: boolean
+  setOpen: (open: boolean) => void
+}
+
+const DropdownMenuContext =
+  React.createContext<DropdownMenuContextValue | null>(null)
+
 function DropdownMenu({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
+  const isControlled = openProp !== undefined
+  const open = isControlled ? Boolean(openProp) : uncontrolledOpen
+
+  const setOpen = React.useCallback(
+    (next: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(next)
+      }
+      onOpenChange?.(next)
+    },
+    [isControlled, onOpenChange]
+  )
+
+  return (
+    <DropdownMenuContext.Provider value={{ open, setOpen }}>
+      <DropdownMenuPrimitive.Root
+        data-slot="dropdown-menu"
+        {...props}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </DropdownMenuContext.Provider>
+  )
 }
 
 function DropdownMenuPortal({
@@ -21,19 +57,60 @@ function DropdownMenuPortal({
 
 function DropdownMenuTrigger({
   onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  const menu = React.useContext(DropdownMenuContext)
+  const startRef = React.useRef<{ x: number; y: number } | null>(null)
+  const movedRef = React.useRef(false)
+
   return (
     <DropdownMenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
       {...props}
       onPointerDown={(event) => {
-        // Touch/pen: don't open on press — only on click/tap. Otherwise a scroll
-        // gesture that starts on the trigger opens the menu.
+        // Touch/pen: block Radix open-on-press so a scroll that starts on the
+        // trigger does not open the menu. Mouse keeps default behavior.
         if (event.pointerType !== "mouse") {
           event.preventDefault()
+          startRef.current = { x: event.clientX, y: event.clientY }
+          movedRef.current = false
         }
         onPointerDown?.(event)
+      }}
+      onPointerMove={(event) => {
+        if (startRef.current !== null) {
+          const dx = Math.abs(event.clientX - startRef.current.x)
+          const dy = Math.abs(event.clientY - startRef.current.y)
+          if (dx > TAP_MOVE_THRESHOLD_PX || dy > TAP_MOVE_THRESHOLD_PX) {
+            movedRef.current = true
+          }
+        }
+        onPointerMove?.(event)
+      }}
+      onPointerUp={(event) => {
+        if (
+          event.pointerType !== "mouse" &&
+          startRef.current !== null &&
+          !movedRef.current &&
+          menu !== null
+        ) {
+          const next = !menu.open
+          // Defer so this pointerup is not treated as an outside dismiss.
+          queueMicrotask(() => {
+            menu.setOpen(next)
+          })
+        }
+        startRef.current = null
+        movedRef.current = false
+        onPointerUp?.(event)
+      }}
+      onPointerCancel={(event) => {
+        startRef.current = null
+        movedRef.current = false
+        onPointerCancel?.(event)
       }}
     />
   )
