@@ -161,7 +161,7 @@
   "comparisonTemplates": {
     "phones": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "storage": "Storage",
         "battery": "Battery",
@@ -173,7 +173,7 @@
     },
     "laptops": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "ram": "RAM",
         "storage": "Storage",
@@ -185,7 +185,7 @@
     },
     "tablets": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "storage": "Storage",
         "ram": "RAM",
@@ -196,7 +196,7 @@
     },
     "headphones": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "type": "Type",
         "typeOptions": {
@@ -212,7 +212,7 @@
     },
     "tvs": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "screenSize": "Screen size",
         "resolution": "Resolution",
@@ -229,7 +229,7 @@
     },
     "cars": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "mileage": "Mileage",
         "year": "Year",
@@ -246,7 +246,7 @@
     },
     "bikes": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "type": "Type",
         "typeOptions": {
@@ -263,7 +263,7 @@
     },
     "eScooters": {
       "criteria": {
-        "brand": "Brand",
+        "link": "Link",
         "price": "Price",
         "range": "Range",
         "topSpeed": "Top speed",
@@ -323,8 +323,8 @@
         "helper": "Label or note — not used in ranking"
       },
       "number": {
-        "title": "Comparable number",
-        "helper": "Price, weight, score — ranked numerically"
+        "title": "Number",
+        "helper": "Price, weight, quantity"
       },
       "boolean": {
         "title": "Yes / No",
@@ -332,7 +332,7 @@
       },
       "rating": {
         "title": "Rating scale",
-        "helper": "Subjective score on a range"
+        "helper": "Score on a range"
       },
       "enum": {
         "title": "Choice list",
@@ -351,10 +351,7 @@
       "placeholder": "e.g. kg",
       "clear": "Clear unit",
       "hints": "Unit suggestions",
-      "quantityUnits": [
-        "pcs",
-        "pieces"
-      ],
+      "quantityUnits": ["pcs", "pieces"],
       "categories": {
         "mass": "Mass",
         "length": "Length",

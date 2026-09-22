@@ -162,7 +162,7 @@ describe('ComparisonsService', () => {
   it('seeds template criteria with ruleConfig and zero weights', async () => {
     const templateCriteria = resolveTemplateCriteria('phones', (key) => {
       const names: Record<string, string> = {
-        'criteria.brand': 'Brand',
+        'criteria.link': 'Link',
         'criteria.price': 'Price',
         'criteria.storage': 'Storage',
         'criteria.battery': 'Battery',

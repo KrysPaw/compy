@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { NameSchema } from "./common/primitives.js";
+import { z } from 'zod';
+import { NameSchema } from './common/primitives.js';
 import {
   BooleanRuleConfigSchema,
   CriterionConfigSchema,
@@ -11,44 +11,44 @@ import {
   RuleConfigSchema,
   type CriterionType,
   type RuleConfig,
-} from "./criterion.js";
+} from './criterion.js';
 
 export const ComparisonTemplateCategorySchema = z.enum([
-  "electronics",
-  "vehicles",
-  "travel",
+  'electronics',
+  'vehicles',
+  'travel',
 ]);
 export type ComparisonTemplateCategory = z.infer<
   typeof ComparisonTemplateCategorySchema
 >;
 
 export const ComparisonTemplateIdSchema = z.enum([
-  "phones",
-  "laptops",
-  "tablets",
-  "headphones",
-  "tvs",
-  "cars",
-  "bikes",
-  "eScooters",
-  "hotels",
-  "flights",
-  "shortStays",
+  'phones',
+  'laptops',
+  'tablets',
+  'headphones',
+  'tvs',
+  'cars',
+  'bikes',
+  'eScooters',
+  'hotels',
+  'flights',
+  'shortStays',
 ]);
 export type ComparisonTemplateId = z.infer<typeof ComparisonTemplateIdSchema>;
 
 const TEMPLATE_DISPLAY_ORDER: readonly ComparisonTemplateId[] = [
-  "phones",
-  "laptops",
-  "tablets",
-  "headphones",
-  "tvs",
-  "cars",
-  "bikes",
-  "eScooters",
-  "hotels",
-  "flights",
-  "shortStays",
+  'phones',
+  'laptops',
+  'tablets',
+  'headphones',
+  'tvs',
+  'cars',
+  'bikes',
+  'eScooters',
+  'hotels',
+  'flights',
+  'shortStays',
 ];
 
 const TemplateNameKeySchema = z.string().trim().min(1).max(64);
@@ -81,585 +81,580 @@ export type ComparisonTemplate = {
 
 const TEMPLATES: Record<ComparisonTemplateId, ComparisonTemplate> = {
   phones: {
-    id: "phones",
-    category: "electronics",
+    id: 'phones',
+    category: 'electronics',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "storage",
-        type: "number",
+        nameKey: 'storage',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "GB" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'GB' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "battery",
-        type: "number",
+        nameKey: 'battery',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "mAh" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'mAh' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "camera",
-        type: "number",
+        nameKey: 'camera',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "MP" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'MP' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "screenSize",
-        type: "number",
+        nameKey: 'screenSize',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "in" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'in' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "fiveG",
-        type: "boolean",
+        nameKey: 'fiveG',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   laptops: {
-    id: "laptops",
-    category: "electronics",
+    id: 'laptops',
+    category: 'electronics',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "ram",
-        type: "number",
+        nameKey: 'ram',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "GB" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'GB' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "storage",
-        type: "number",
+        nameKey: 'storage',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "GB" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'GB' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "weight",
-        type: "number",
+        nameKey: 'weight',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "kg" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'kg' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "batteryLife",
-        type: "number",
+        nameKey: 'batteryLife',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "h" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'h' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "screenSize",
-        type: "number",
+        nameKey: 'screenSize',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "in" },
+        config: { unit: 'in' },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   tablets: {
-    id: "tablets",
-    category: "electronics",
+    id: 'tablets',
+    category: 'electronics',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "storage",
-        type: "number",
+        nameKey: 'storage',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "GB" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'GB' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "ram",
-        type: "number",
+        nameKey: 'ram',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "GB" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'GB' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "screenSize",
-        type: "number",
+        nameKey: 'screenSize',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "in" },
+        config: { unit: 'in' },
       },
       {
-        nameKey: "batteryLife",
-        type: "number",
+        nameKey: 'batteryLife',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "h" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'h' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   headphones: {
-    id: "headphones",
-    category: "electronics",
+    id: 'headphones',
+    category: 'electronics',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "type",
-        type: "enum",
+        nameKey: 'type',
+        type: 'enum',
         is_comparable: true,
-        optionKeys: ["overEar", "onEar", "inEar"],
+        optionKeys: ['overEar', 'onEar', 'inEar'],
       },
       {
-        nameKey: "wireless",
-        type: "boolean",
-        is_comparable: true,
-        ruleConfig: { preferredValue: true },
-      },
-      {
-        nameKey: "anc",
-        type: "boolean",
+        nameKey: 'wireless',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "batteryLife",
-        type: "number",
+        nameKey: 'anc',
+        type: 'boolean',
         is_comparable: true,
-        config: { unit: "h" },
-        ruleConfig: { direction: "higher" },
+        ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'batteryLife',
+        type: 'number',
+        is_comparable: true,
+        config: { unit: 'h' },
+        ruleConfig: { direction: 'higher' },
+      },
+      {
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   tvs: {
-    id: "tvs",
-    category: "electronics",
+    id: 'tvs',
+    category: 'electronics',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "screenSize",
-        type: "number",
+        nameKey: 'screenSize',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "in" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'in' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "resolution",
-        type: "enum",
+        nameKey: 'resolution',
+        type: 'enum',
         is_comparable: true,
-        optionKeys: ["hd", "fhd", "uhd", "8k"],
+        optionKeys: ['hd', 'fhd', 'uhd', '8k'],
       },
       {
-        nameKey: "refreshRate",
-        type: "number",
+        nameKey: 'refreshRate',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "Hz" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'Hz' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "smartTv",
-        type: "boolean",
+        nameKey: 'smartTv',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   cars: {
-    id: "cars",
-    category: "vehicles",
+    id: 'cars',
+    category: 'vehicles',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "mileage",
-        type: "number",
+        nameKey: 'mileage',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "km" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'km' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "year",
-        type: "number",
+        nameKey: 'year',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "higher" },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "fuelType",
-        type: "enum",
+        nameKey: 'fuelType',
+        type: 'enum',
         is_comparable: true,
-        optionKeys: ["petrol", "diesel", "hybrid", "electric"],
+        optionKeys: ['petrol', 'diesel', 'hybrid', 'electric'],
       },
       {
-        nameKey: "power",
-        type: "number",
+        nameKey: 'power',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "HP" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'HP' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   bikes: {
-    id: "bikes",
-    category: "vehicles",
+    id: 'bikes',
+    category: 'vehicles',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "type",
-        type: "enum",
+        nameKey: 'type',
+        type: 'enum',
         is_comparable: true,
-        optionKeys: ["road", "mountain", "hybrid", "electric"],
+        optionKeys: ['road', 'mountain', 'hybrid', 'electric'],
       },
       {
-        nameKey: "weight",
-        type: "number",
+        nameKey: 'weight',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "kg" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'kg' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "gearCount",
-        type: "number",
+        nameKey: 'gearCount',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "higher" },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "frameSize",
-        type: "text",
+        nameKey: 'frameSize',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   eScooters: {
-    id: "eScooters",
-    category: "vehicles",
+    id: 'eScooters',
+    category: 'vehicles',
     criteria: [
       {
-        nameKey: "brand",
-        type: "text",
+        nameKey: 'link',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "range",
-        type: "number",
+        nameKey: 'range',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "km" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'km' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "topSpeed",
-        type: "number",
+        nameKey: 'topSpeed',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "km/h" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'km/h' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "weight",
-        type: "number",
+        nameKey: 'weight',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "kg" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'kg' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "maxLoad",
-        type: "number",
+        nameKey: 'maxLoad',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "kg" },
-        ruleConfig: { direction: "higher" },
+        config: { unit: 'kg' },
+        ruleConfig: { direction: 'higher' },
       },
       {
-        nameKey: "foldable",
-        type: "boolean",
+        nameKey: 'foldable',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   hotels: {
-    id: "hotels",
-    category: "travel",
+    id: 'hotels',
+    category: 'travel',
     criteria: [
       {
-        nameKey: "neighborhood",
-        type: "text",
+        nameKey: 'neighborhood',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "pricePerNight",
-        type: "number",
+        nameKey: 'pricePerNight',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "distanceToCenter",
-        type: "number",
+        nameKey: 'distanceToCenter',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "km" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'km' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "guestRating",
-        type: "rating",
+        nameKey: 'guestRating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
       {
-        nameKey: "breakfastIncluded",
-        type: "boolean",
+        nameKey: 'breakfastIncluded',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "freeCancellation",
-        type: "boolean",
+        nameKey: 'freeCancellation',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "stars",
-        type: "rating",
+        nameKey: 'stars',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   flights: {
-    id: "flights",
-    category: "travel",
+    id: 'flights',
+    category: 'travel',
     criteria: [
       {
-        nameKey: "airline",
-        type: "text",
+        nameKey: 'airline',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "price",
-        type: "number",
+        nameKey: 'price',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "duration",
-        type: "number",
+        nameKey: 'duration',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "h" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'h' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "stops",
-        type: "enum",
+        nameKey: 'stops',
+        type: 'enum',
         is_comparable: true,
-        optionKeys: ["nonstop", "1stop", "2plus"],
+        optionKeys: ['nonstop', '1stop', '2plus'],
       },
       {
-        nameKey: "departureTime",
-        type: "text",
+        nameKey: 'departureTime',
+        type: 'text',
         is_comparable: false,
       },
       {
-        nameKey: "baggageIncluded",
-        type: "boolean",
+        nameKey: 'baggageIncluded',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "rating",
-        type: "rating",
+        nameKey: 'rating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
     ],
   },
   shortStays: {
-    id: "shortStays",
-    category: "travel",
+    id: 'shortStays',
+    category: 'travel',
     criteria: [
       {
-        nameKey: "neighborhood",
-        type: "text",
-        is_comparable: false,
-      },
-      {
-        nameKey: "pricePerNight",
-        type: "number",
+        nameKey: 'pricePerNight',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "distanceToCenter",
-        type: "number",
+        nameKey: 'distanceToCenter',
+        type: 'number',
         is_comparable: true,
-        config: { unit: "km" },
-        ruleConfig: { direction: "lower" },
+        config: { unit: 'km' },
+        ruleConfig: { direction: 'lower' },
       },
       {
-        nameKey: "guestRating",
-        type: "rating",
+        nameKey: 'guestRating',
+        type: 'rating',
         is_comparable: true,
         config: { min: 1, max: 5 },
-        ruleConfig: { direction: "higher", min: 1, max: 5 },
+        ruleConfig: { direction: 'higher', min: 1, max: 5 },
       },
       {
-        nameKey: "entirePlace",
-        type: "boolean",
+        nameKey: 'entirePlace',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "freeCancellation",
-        type: "boolean",
+        nameKey: 'freeCancellation',
+        type: 'boolean',
         is_comparable: true,
         ruleConfig: { preferredValue: true },
       },
       {
-        nameKey: "cleaningFee",
-        type: "number",
+        nameKey: 'cleaningFee',
+        type: 'number',
         is_comparable: true,
         config: {},
-        ruleConfig: { direction: "lower" },
+        ruleConfig: { direction: 'lower' },
       },
     ],
   },
@@ -669,50 +664,48 @@ function assertTemplateCriterion(source: TemplateCriterionSource): void {
   TemplateNameKeySchema.parse(source.nameKey);
 
   const configInput =
-    source.type === "enum"
+    source.type === 'enum'
       ? {
-          type: "enum" as const,
+          type: 'enum' as const,
           config: EnumConfigSchema.parse({
             options: [...(source.optionKeys ?? [])],
           }),
         }
-      : source.type === "rating"
+      : source.type === 'rating'
         ? {
-            type: "rating" as const,
+            type: 'rating' as const,
             config: RatingConfigSchema.parse(source.config),
           }
-        : source.type === "number"
+        : source.type === 'number'
           ? {
-              type: "number" as const,
+              type: 'number' as const,
               config: source.config,
             }
           : { type: source.type, config: source.config };
 
   CriterionConfigSchema.parse(configInput);
 
-  if (source.type === "enum" && source.optionKeys === undefined) {
-    throw new Error(
-      `Enum criterion "${source.nameKey}" requires optionKeys`,
-    );
+  if (source.type === 'enum' && source.optionKeys === undefined) {
+    throw new Error(`Enum criterion "${source.nameKey}" requires optionKeys`);
   }
 
   if (source.ruleConfig === undefined) {
     return;
   }
 
-  if (source.type === "text") {
+  if (source.type === 'text') {
     throw new Error(
       `Text criterion "${source.nameKey}" cannot have ruleConfig`,
     );
   }
 
-  if (source.type === "number") {
+  if (source.type === 'number') {
     NumberRuleConfigSchema.parse(source.ruleConfig);
-  } else if (source.type === "boolean") {
+  } else if (source.type === 'boolean') {
     BooleanRuleConfigSchema.parse(source.ruleConfig);
-  } else if (source.type === "rating") {
+  } else if (source.type === 'rating') {
     RatingRuleConfigSchema.parse(source.ruleConfig);
-  } else if (source.type === "enum") {
+  } else if (source.type === 'enum') {
     throw new Error(
       `Enum criterion "${source.nameKey}" must not seed ruleConfig in v1 templates`,
     );
@@ -750,7 +743,7 @@ export function resolveTemplateCriteria(
 
   return template.criteria.map((criterion) => {
     const config =
-      criterion.type === "enum"
+      criterion.type === 'enum'
         ? {
             options: (criterion.optionKeys ?? []).map((optionKey) =>
               translate(`criteria.${criterion.nameKey}Options.${optionKey}`),
@@ -782,19 +775,28 @@ export function templateCriteriaMatchCatalog(
     if (got === undefined) {
       return false;
     }
-    if (got.type !== source.type || got.is_comparable !== source.is_comparable) {
+    if (
+      got.type !== source.type ||
+      got.is_comparable !== source.is_comparable
+    ) {
       return false;
     }
-    if (JSON.stringify(got.ruleConfig) !== JSON.stringify(source.ruleConfig ?? null)) {
+    if (
+      JSON.stringify(got.ruleConfig) !==
+      JSON.stringify(source.ruleConfig ?? null)
+    ) {
       return false;
     }
-    if (source.type === "enum") {
+    if (source.type === 'enum') {
       const options = EnumConfigSchema.safeParse(got.config);
       return (
         options.success &&
         options.data.options.length === (source.optionKeys?.length ?? 0)
       );
     }
-    return JSON.stringify(got.config ?? null) === JSON.stringify(source.config ?? null);
+    return (
+      JSON.stringify(got.config ?? null) ===
+      JSON.stringify(source.config ?? null)
+    );
   });
 }

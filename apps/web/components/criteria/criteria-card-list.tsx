@@ -26,7 +26,10 @@ export function CriteriaCardList({
   }
 
   return (
-    <div className="flex flex-col gap-3" data-testid="criteria-card-list">
+    <div
+      className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3"
+      data-testid="criteria-card-list"
+    >
       {sortedCriteria.map((criterion) => (
         <CriterionCard
           key={criterion.id}

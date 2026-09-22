@@ -24,7 +24,10 @@ export function ResultsCardList({
   }
 
   return (
-    <div className="flex flex-col gap-3" data-testid="results-card-list">
+    <div
+      className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3"
+      data-testid="results-card-list"
+    >
       {rows.map((row, index) => (
         <ResultCard
           key={row.entryId}

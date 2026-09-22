@@ -39,21 +39,23 @@ export function RulesCardList({
           bold: (chunks) => <b>{chunks}</b>,
         })}
       </p>
-      {criteria.map((criterion) => {
-        const weight = weights[criterion.id] ?? criterion.weight;
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        {criteria.map((criterion) => {
+          const weight = weights[criterion.id] ?? criterion.weight;
 
-        return (
-          <RuleCard
-            key={criterion.id}
-            criterion={criterion}
-            weight={weight}
-            remaining={remaining}
-            ruleConfig={ruleConfigs[criterion.id] ?? criterion.ruleConfig}
-            onRuleChange={onRuleChange}
-            onWeightChange={onWeightChange}
-          />
-        );
-      })}
+          return (
+            <RuleCard
+              key={criterion.id}
+              criterion={criterion}
+              weight={weight}
+              remaining={remaining}
+              ruleConfig={ruleConfigs[criterion.id] ?? criterion.ruleConfig}
+              onRuleChange={onRuleChange}
+              onWeightChange={onWeightChange}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

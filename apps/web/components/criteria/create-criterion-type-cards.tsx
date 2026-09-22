@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import {
   Check,
   Fingerprint,
+  Hash,
   List,
-  Scale,
   Star,
   type LucideIcon,
 } from 'lucide-react';
@@ -28,7 +28,7 @@ export const CRITERION_TYPE_CARD_IDS: CriterionTypeCardId[] = [
 
 const CARD_ICONS: Record<CriterionTypeCardId, LucideIcon> = {
   identity: Fingerprint,
-  number: Scale,
+  number: Hash,
   boolean: Check,
   rating: Star,
   enum: List,

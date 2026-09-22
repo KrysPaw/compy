@@ -161,7 +161,7 @@
   "comparisonTemplates": {
     "phones": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "storage": "Pamięć",
         "battery": "Bateria",
@@ -173,7 +173,7 @@
     },
     "laptops": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "ram": "RAM",
         "storage": "Pamięć",
@@ -185,7 +185,7 @@
     },
     "tablets": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "storage": "Pamięć",
         "ram": "RAM",
@@ -196,7 +196,7 @@
     },
     "headphones": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "type": "Typ",
         "typeOptions": {
@@ -212,7 +212,7 @@
     },
     "tvs": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "screenSize": "Ekran",
         "resolution": "Rozdzielczość",
@@ -229,7 +229,7 @@
     },
     "cars": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "mileage": "Przebieg",
         "year": "Rok",
@@ -246,7 +246,7 @@
     },
     "bikes": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "type": "Typ",
         "typeOptions": {
@@ -263,7 +263,7 @@
     },
     "eScooters": {
       "criteria": {
-        "brand": "Marka",
+        "link": "Link",
         "price": "Cena",
         "range": "Zasięg",
         "topSpeed": "Prędkość maksymalna",
@@ -323,8 +323,8 @@
         "helper": "Etykieta lub notatka — nie używane w rankingu"
       },
       "number": {
-        "title": "Liczba porównywalna",
-        "helper": "Cena, waga, wynik — ranking liczbowy"
+        "title": "Liczba",
+        "helper": "Cena, waga, ilość"
       },
       "boolean": {
         "title": "Tak / Nie",
@@ -332,7 +332,7 @@
       },
       "rating": {
         "title": "Skala oceny",
-        "helper": "Subiektywny wynik w zakresie"
+        "helper": "Wynik w zakresie"
       },
       "enum": {
         "title": "Lista wyboru",
@@ -351,10 +351,7 @@
       "placeholder": "np. kg",
       "clear": "Wyczyść jednostkę",
       "hints": "Podpowiedzi jednostek",
-      "quantityUnits": [
-        "szt.",
-        "sztuki"
-      ],
+      "quantityUnits": ["szt.", "sztuki"],
       "categories": {
         "mass": "Masa",
         "length": "Długość",
