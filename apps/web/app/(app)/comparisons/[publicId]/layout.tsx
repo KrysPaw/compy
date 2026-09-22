@@ -3,7 +3,7 @@ import { PublicIdSchema } from '@compy/shared';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ComparisonActionsMenu } from '@/components/comparison/comparison-actions-menu';
-import { ComparisonTabs } from '@/components/comparison/comparison-tabs';
+import { ComparisonTabShell } from '@/components/comparison/comparison-tab-shell';
 import { LockedComparison } from '@/components/comparison/locked-comparison';
 import { ComparisonViewModeProvider } from '@/hooks/use-comparison-view-mode';
 import { loadComparisonAccess, loadOpenComparison } from '@/lib/load-comparison';
@@ -43,28 +43,29 @@ export default async function ComparisonLayout({
 
   return (
     <ComparisonViewModeProvider>
-      <header className="shrink-0 border-b">
-        <div className="flex h-14 items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1 shrink-0" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-          />
-          <div className="min-w-0 truncate">{open.comparison.name}</div>
-          <div className="ml-auto shrink-0">
-            <ComparisonActionsMenu
-              publicId={publicId}
-              comparisonName={open.comparison.name}
-              isOwner={open.access.role === 'owner'}
-              pendingRequests={open.pendingRequests}
+      <ComparisonTabShell
+        publicId={publicId}
+        header={
+          <div className="flex h-14 items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1 shrink-0" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-vertical:h-4 data-vertical:self-auto"
             />
+            <div className="min-w-0 truncate">{open.comparison.name}</div>
+            <div className="ml-auto shrink-0">
+              <ComparisonActionsMenu
+                publicId={publicId}
+                comparisonName={open.comparison.name}
+                isOwner={open.access.role === 'owner'}
+                pendingRequests={open.pendingRequests}
+              />
+            </div>
           </div>
-        </div>
-        <div className="px-4 pb-2">
-          <ComparisonTabs publicId={publicId} />
-        </div>
-      </header>
-      {children}
+        }
+      >
+        {children}
+      </ComparisonTabShell>
     </ComparisonViewModeProvider>
   );
 }
