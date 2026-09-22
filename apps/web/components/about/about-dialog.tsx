@@ -4,6 +4,10 @@ import { useTranslations } from 'next-intl';
 import { appVersion } from '@/lib/about/app-version';
 import { changelog } from '@/lib/about/changelog';
 import {
+  getContactEmail,
+  getCreatorName,
+} from '@/lib/about/creator-contact';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -18,6 +22,8 @@ type AboutDialogProps = {
 
 export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
   const t = useTranslations('about');
+  const creatorName = getCreatorName();
+  const contactEmail = getContactEmail();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -30,16 +36,16 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
         <dl className="grid gap-3 text-sm">
           <div className="grid gap-1">
             <dt className="text-muted-foreground">{t('creator')}</dt>
-            <dd>{t('creatorName')}</dd>
+            <dd>{creatorName}</dd>
           </div>
           <div className="grid gap-1">
             <dt className="text-muted-foreground">{t('contact')}</dt>
             <dd>
               <a
                 className="text-foreground underline underline-offset-2"
-                href={`mailto:${t('contactEmail')}`}
+                href={`mailto:${contactEmail}`}
               >
-                {t('contactEmail')}
+                {contactEmail}
               </a>
             </dd>
           </div>
